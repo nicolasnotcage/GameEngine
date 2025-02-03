@@ -10,6 +10,7 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Calls init() on each child with given scene state data
 void Node::init_children(SceneState &scene_state)
 {
     for(auto &child : children_) { child->init(scene_state); }

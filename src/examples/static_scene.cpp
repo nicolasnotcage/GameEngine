@@ -10,19 +10,25 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// 
 void StaticScene::init(SDLInfo *sdl_info)
 {
+    // Set local pointer to passed argument
     sdl_info_ = sdl_info;
     
+    // Set color and blend info for drawing
     SDL_SetRenderDrawColor(sdl_info->renderer, 64, 64, 80, 255);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
     
+    // Define colors
     uint8_t yellow[3] = {255, 255, 0};
     uint8_t purple[3] = {255, 0, 255};
 
+    // Get children of root node
     auto &sprite_0 = root_.get_child<0>();
     auto &sprite_1 = root_.get_child<1>(); 
     
+    // Configure data of children nodes
     sprite_0.set_filepath("images/box.png");
     sprite_0.set_blend(true);
     sprite_0.set_blend_alpha(200);
@@ -39,8 +45,13 @@ void StaticScene::init(SDLInfo *sdl_info)
     sprite_1.set_top_right(600.0f, 100.0f);
     sprite_1.set_bottom_left(400.0f, 300.0f);
 
+    // Reset SDLInfo and texture node to nullptr within the scene state struct
     scene_state_.reset();
+
+    // Set scene state SDLInfo data to new SDLInfo data
     scene_state_.sdl_info = sdl_info_;
+
+    // Initialize root node with new scene state (texture node is still null)
     root_.init(scene_state_);
 }
 

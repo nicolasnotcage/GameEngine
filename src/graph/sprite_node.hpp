@@ -10,7 +10,7 @@ namespace cge
 class SpriteNode : public Node
 {
 public:
-    SpriteNode();
+    SpriteNode() = default;
     ~SpriteNode() = default;
 
     // Overrides
@@ -33,9 +33,7 @@ public:
     void set_bottom_left(float x, float y); 
     
 private:
-    std::shared_ptr<TextureNode> texture_node;
-    std::shared_ptr<GeometryNode> geometry_node;
-
+    TextureNodeT<GeometryNodeT<>> texture_node;
     float x{0.0f};
     float y{0.0f};
     float angle{0.0f};

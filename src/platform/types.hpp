@@ -13,6 +13,7 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Custom struct containing pointers to SDL window and SDL renderer objects
 struct SDLInfo
 {
     SDL_Window   *window;

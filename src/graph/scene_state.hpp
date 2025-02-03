@@ -16,6 +16,8 @@ namespace cge
 // Forward declaration
 class TextureNode;
 
+// Struct containing pointers to an SDLInfo struct and a texture node. Contains 
+// a reset function to set both data members to nullptr.
 struct SceneState
 {
     SDLInfo     *sdl_info;

@@ -25,22 +25,25 @@ void sleep(int milliseconds)
 
 int main(int argc, char *argv[])
 {
+    // Configure system paths and initialize SDL
     auto source_path = STD_STRING(SRC_DIR);
     auto resource_path = STD_STRING(RESOURCE_DIR);
     cge::set_system_paths(argv[0], source_path, resource_path);
     cge::init_sdl();
 
+    // Generate default SDLInfo struct (contains pointers to an SDL renderer and SDL window) 
     cge::SDLInfo sdl_info;
 
     constexpr int SCREEN_WIDTH = 800;
     constexpr int SCREEN_HEIGHT = 600;
 
+    // Create and configure components of SDL instance
     cge::create_sdl_components(sdl_info, SCREEN_WIDTH, SCREEN_HEIGHT, "Class 605.688");
 
-    // cge::DynamicScene scene;
+    // Initialize the active scene
     cge::StaticScene scene;
-    // cge::HybridScene scene;
 
+    // Initialize scene with reference to SDLInfo struct
     scene.init(&sdl_info);
 
     bool run_game = true;

@@ -10,6 +10,7 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Calls init_children() on child nodes with the given scene state
 void RootNode::init(SceneState &scene_state) { init_children(scene_state); }
 
 void RootNode::destroy()

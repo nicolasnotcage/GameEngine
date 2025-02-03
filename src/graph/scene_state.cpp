@@ -12,6 +12,7 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Sets SDLInfo and texture node data members to nullptr.
 void SceneState::reset()
 {
     sdl_info = nullptr;
