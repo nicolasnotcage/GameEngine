@@ -16,6 +16,9 @@
     <ClCompile Include="$(ProjectDir)..\src\graph\texture_node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\graph\sprite_node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\src\graph\geometry_node.hpp">
@@ -36,9 +39,9 @@
     <ClInclude Include="$(ProjectDir)..\src\graph\texture_node.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="$(ProjectDir)..\src\graph\CMakeLists.txt" />
+    <ClInclude Include="..\src\graph\sprite_node.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
