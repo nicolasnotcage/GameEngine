@@ -19,29 +19,25 @@ void StaticScene::init(SDLInfo *sdl_info)
     
     uint8_t yellow[3] = {255, 255, 0};
     uint8_t purple[3] = {255, 0, 255};
-    
-    auto &tex_0 = root_.get_child<0>();
-    auto &tex_1 = root_.get_child<1>();
-    
-    tex_0.set_filepath("images/box.png");
-    tex_0.set_blend(true);
-    tex_0.set_blend_alpha(200);
-    tex_0.set_color_mods(yellow);
-    
-    tex_1.set_filepath("images/circle.png");
-    tex_1.set_blend(true);
-    tex_1.set_blend_alpha(200);
-    tex_1.set_color_mods(purple);
 
-    auto &geo_0 = tex_0.get_child<0>();    
-    geo_0.set_top_left(100.0f, 100.0f);
-    geo_0.set_top_right(300.0f, 100.0f);
-    geo_0.set_bottom_left(100.0f, 300.0f);
+    auto &sprite_0 = root_.get_child<0>();
+    auto &sprite_1 = root_.get_child<1>(); 
     
-    auto &geo_1 = tex_1.get_child<0>();    
-    geo_1.set_top_left(400.0f, 100.0f);
-    geo_1.set_top_right(600.0f, 100.0f);
-    geo_1.set_bottom_left(400.0f, 300.0f);
+    sprite_0.set_filepath("images/box.png");
+    sprite_0.set_blend(true);
+    sprite_0.set_blend_alpha(200);
+    sprite_0.set_color_mods(yellow);
+    sprite_0.set_top_left(100.0f, 100.0f);
+    sprite_0.set_top_right(300.0f, 100.0f);
+    sprite_0.set_bottom_left(100.0f, 300.0f);
+    
+    sprite_1.set_filepath("images/circle.png");
+    sprite_1.set_blend(true);
+    sprite_1.set_blend_alpha(200);
+    sprite_1.set_color_mods(purple);
+    sprite_1.set_top_left(400.0f, 100.0f);
+    sprite_1.set_top_right(600.0f, 100.0f);
+    sprite_1.set_bottom_left(400.0f, 300.0f);
 
     scene_state_.reset();
     scene_state_.sdl_info = sdl_info_;

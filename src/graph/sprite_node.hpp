@@ -10,7 +10,7 @@ namespace cge
 class SpriteNode : public Node
 {
 public:
-    SpriteNode() = default;
+    SpriteNode();
     ~SpriteNode() = default;
 
     // Overrides
@@ -22,13 +22,23 @@ public:
     void set_filepath(const std::string &path);
     void set_transform(float x, float y, float angle);
 
+    // Texture wrapper methods
+    void set_color_mods(const uint8_t mods[3]);
+    void set_blend(bool blend);
+    void set_blend_alpha(uint8_t alpha);
+
+    // Geometry wrapper methods
+    void set_top_left(float x, float y);
+    void set_top_right(float x, float y);
+    void set_bottom_left(float x, float y); 
+    
 private:
     std::shared_ptr<TextureNode> texture_node;
     std::shared_ptr<GeometryNode> geometry_node;
 
-    float x;
-    float y;
-    float angle;
+    float x{0.0f};
+    float y{0.0f};
+    float angle{0.0f};
 };
 
 // Templated sprite node

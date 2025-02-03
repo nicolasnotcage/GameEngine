@@ -9,6 +9,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/root_node.hpp"
 #include "graph/scene_state.hpp"
 #include "graph/texture_node.hpp"
+#include "graph/sprite_node.hpp"
 
 namespace cge
 {
@@ -25,8 +26,8 @@ class StaticScene
   private:
     SDLInfo      *sdl_info_;
     RootNodeT< //
-        TextureNodeT<GeometryNodeT<>>,
-        TextureNodeT<GeometryNodeT<>>>
+        SpriteNodeT<>,
+        SpriteNodeT<>>
                root_;
     SceneState    scene_state_;
 };

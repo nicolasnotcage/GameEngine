@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
 
     cge::create_sdl_components(sdl_info, SCREEN_WIDTH, SCREEN_HEIGHT, "Class 605.688");
 
-    cge::DynamicScene scene;
-    // cge::StaticScene scene;
+    // cge::DynamicScene scene;
+    cge::StaticScene scene;
     // cge::HybridScene scene;
 
     scene.init(&sdl_info);
