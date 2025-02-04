@@ -31,44 +31,57 @@ void GeometryNode::draw(SceneState &scene_state)
     if(!tex_node) return;
 
     // Compute the source rectangle (always with positive dimensions).
-    SDL_FRect srcFRect;
-    if(tex_node->use_source_rect())
-    {
+    SDL_FRect src_rect;
+    if(tex_node->use_source_rect()) 
+    { 
         // Convert the integer-based src rect to a float-based FRect.
-        srcFRect.x = static_cast<float>(tex_node->get_src_rect()->x);
-        srcFRect.y = static_cast<float>(tex_node->get_src_rect()->y);
-        srcFRect.w = static_cast<float>(tex_node->get_src_rect()->w);
-        srcFRect.h = static_cast<float>(tex_node->get_src_rect()->h);
+        src_rect.x = static_cast<float>(tex_node->get_src_rect()->x);
+        src_rect.y = static_cast<float>(tex_node->get_src_rect()->y);
+        src_rect.w = static_cast<float>(tex_node->get_src_rect()->w);
+        src_rect.h = static_cast<float>(tex_node->get_src_rect()->h);
     }
     else
     {
         // Use the full texture.
-        srcFRect.x = 0.0f;
-        srcFRect.y = 0.0f;
-        srcFRect.w = static_cast<float>(tex_node->width());
-        srcFRect.h = static_cast<float>(tex_node->height());
+        src_rect.x = 0.0f;
+        src_rect.y = 0.0f;
+        src_rect.w = tex_node->width();
+        src_rect.h = tex_node->height();
     }
 
-    // Copy the destination corners defined in this GeometryNode.
-    // These corners are assumed to be set by the sprite (or client) code.
-    SDL_FPoint corners[3];
-    corners[0] = corners_[0];
-    corners[1] = corners_[1];
-    corners[2] = corners_[2];
+    // Compute the destination rectangle based on the corners.
+    SDL_FRect dst_rect;
+    dst_rect.x = corners_[0].x;
+    dst_rect.y = corners_[0].y;
+    dst_rect.w = corners_[1].x - corners_[0].x;
+    dst_rect.h = corners_[2].y - corners_[0].y;
 
-    // Instead of negating the source rectangle, adjust the destination geometry:
-    // If flipping horizontally, swap the top-left and top-right corners.
-    if(tex_node->flip_horizontal()) { std::swap(corners[0], corners[1]); }
-    // If flipping vertically, swap the top-left and bottom-left corners.
-    if(tex_node->flip_vertical()) { std::swap(corners[0], corners[2]); }
+    // Compensates for the y-axis shift caused by the flip, but it's still not 100% right
+    // TODO: Find a more mathematically precise solution
+    if(tex_node->flip_vertical())
+    {
+        dst_rect.y += (dst_rect.h / 2);
+    }
 
-    // Now call the SDL function to render the texture using an affine transform.
-    SDL_RenderTextureAffine(scene_state.sdl_info->renderer,
-                            tex_node->sdl_texture(),
-                            &srcFRect,    // the (positive) source rectangle
-                            &corners[0],  // top-left corner
-                            &corners[1],  // top-right corner
-                            &corners[2]); // bottom-left corner
+    // Determine and set the flip flags
+    SDL_FlipMode flip = SDL_FLIP_NONE;
+    if (tex_node->flip_horizontal())
+    {
+        flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_HORIZONTAL);
+    }
+    if (tex_node->flip_vertical()) 
+    { 
+        flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_VERTICAL);
+    }
+
+    // Render texture with flipping
+    SDL_RenderTextureRotated(scene_state.sdl_info->renderer,
+                             tex_node->sdl_texture(),
+                             &src_rect,
+                             &dst_rect,
+                             0,
+                             nullptr,
+                             flip);
 }
 
 void GeometryNode::set_top_left(float x, float y) { corners_[0] = {x, y}; }

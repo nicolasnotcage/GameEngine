@@ -10,7 +10,16 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-// 
+/**
+ * This scene contains a demonstration of new sprite, texture, and geometry functionality. 
+ * Within the scene, we load in two sprite sheets as textures. We set custom rectangles that 
+ * are used to focus on specific images within each sprite sheet. 
+ * 
+ * Additionally, we horizontally and vertically flip the second sprite. Flipping is still a little 
+ * buggy, as the vertical flip offset is supplemented with a simple transform in geometry_node.cpp 
+ * to "center" the image after the flip. I'm sure there's a better way to do it, but this works for 
+ * now.
+**/
 void StaticScene::init(SDLInfo *sdl_info)
 {
     // Set local pointer to passed argument
@@ -29,7 +38,7 @@ void StaticScene::init(SDLInfo *sdl_info)
     sprite_0.set_blend(true);
     sprite_0.set_blend_alpha(200);
 
-    sprite_1.set_filepath("images/fireplace.png");
+    sprite_1.set_filepath("images/witch_run.png");
     sprite_1.set_blend(true);
     sprite_1.set_blend_alpha(200);
 
@@ -54,20 +63,32 @@ void StaticScene::init(SDLInfo *sdl_info)
     * TODO: Abstract these into a dedicated class. Part of the sprite node class?
     * 
     **/
-    int frame_index = 1;
-    int frame_width = 64;
-    int frame_height = 64;
-    int x_offset = frame_index * frame_width;
-    // int y_offset = frame_index * frame_height
+    int sprite_0_frame_index = 0;
+    int sprite_0_frame_width = 64;
+    int sprite_0_frame_height = 64;
+    int sprite_0_x_offset = sprite_0_frame_index * sprite_0_frame_width;
 
     // Set data within sprite node 
     // TODO: Wrap this function too
-    sprite_0.get_child<0>().set_source_rect(x_offset, 0, frame_width, frame_height);
+    sprite_0.get_child<0>().set_source_rect(sprite_0_x_offset, 
+                                            0, 
+                                            sprite_0_frame_width, 
+                                            sprite_0_frame_height);
 
-    // Change frame index for and flip sprite 1 to show a different section of the sprite sheet
-    frame_index = 3;
-    x_offset = frame_index * frame_width;
-    sprite_1.get_child<0>().set_source_rect(x_offset, 0, frame_width, frame_height);
+    /**
+     * Sprite 1 frame info (note that this one uses a y-offset)
+    **/
+    int sprite_1_frame_index = 0;
+    int sprite_1_frame_width = 64;
+    int sprite_1_frame_height = 64;
+    int sprite_1_y_offset = sprite_1_frame_index * sprite_1_frame_width;
+
+    sprite_1.get_child<0>().set_source_rect(sprite_1_y_offset, 
+                                            0, 
+                                            sprite_1_frame_width, 
+                                            sprite_1_frame_height);
+
+    // Flip sprite 1 for testing
     sprite_1.get_child<0>().set_flip_horizontal(true);
     sprite_1.get_child<0>().set_flip_vertical(true);
 
