@@ -22,16 +22,25 @@ void StaticScene::init(SDLInfo *sdl_info)
 
     // Get children of root node
     auto &sprite_0 = root_.get_child<0>();
+    auto &sprite_1 = root_.get_child<1>();
     
     // Configure data of children nodes using wrapper functions
     sprite_0.set_filepath("images/fireplace.png");
     sprite_0.set_blend(true);
     sprite_0.set_blend_alpha(200);
 
+    sprite_1.set_filepath("images/fireplace.png");
+    sprite_1.set_blend(true);
+    sprite_1.set_blend_alpha(200);
+
     // Set location
-    sprite_0.set_top_left(300.0f, 150.0f);
-    sprite_0.set_top_right(464.0f, 150.0f);
-    sprite_0.set_bottom_left(300.0f, 314.0f);
+    sprite_0.set_top_left(230, 150.0f);
+    sprite_0.set_top_right(394, 150.0f);
+    sprite_0.set_bottom_left(230, 314.0f);
+
+    sprite_1.set_top_left(380.0f, 150.0f);
+    sprite_1.set_top_right(544.0f, 150.0f);
+    sprite_1.set_bottom_left(380.0f, 314.0f);
 
     /**
     * Set custom sprite sheet info. Use Godot sprite sheet tool to get these values.
@@ -54,6 +63,11 @@ void StaticScene::init(SDLInfo *sdl_info)
     // Set data within sprite node 
     // TODO: Wrap this function too
     sprite_0.get_child<0>().set_source_rect(x_offset, 0, frame_width, frame_height);
+
+    // Change frame index for sprite 1 to show a different section of the sprite sheet
+    frame_index = 3;
+    x_offset = frame_index * frame_width;
+    sprite_1.get_child<0>().set_source_rect(x_offset, 0, frame_width, frame_height);
 
     // Reset SDLInfo and texture node to nullptr within the scene state struct
     scene_state_.reset();
