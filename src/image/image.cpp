@@ -69,8 +69,9 @@ SDLTextureInfo create_texture(const SDLInfo &sdl_info, const std::string &filepa
     ImageData im_data;
     load_image_data(im_data, filepath);
 
+    // TODO: Changed to different pixel format, which solved the problem of swapped color channels.
     result.texture = SDL_CreateTexture(sdl_info.renderer,
-                                       SDL_PIXELFORMAT_ARGB8888,
+                                       SDL_PIXELFORMAT_ABGR8888,
                                        SDL_TEXTUREACCESS_STATIC,
                                        im_data.w,
                                        im_data.h);
