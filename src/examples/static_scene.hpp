@@ -26,8 +26,8 @@ class StaticScene
   private:
     SDLInfo      *sdl_info_;
     RootNodeT< //
-        SpriteNodeT<>,
-        SpriteNodeT<>>
+        BasicSprite,
+        BasicSprite>
                root_;
     SceneState    scene_state_;
 };
