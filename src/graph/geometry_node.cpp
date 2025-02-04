@@ -25,10 +25,13 @@ void GeometryNode::destroy() { clear_children(); }
 **/
 void GeometryNode::draw(SceneState &scene_state)
 {
+    // Get current texture node
     TextureNode *tex_node = scene_state.texture_node;
     if(!tex_node) return;
 
     SDL_FRect rect;
+
+    // Define rectangle (default or sub-region)
     if (tex_node->use_source_rect())
     {
         // Convert int-based rect to float-based FRect
@@ -45,6 +48,7 @@ void GeometryNode::draw(SceneState &scene_state)
         rect.h = static_cast<float>(scene_state.texture_node->height());
     }
     
+    // Render texture
     SDL_RenderTextureAffine(scene_state.sdl_info->renderer,
                             scene_state.texture_node->sdl_texture(),
                             &rect,

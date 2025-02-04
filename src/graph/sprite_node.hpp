@@ -34,7 +34,8 @@ public:
 * 
 * Is there some way to make this more dynamic? Or is this a consequence of the static approach?
 * 
-* TODO: Add sprite sheet support
+* TODO: Add sprite sheet animation support.
+* 
 **/
 template <typename... ChildrenTs>
 class SpriteNodeT : public NodeT<SpriteNode, ChildrenTs...>
@@ -86,54 +87,6 @@ class SpriteNodeT : public NodeT<SpriteNode, ChildrenTs...>
         auto &geo_node = tex_node.template get_child<0>();
         geo_node.set_bottom_left(x, y);
     }
-
-    // Sprite sheet fields and methods
-    void set_sprite_sheet_info(int columns, int rows)
-    {
-        sheet_columns_ = columns;
-        sheet_rows_ = rows;
-    }
-
-    void set_frame(int frame)
-    { 
-        current_frame_ = frame;
-        update_sub_rect();
-    }
-
-  protected:
-    // Compute the sub rect each time the frame is updated
-    void update_sub_rect() 
-    { 
-        auto &tex_node = this->template get_child<0>();
-
-        // Get width and height of texture node
-        int tex_width = tex_node.width();
-        int tex_height = tex_node.height();
-
-        // Return if sheets and columns are zero
-        if (sheet_columns_ == 0 || sheet_rows_ == 0) return;
-
-        int frame_width = tex_width / sheet_columns_;
-        int frame_height = tex_height / sheet_rows_;
-
-        // Clamp current frame if out of range
-        int total_frames = sheet_columns_ * sheet_rows_;
-        if(current_frame_ >= total_frames) current_frame_ = total_frames - 1;
-        if(current_frame_ < 0) current_frame_ = 0;
-
-        int col = current_frame_ % sheet_columns_;
-        int row = current_frame_ / sheet_columns_;
-
-        int sx = col * frame_width;
-        int sy = row * frame_height;
-
-        // Set the source rectangle within the texture node
-        tex_node.set_source_rect(sx, sy, frame_w, frame_h);
-    }
-  private:
-    int sheet_columns_{0};
-    int sheet_rows_{0};
-    int current_frame_{0};
 };
 
 // Define sprite types

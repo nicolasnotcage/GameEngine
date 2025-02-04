@@ -24,8 +24,6 @@ class StaticScene
 
     void render();
 
-    Node *get_root();
-
   private:
     SDLInfo      *sdl_info_;
     RootNodeT< //

@@ -23,7 +23,7 @@ void StaticScene::init(SDLInfo *sdl_info)
     // Get children of root node
     auto &sprite_0 = root_.get_child<0>();
     
-    // Configure data of children nodes
+    // Configure data of children nodes using wrapper functions
     sprite_0.set_filepath("images/fireplace.png");
     sprite_0.set_blend(true);
     sprite_0.set_blend_alpha(200);
@@ -42,13 +42,17 @@ void StaticScene::init(SDLInfo *sdl_info)
     * - Frame height: Height of the sprite sheet frame
     * - x_offset (y_offset): The location of the start of the sprite. Can be x or y depending on the sprite sheet.
     * 
+    * TODO: Abstract these into a dedicated class. Part of the sprite node class?
+    * 
     **/
     int frame_index = 1;
     int frame_width = 64;
     int frame_height = 64;
     int x_offset = frame_index * frame_width;
+    // int y_offset = frame_index * frame_height
 
-    // Set data within sprite node
+    // Set data within sprite node 
+    // TODO: Wrap this function too
     sprite_0.get_child<0>().set_source_rect(x_offset, 0, frame_width, frame_height);
 
     // Reset SDLInfo and texture node to nullptr within the scene state struct
@@ -73,7 +77,5 @@ void StaticScene::render()
     
     root_.draw(scene_state_);
 }
-
-Node *StaticScene::get_root() { return &root_; }
 
 } // namespace cge
