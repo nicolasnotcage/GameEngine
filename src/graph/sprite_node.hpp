@@ -9,8 +9,8 @@ namespace cge
 {
 
 /**
-* Generic sprite node class. Provides the basic functionality expected of an engine node. 
-* Primary functionality is defined within the template class. 
+* Generic sprite node class. Provides the basic functionality expected of an engine node
+* and allows clients to flip sprites vertically and horizontally.
 **/
 class SpriteNode : public Node
 {
@@ -22,7 +22,6 @@ public:
     void init(SceneState &scene_state) override;
     void destroy() override;
     void draw(SceneState &scene_state) override;
-
 };
 
 /**

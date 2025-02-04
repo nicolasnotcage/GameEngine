@@ -64,10 +64,12 @@ void StaticScene::init(SDLInfo *sdl_info)
     // TODO: Wrap this function too
     sprite_0.get_child<0>().set_source_rect(x_offset, 0, frame_width, frame_height);
 
-    // Change frame index for sprite 1 to show a different section of the sprite sheet
+    // Change frame index for and flip sprite 1 to show a different section of the sprite sheet
     frame_index = 3;
     x_offset = frame_index * frame_width;
     sprite_1.get_child<0>().set_source_rect(x_offset, 0, frame_width, frame_height);
+    sprite_1.get_child<0>().set_flip_horizontal(true);
+    sprite_1.get_child<0>().set_flip_vertical(true);
 
     // Reset SDLInfo and texture node to nullptr within the scene state struct
     scene_state_.reset();

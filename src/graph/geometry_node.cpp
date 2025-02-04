@@ -8,6 +8,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/geometry_node.hpp"
 
 #include "graph/texture_node.hpp"
+#include "graph/sprite_node.hpp"
 
 #include <iostream>
 
@@ -29,32 +30,45 @@ void GeometryNode::draw(SceneState &scene_state)
     TextureNode *tex_node = scene_state.texture_node;
     if(!tex_node) return;
 
-    SDL_FRect rect;
-
-    // Define rectangle (default or sub-region)
-    if (tex_node->use_source_rect())
+    // Compute the source rectangle (always with positive dimensions).
+    SDL_FRect srcFRect;
+    if(tex_node->use_source_rect())
     {
-        // Convert int-based rect to float-based FRect
-        rect.x = static_cast<float>(tex_node->get_src_rect()->x);
-        rect.y = static_cast<float>(tex_node->get_src_rect()->y);
-        rect.w = static_cast<float>(tex_node->get_src_rect()->w);
-        rect.h = static_cast<float>(tex_node->get_src_rect()->h);
+        // Convert the integer-based src rect to a float-based FRect.
+        srcFRect.x = static_cast<float>(tex_node->get_src_rect()->x);
+        srcFRect.y = static_cast<float>(tex_node->get_src_rect()->y);
+        srcFRect.w = static_cast<float>(tex_node->get_src_rect()->w);
+        srcFRect.h = static_cast<float>(tex_node->get_src_rect()->h);
     }
     else
     {
-        rect.x = 0.0f;
-        rect.y = 0.0f;
-        rect.w = static_cast<float>(scene_state.texture_node->width());
-        rect.h = static_cast<float>(scene_state.texture_node->height());
+        // Use the full texture.
+        srcFRect.x = 0.0f;
+        srcFRect.y = 0.0f;
+        srcFRect.w = static_cast<float>(tex_node->width());
+        srcFRect.h = static_cast<float>(tex_node->height());
     }
-    
-    // Render texture
+
+    // Copy the destination corners defined in this GeometryNode.
+    // These corners are assumed to be set by the sprite (or client) code.
+    SDL_FPoint corners[3];
+    corners[0] = corners_[0];
+    corners[1] = corners_[1];
+    corners[2] = corners_[2];
+
+    // Instead of negating the source rectangle, adjust the destination geometry:
+    // If flipping horizontally, swap the top-left and top-right corners.
+    if(tex_node->flip_horizontal()) { std::swap(corners[0], corners[1]); }
+    // If flipping vertically, swap the top-left and bottom-left corners.
+    if(tex_node->flip_vertical()) { std::swap(corners[0], corners[2]); }
+
+    // Now call the SDL function to render the texture using an affine transform.
     SDL_RenderTextureAffine(scene_state.sdl_info->renderer,
-                            scene_state.texture_node->sdl_texture(),
-                            &rect,
-                            &corners_[0],
-                            &corners_[1],
-                            &corners_[2]);
+                            tex_node->sdl_texture(),
+                            &srcFRect,    // the (positive) source rectangle
+                            &corners[0],  // top-left corner
+                            &corners[1],  // top-right corner
+                            &corners[2]); // bottom-left corner
 }
 
 void GeometryNode::set_top_left(float x, float y) { corners_[0] = {x, y}; }
