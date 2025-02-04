@@ -61,7 +61,7 @@ void TextureNode::draw(SceneState &scene_state)
     {
         SDL_SetTextureBlendMode(texture_, SDL_BLENDMODE_BLEND);
         SDL_SetTextureColorMod(texture_, color_mods_[0], color_mods_[1], color_mods_[2]);
-    }
+    } 
 
     draw_children(scene_state);
 
@@ -87,5 +87,21 @@ void TextureNode::set_color_mods(const uint8_t mods[3])
 void TextureNode::set_blend(bool blend) { apply_blend_ = blend; }
 
 void TextureNode::set_blend_alpha(uint8_t alpha) { blend_alpha_ = alpha; }
+
+void TextureNode::set_source_rect(int x, int y, int w, int h) 
+{ 
+    use_src_rect_ = true; 
+    src_rect_.x = x;
+    src_rect_.y = y;
+    src_rect_.w = w;
+    src_rect_.h = h;
+}
+
+bool TextureNode::use_source_rect() const
+{ 
+    return use_src_rect_; 
+}
+
+SDL_Rect* TextureNode::get_src_rect() { return &src_rect_; }
 
 } // namespace cge

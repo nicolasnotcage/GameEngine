@@ -40,6 +40,11 @@ class TextureNode : public Node
     void set_blend(bool blend);
     void set_blend_alpha(uint8_t alpha);
 
+    // For sprite sheets
+    void set_source_rect(int x, int y, int w, int h);
+    bool use_source_rect() const;
+    SDL_Rect* get_src_rect();
+
   protected:
     SDL_Texture *texture_;
     int          width_;
@@ -51,6 +56,10 @@ class TextureNode : public Node
 
     bool    apply_blend_;
     uint8_t blend_alpha_;
+
+    // For sprite sheets
+    bool use_src_rect_{false};
+    SDL_Rect src_rect_;
 };
 
 template <typename... ChildrenTs>
