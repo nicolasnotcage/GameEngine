@@ -89,7 +89,6 @@ void TextureNode::set_blend(bool blend) { apply_blend_ = blend; }
 void TextureNode::set_blend_alpha(uint8_t alpha) { blend_alpha_ = alpha; }
 
 // Define a sub-section of the texture to be displayed
-// TODO: Should this be handled by sprite nodes? Also need to store a frame index.
 void TextureNode::set_source_rect(int x, int y, int w, int h) 
 { 
     use_src_rect_ = true; 

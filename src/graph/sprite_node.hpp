@@ -33,7 +33,7 @@ public:
 * 
 * Is there some way to make this more dynamic? Or is this a consequence of the static approach?
 * 
-* TODO: Add sprite sheet animation support.
+* TODO: Add sprite sheet animation functionality.
 * 
 **/
 template <typename... ChildrenTs>

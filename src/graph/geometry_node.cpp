@@ -20,9 +20,13 @@ void GeometryNode::init(SceneState &scene_state) {}
 void GeometryNode::destroy() { clear_children(); }
 
 /**
-* Geometry nodes draw based on state information contained within texture nodes. If 
-* we are using a custom rectangular dimension, the geometry node determines which portion 
-* of the texture to draw based on the rectangle data.
+* Geometry nodes draw based on state information contained within texture nodes. If we
+* are using a custom rectangular dimension (e.g., when using sprite sheets), the geometry node
+* determines which portion of the texture to draw using data stored in the active texture node.
+* 
+* Two rectangles in the draw function:
+*     1) Source Rectangle: Defines "what" will be drawn (the whole texture or part of it, as defined in the texture node)
+*     2) Destination Rectangle: Defines "where" the texture will be drawn
 **/
 void GeometryNode::draw(SceneState &scene_state)
 {
@@ -30,10 +34,12 @@ void GeometryNode::draw(SceneState &scene_state)
     TextureNode *tex_node = scene_state.texture_node;
     if(!tex_node) return;
 
-    // Compute the source rectangle (always with positive dimensions).
+    // Compute the source rectangle (always with positive dimensions). 
+    // Is either the whole texture or part of it (when using sprite sheets)
     SDL_FRect src_rect;
     if(tex_node->use_source_rect()) 
     { 
+        // Use the dimensions defined in the texture node. 
         // Convert the integer-based src rect to a float-based FRect.
         src_rect.x = static_cast<float>(tex_node->get_src_rect()->x);
         src_rect.y = static_cast<float>(tex_node->get_src_rect()->y);
@@ -49,7 +55,9 @@ void GeometryNode::draw(SceneState &scene_state)
         src_rect.h = tex_node->height();
     }
 
-    // Compute the destination rectangle based on the corners.
+    // Compute the destination rectangle based on the corners. (x, y) define the top-left corner. Width and height
+    // are calculated using the distance between the corners. 
+    // TODO: Error handling (what if corners yield negative values?)
     SDL_FRect dst_rect;
     dst_rect.x = corners_[0].x;
     dst_rect.y = corners_[0].y;

@@ -22,14 +22,11 @@ namespace cge
 **/
 void StaticScene::init(SDLInfo *sdl_info)
 {
-    // Set local pointer to passed argument
     sdl_info_ = sdl_info;
     
-    // Set color and blend info for drawing
     SDL_SetRenderDrawColor(sdl_info->renderer, 28, 40, 51, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
-    // Get children of root node
     auto &sprite_0 = root_.get_child<0>();
     auto &sprite_1 = root_.get_child<1>();
     
@@ -42,7 +39,7 @@ void StaticScene::init(SDLInfo *sdl_info)
     sprite_1.set_blend(true);
     sprite_1.set_blend_alpha(200);
 
-    // Set location
+    // Set geometry locations
     sprite_0.set_top_left(230, 150.0f);
     sprite_0.set_top_right(394, 150.0f);
     sprite_0.set_bottom_left(230, 314.0f);
@@ -52,15 +49,15 @@ void StaticScene::init(SDLInfo *sdl_info)
     sprite_1.set_bottom_left(380.0f, 314.0f);
 
     /**
-    * Set custom sprite sheet info. Use Godot sprite sheet tool to get these values.
+    * Set custom sprite sheet info (helpful to use Godot sprite sheet tool to get these values).
     * 
     * Variable overview:
-    * - Frame index: The first frame that should be displayed. 
+    * - Frame index: The frame that should be displayed (goal: place frame indices in sprite nodes to support animation)
     * - Frame width: Width of the sprite sheet frame
     * - Frame height: Height of the sprite sheet frame
     * - x_offset (y_offset): The location of the start of the sprite. Can be x or y depending on the sprite sheet.
     * 
-    * TODO: Abstract these into a dedicated class. Part of the sprite node class?
+    * TODO: Place these into a dedicated class. Part of the sprite node class?
     * 
     **/
     int sprite_0_frame_index = 0;
@@ -83,8 +80,8 @@ void StaticScene::init(SDLInfo *sdl_info)
     int sprite_1_frame_height = 64;
     int sprite_1_y_offset = sprite_1_frame_index * sprite_1_frame_width;
 
-    sprite_1.get_child<0>().set_source_rect(sprite_1_y_offset, 
-                                            0, 
+    sprite_1.get_child<0>().set_source_rect(0, 
+                                            sprite_1_y_offset,   
                                             sprite_1_frame_width, 
                                             sprite_1_frame_height);
 
