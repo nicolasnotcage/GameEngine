@@ -28,6 +28,8 @@ class RootNode : public Node
 
     void draw(SceneState &scene_state) override;
 
+    void update(SceneState &scene_state) override;
+
   protected:
 };
 

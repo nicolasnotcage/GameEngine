@@ -27,6 +27,8 @@ class TextureNode : public Node
     void destroy() override;
 
     void draw(SceneState &scene_state) override;
+    
+    void update(SceneState &scene_state) override;
 
     SDL_Texture *sdl_texture();
 

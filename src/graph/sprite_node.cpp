@@ -8,6 +8,10 @@ namespace cge
 
 void SpriteNode::init(SceneState &scene_state) { init_children(scene_state);  }
 void SpriteNode::draw(SceneState &scene_state) { draw_children(scene_state); }
+void SpriteNode::update(SceneState& scene_state)
+{
+    // TODO: Do something.
+}
 
 void SpriteNode::destroy() 
 { 

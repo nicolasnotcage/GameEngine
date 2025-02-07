@@ -92,6 +92,11 @@ void GeometryNode::draw(SceneState &scene_state)
                              flip);
 }
 
+void GeometryNode::update(SceneState& scene_state)
+{
+    // TODO: Do something.
+}
+
 void GeometryNode::set_top_left(float x, float y) { corners_[0] = {x, y}; }
 
 void GeometryNode::set_top_right(float x, float y) { corners_[1] = {x, y}; }

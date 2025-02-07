@@ -35,6 +35,10 @@ class Node
 
     virtual void draw_children(SceneState &scene_state);
 
+    virtual void update(SceneState &scene_state) = 0;
+
+    virtual void update_children(SceneState &scene_state);
+
     void set_name(const std::string &n);
 
     void add_child(std::shared_ptr<Node> child);

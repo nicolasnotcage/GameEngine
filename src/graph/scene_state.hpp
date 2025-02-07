@@ -22,6 +22,7 @@ struct SceneState
 {
     SDLInfo     *sdl_info;
     TextureNode *texture_node;
+    float        delta;
 
     void reset();
 };

@@ -54,6 +54,12 @@ class NodeT : public BaseT
         BaseT::draw_children(scene_state);
     }
 
+    void update_children(SceneState &scene_state) override
+    {
+        std::apply([&](auto &&...t) { (t.update(scene_state), ...); }, children_ts_);
+        BaseT::update_children(scene_state);
+    }
+
     template <size_t Idx>
     auto &get_child()
     {

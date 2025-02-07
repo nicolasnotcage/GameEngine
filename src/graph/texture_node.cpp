@@ -68,6 +68,11 @@ void TextureNode::draw(SceneState &scene_state)
     scene_state.texture_node = prex_texture_node;
 }
 
+void TextureNode::update(SceneState &scene_state)
+{
+    // TODO: Do something.
+}
+
 SDL_Texture *TextureNode::sdl_texture() { return texture_; }
 
 int TextureNode::width() const { return width_; }

@@ -22,6 +22,7 @@ public:
     void init(SceneState &scene_state) override;
     void destroy() override;
     void draw(SceneState &scene_state) override;
+    void update(SceneState &scene_state) override;
 };
 
 /**
