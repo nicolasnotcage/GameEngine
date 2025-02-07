@@ -57,7 +57,7 @@ void StaticScene::init(SDLInfo *sdl_info)
     * - Frame height: Height of the sprite sheet frame
     * - x_offset (y_offset): The location of the start of the sprite. Can be x or y depending on the sprite sheet.
     * 
-    * TODO: Place these into a dedicated class. Part of the sprite node class?
+    * TODO: Place these into a dedicated class. Part of the texture cache?
     * 
     **/
     int sprite_0_frame_index = 0;
