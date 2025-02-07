@@ -28,6 +28,11 @@ TextureNode::TextureNode() :
 void TextureNode::init(SceneState &scene_state)
 {
     auto file_info = locate_path_for_filename(filepath_);
+
+    // TODO: Introduce some form of reference-counted texture cacheing so that textures are stored in a central repository
+    // and accessible by any nodes. Shouldn't be stored in a single node. Should create_texture() check if it exists and return 
+    // the object if so? Or should the TextureNode search the cache? Seems like that should be handled by the cache managing 
+    // class itself, not the nodes.
     auto result = image::create_texture(*scene_state.sdl_info, file_info.path);
 
     texture_ = result.texture;
