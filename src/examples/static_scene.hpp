@@ -6,16 +6,14 @@ For more information, please refer to <https://unlicense.org>
 */
 
 #include "graph/geometry_node.hpp"
+#include "graph/node.hpp"
 #include "graph/root_node.hpp"
 #include "graph/scene_state.hpp"
-#include "graph/texture_node.hpp"
 #include "graph/sprite_node.hpp"
-#include "graph/node.hpp"
+#include "graph/texture_node.hpp"
 
 namespace cge
 {
-
-using BasicSprite = SpriteNodeT<TextureNodeT<GeometryNodeT<>>>;
 
 class StaticScene
 {
@@ -27,12 +25,12 @@ class StaticScene
     void render();
 
   private:
-    SDLInfo      *sdl_info_;
+    SDLInfo *sdl_info_;
     RootNodeT< //
         BasicSprite,
         BasicSprite>
                root_;
-    SceneState    scene_state_;
+    SceneState scene_state_;
 };
 
 } // namespace cge
