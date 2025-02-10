@@ -15,6 +15,8 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+using BasicSprite = SpriteNodeT<TextureNodeT<GeometryNodeT<>>>;
+
 class StaticScene
 {
   public:
