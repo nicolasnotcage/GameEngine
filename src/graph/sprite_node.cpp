@@ -27,6 +27,7 @@ TextureNode *SpriteNode::get_texture_node()
     return nullptr;
 }
 
+// TODO: Put this function inside of TextureNode
 GeometryNode *SpriteNode::get_geometry_node()
 {
     if(auto *tex_node = get_texture_node())
