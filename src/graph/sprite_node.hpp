@@ -11,97 +11,62 @@ namespace cge
 {
 
 /**
- * Generic sprite node class. Provides the basic functionality expected of an engine node
- * and allows clients to flip sprites vertically and horizontally.
+ * SpriteNode orchestrates the relationship between a texture and its geometry. It provides a unified
+ * interface for manipulating a 2D visual game entity. 
  **/
 class SpriteNode : public Node
 {
-  public:
-    SpriteNode() = default;
-    ~SpriteNode() = default;
+public:
+SpriteNode() = default;
+~SpriteNode() = default;
 
-    // Overrides
-    void init(SceneState &scene_state) override;
-    void destroy() override;
-    void draw(SceneState &scene_state) override;
-    void update(SceneState &scene_state) override;
+// Overrides
+void init(SceneState &scene_state) override;
+void destroy() override;
+void draw(SceneState &scene_state) override;
+void update(SceneState &scene_state) override;
+
+// Texture manipulation
+void set_filepath(const std::string &path);
+void set_blend(bool blend);
+void set_blend_alpha(uint8_t alpha);
+void set_color_mods(const uint8_t mods[3]);
+
+// Geometry manipulation
+void set_top_left(float x, float y);
+void set_top_right(float x, float y);
+void set_bottom_left(float x, float y);
+
+// Configure texture flipping
+void set_flip_horizontal(bool flip_h);
+void set_flip_vertical(bool flip_v);
+
+// Configure sprite sheet dimensions
+void set_source_rect(int x, int y, int w, int h);
+
+protected:
+// Protected accessor methods for derived classes
+TextureNode  *get_texture_node();
+GeometryNode *get_geometry_node();
 };
 
 /**
- * Templated sprite node class that provides wrapper functions for texture and geometry nodes.
+ * Factory function to create a standard sprite setup with a texture and geometry node.
  **/
-template <typename... ChildrenTs>
-class SpriteNodeT : public NodeT<SpriteNode, ChildrenTs...>
+inline std::shared_ptr<SpriteNode> create_basic_sprite()
 {
-  public:
-    // Wrapped texture node functions
-    void set_filepath(const std::string &path)
-    {
-        if (auto* tex_node = this->get_texture_node()) tex_node->set_filepath(path);
-    }
+    auto sprite = std::make_shared<SpriteNode>();
+    auto texture = std::make_shared<TextureNode>();
+    auto geometry = std::make_shared<GeometryNode>();
 
-    void set_blend(bool blend)
-    {
-        if(auto *tex_node = this->get_texture_node()) tex_node->set_blend(blend);
-    }
+    texture->add_child(geometry);
+    sprite->add_child(texture);
 
-    void set_blend_alpha(uint8_t alpha)
-    {
-        if(auto *tex_node = this->get_texture_node()) tex_node->set_blend_alpha(alpha);
-    }
+    return sprite;
+}
 
-    void set_color_mods(const uint8_t mods[3])
-    {
-        if(auto *tex_node = this->get_texture_node()) tex_node->set_color_mods(mods);
-    }
-
-    // Wrapped geometry node functions
-    void set_top_left(float x, float y)
-    {
-        if(auto *geo_node = this->get_geometry_node()) geo_node->set_top_left(x, y);
-    }
-
-    void set_top_right(float x, float y)
-    {
-        if(auto *geo_node = this->get_geometry_node()) geo_node->set_top_right(x, y);
-    }
-
-    void set_bottom_left(float x, float y)
-    {
-        if(auto *geo_node = this->get_geometry_node()) geo_node->set_bottom_left(x, y);
-    }
-
-private:
-    // Utility functions to get texture and geometry node children
-    TextureNode* get_texture_node()
-    {
-        if (auto* tex_node = this->template get_child_by_type<TextureNode>())
-        { 
-            return tex_node;
-        }
-        
-        std::cerr << "Warning: SpriteNode has no instance of TextureNode.\n";
-        return nullptr;
-
-    }
-
-    GeometryNode *get_geometry_node() 
-    { 
-        if(auto *tex_node = this->get_texture_node())
-        {
-            if (auto* geo_node = tex_node->template get_child_by_type<GeometryNode>())
-            {
-                return geo_node;
-            }   
-        }
-
-        std::cerr << "Warning: TextureNode has no instance of GeometryNode.\n";
-        return nullptr;
-    }
-};
-
-// Define sprite types
-using BasicSprite = SpriteNodeT<TextureNodeT<GeometryNodeT<>>>;
+template <typename... ChildrenTs>
+using SpriteNodeT = NodeT<SpriteNode, ChildrenTs...>;
 
 } // namespace cge
 
