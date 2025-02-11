@@ -74,13 +74,16 @@ class NodeT : public BaseT
         return std::get<Idx>(children_ts_);
     }
 
-    // Gets children within the tuple by type
+    // Gets children within the tuple by type. First checks the vector of dynamic children 
+    // in the base node class before checking the tuples used by templated nodes.
     template<typename T>
     T* get_child_by_type()
     {
+        // 1) Search dynamic node list in base class
         if(T *found = BaseT::template get_child_by_type<T>()) return found;
 
-        return this->template find_in_tuple<T, 0>();
+        // 2) Search static nodes in tuple
+        return this->find_in_tuple<T, 0>();
     }
 
   protected:
@@ -120,21 +123,11 @@ private:
     template<typename T, size_t Index>
     T* find_in_tuple()
     {
-        if constexpr(Index < std::tuple_size<TupleT>::value)
-        {
-            auto &child = std::get<Index>(children_ts_);
+        T *result = nullptr;
 
-            // Return a pointer if the child's base class is T
-            if(auto casted = dynamic_cast<T *>(&child)) { return casted; }
-            else
-            {
-                // Recurse to the next element in the tuple
-                return find_in_tuple<T, Index + 1>();
-            }
-        }
-        
-        // Not found
-        return nullptr;
+        std::apply([&](auto &&...t) { ((result = dynamic_cast<T *>(&t)) || ...); }, children_ts_);
+       
+        return result;
     }
 };
 

@@ -29,15 +29,6 @@ class SpriteNode : public Node
 
 /**
  * Templated sprite node class that provides wrapper functions for texture and geometry nodes.
- *
- * Assumes:
- *    1) A sprite node's first child is a texture node
- *    2) A texture node's first child is a geometry node
- *
- * Is there some way to make this more dynamic? Or is this a consequence of the static approach?
- *
- * TODO: Add sprite sheet animation functionality.
- *
  **/
 template <typename... ChildrenTs>
 class SpriteNodeT : public NodeT<SpriteNode, ChildrenTs...>
@@ -46,52 +37,66 @@ class SpriteNodeT : public NodeT<SpriteNode, ChildrenTs...>
     // Wrapped texture node functions
     void set_filepath(const std::string &path)
     {
-        if (auto* tex_node = this->template get_child_by_type<TextureNode>())
-        {
-            tex_node->set_filepath(path);
-        }
-        else { std::cerr << "Warning: SpriteNode has no instance of TextureNode.\n";
-        }
+        if (auto* tex_node = this->get_texture_node()) tex_node->set_filepath(path);
     }
 
     void set_blend(bool blend)
     {
-        auto &tex_node = this->template get_child<0>();
-        tex_node.set_blend(blend);
+        if(auto *tex_node = this->get_texture_node()) tex_node->set_blend(blend);
     }
 
     void set_blend_alpha(uint8_t alpha)
     {
-        auto &tex_node = this->template get_child<0>();
-        tex_node.set_blend_alpha(alpha);
+        if(auto *tex_node = this->get_texture_node()) tex_node->set_blend_alpha(alpha);
     }
 
     void set_color_mods(const uint8_t mods[3])
     {
-        auto &tex_node = this->template get_child<0>();
-        tex_node.set_color_mods(mods);
+        if(auto *tex_node = this->get_texture_node()) tex_node->set_color_mods(mods);
     }
 
     // Wrapped geometry node functions
     void set_top_left(float x, float y)
     {
-        auto &tex_node = this->template get_child<0>();
-        auto &geo_node = tex_node.template get_child<0>();
-        geo_node.set_top_left(x, y);
+        if(auto *geo_node = this->get_geometry_node()) geo_node->set_top_left(x, y);
     }
 
     void set_top_right(float x, float y)
     {
-        auto &tex_node = this->template get_child<0>();
-        auto &geo_node = tex_node.template get_child<0>();
-        geo_node.set_top_right(x, y);
+        if(auto *geo_node = this->get_geometry_node()) geo_node->set_top_right(x, y);
     }
 
     void set_bottom_left(float x, float y)
     {
-        auto &tex_node = this->template get_child<0>();
-        auto &geo_node = tex_node.template get_child<0>();
-        geo_node.set_bottom_left(x, y);
+        if(auto *geo_node = this->get_geometry_node()) geo_node->set_bottom_left(x, y);
+    }
+
+private:
+    // Utility functions to get texture and geometry node children
+    TextureNode* get_texture_node()
+    {
+        if (auto* tex_node = this->template get_child_by_type<TextureNode>())
+        { 
+            return tex_node;
+        }
+        
+        std::cerr << "Warning: SpriteNode has no instance of TextureNode.\n";
+        return nullptr;
+
+    }
+
+    GeometryNode *get_geometry_node() 
+    { 
+        if(auto *tex_node = this->get_texture_node())
+        {
+            if (auto* geo_node = tex_node->template get_child_by_type<GeometryNode>())
+            {
+                return geo_node;
+            }   
+        }
+
+        std::cerr << "Warning: TextureNode has no instance of GeometryNode.\n";
+        return nullptr;
     }
 };
 

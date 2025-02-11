@@ -45,6 +45,18 @@ class Node
 
     void clear_children();
 
+    // Utility function to get child nodes by type. Returns the first match; otherwise returns nullptr.
+    template <typename T>
+    T* get_child_by_type()
+    {
+        for(auto &child : children_)
+        {
+            if(T *match = dynamic_cast<T *>(child.get())) return match;
+        }
+
+        return nullptr;
+    }
+
   protected:
     std::string                        name_;
     std::vector<std::shared_ptr<Node>> children_;
