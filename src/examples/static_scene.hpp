@@ -26,9 +26,10 @@ class StaticScene
 
   private:
     SDLInfo *sdl_info_;
-
-    // TODO: This is no longer a static scene.
-    RootNode root_;
+    RootNodeT< //
+        BasicSprite,
+        BasicSprite>
+               root_;
     SceneState scene_state_;
 };
 

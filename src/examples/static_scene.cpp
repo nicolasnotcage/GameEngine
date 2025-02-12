@@ -26,31 +26,27 @@ void StaticScene::init(SDLInfo *sdl_info)
 
     SDL_SetRenderDrawColor(sdl_info->renderer, 28, 40, 51, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
-    
-    // Use factory method to generate two basic sprites
-    auto &sprite_0 = create_basic_sprite();
-    auto &sprite_1 = create_basic_sprite();
 
-    root_.add_child(sprite_0);
-    root_.add_child(sprite_1);
+    auto &sprite_0 = root_.get_child<0>();
+    auto &sprite_1 = root_.get_child<1>();
 
     // Configure data of children nodes using wrapper functions
-    sprite_0->set_filepath("images/fireplace.png");
-    sprite_0->set_blend(true);
-    sprite_0->set_blend_alpha(200);
+    sprite_0.set_filepath("images/fireplace.png");
+    sprite_0.set_blend(true);
+    sprite_0.set_blend_alpha(200);
 
-    sprite_1->set_filepath("images/witch_run.png");
-    sprite_1->set_blend(true);
-    sprite_1->set_blend_alpha(200);
+    sprite_1.set_filepath("images/witch_run.png");
+    sprite_1.set_blend(true);
+    sprite_1.set_blend_alpha(200);
 
     // Set geometry locations
-    sprite_0->set_top_left(230, 150.0f);
-    sprite_0->set_top_right(394, 150.0f);
-    sprite_0->set_bottom_left(230, 314.0f);
+    sprite_0.set_top_left(230, 150.0f);
+    sprite_0.set_top_right(394, 150.0f);
+    sprite_0.set_bottom_left(230, 314.0f);
 
-    sprite_1->set_top_left(380.0f, 150.0f);
-    sprite_1->set_top_right(544.0f, 150.0f);
-    sprite_1->set_bottom_left(380.0f, 314.0f);
+    sprite_1.set_top_left(380.0f, 150.0f);
+    sprite_1.set_top_right(544.0f, 150.0f);
+    sprite_1.set_bottom_left(380.0f, 314.0f);
 
     /**
      * Set custom sprite sheet info (helpful to use Godot sprite sheet tool to get these values).
@@ -72,7 +68,8 @@ void StaticScene::init(SDLInfo *sdl_info)
     int sprite_0_x_offset = sprite_0_frame_index * sprite_0_frame_width;
 
     // Set data within sprite node
-    sprite_0->set_source_rect(
+    // TODO: Wrap this function too
+    sprite_0.get_child<0>().set_source_rect(
         sprite_0_x_offset, 0, sprite_0_frame_width, sprite_0_frame_height);
 
     /**
@@ -83,12 +80,12 @@ void StaticScene::init(SDLInfo *sdl_info)
     int sprite_1_frame_height = 64;
     int sprite_1_y_offset = sprite_1_frame_index * sprite_1_frame_width;
 
-    sprite_1->set_source_rect(
+    sprite_1.get_child<0>().set_source_rect(
         0, sprite_1_y_offset, sprite_1_frame_width, sprite_1_frame_height);
 
     // Flip sprite 1 for testing
-    sprite_1->set_flip_horizontal(true);
-    sprite_1->set_flip_vertical(true);
+    sprite_1.get_child<0>().set_flip_horizontal(true);
+    sprite_1.get_child<0>().set_flip_vertical(true);
 
     // Reset SDLInfo and texture node to nullptr within the scene state struct
     scene_state_.reset();
