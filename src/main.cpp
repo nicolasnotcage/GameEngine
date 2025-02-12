@@ -16,6 +16,7 @@ For more information, please refer to <https://unlicense.org>
 
 
 #include "platform/game_manager.hpp"
+#include "platform/io_handler.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -49,8 +50,21 @@ int main(int argc, char *argv[])
 
     // Get instance of game manager class and run the game loop
     auto game_manager = cge::GameManager::get_instance();
-    game_manager->run_game_loop<cge::StaticScene>(scene);
 
+    // Create time handler instance
+    cge::IoHandler io_handler = cge::IoHandler();
+
+    bool run_game = true;
+    while (run_game)
+    {
+        // Update IO events and see if a quit was requested
+        io_handler.update();
+        if(io_handler.quit_requested()) run_game = false;
+
+        // Run game loop with scene
+        game_manager->run_game_loop<cge::StaticScene>(scene);
+    }
+    
     // Cleanup after game loop
     scene.destroy();
     cge::destroy_sdl_components(sdl_info);
