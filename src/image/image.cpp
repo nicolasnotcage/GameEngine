@@ -19,6 +19,9 @@ For more information, please refer to <https://unlicense.org>
 namespace cge::image
 {
 
+// Define texture cache
+std::unordered_map<std::string, SDLTextureInfo> TextureCache::texture_cache_;
+
 void replace_all(std::string &in, const std::string &old_str, const std::string &new_str)
 {
     size_t start_pos = 0;
@@ -58,34 +61,46 @@ void free_image_data(ImageData &im_data)
 
 SDLTextureInfo create_texture(const SDLInfo &sdl_info, const std::string &filepath)
 {
-    SDLTextureInfo result;
+    // First check the cache; if it doesn't exist, create a new texture and add it to the cache. 
+    if (auto cache_lookup = TextureCache::texture_cache_.find(filepath); cache_lookup != TextureCache::texture_cache_.end())
+    {
+        return cache_lookup->second;
+    }
+    else
+    {
 
-    std::string corrected_filepath(filepath);
+        SDLTextureInfo result;
+
+        std::string corrected_filepath(filepath);
 
 #ifdef __BUILD_WIN__
-    replace_all(corrected_filepath, "/", "\\");
+        replace_all(corrected_filepath, "/", "\\");
 #endif
 
-    ImageData im_data;
-    load_image_data(im_data, filepath);
+        ImageData im_data;
+        load_image_data(im_data, filepath);
 
-    // TODO: Changed to different pixel format, which solved the problem of swapped color channels.
-    result.texture = SDL_CreateTexture(sdl_info.renderer,
-                                       SDL_PIXELFORMAT_ABGR8888,
-                                       SDL_TEXTUREACCESS_STATIC,
-                                       im_data.w,
-                                       im_data.h);
+        // Changed to different pixel format, which solved the problem of swapped color channels.
+        result.texture = SDL_CreateTexture(sdl_info.renderer,
+                                           SDL_PIXELFORMAT_ABGR8888,
+                                           SDL_TEXTUREACCESS_STATIC,
+                                           im_data.w,
+                                           im_data.h);
 
-    result.width = im_data.w;
-    result.height = im_data.h;
-    if(!SDL_UpdateTexture(result.texture, NULL, im_data.data, im_data.bytes_per_row))
-    {
-        std::cout << "ERROR Loading image using STB\n";
+        result.width = im_data.w;
+        result.height = im_data.h;
+        if(!SDL_UpdateTexture(result.texture, NULL, im_data.data, im_data.bytes_per_row))
+        {
+            std::cout << "ERROR Loading image using STB\n";
+        }
+
+        free_image_data(im_data);
+
+        // Push new texture to texture cache
+        TextureCache::texture_cache_.insert({filepath, result});
+
+        return result;
     }
-
-    free_image_data(im_data);
-
-    return result;
 }
 
 void destroy_texture(const SDLTextureInfo &texture_info)

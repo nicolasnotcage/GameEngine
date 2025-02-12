@@ -13,6 +13,7 @@ For more information, please refer to <https://unlicense.org>
 
 #include <optional>
 #include <string>
+#include <unordered_map>
 
 namespace cge::image
 {
@@ -31,6 +32,12 @@ struct SDLTextureInfo
     SDL_Texture *texture;
     int          width;
     int          height;
+};
+
+// Contains a static texture cache to prevent unnecessary duplicate loading
+struct TextureCache
+{
+    static std::unordered_map<std::string, SDLTextureInfo> texture_cache_;
 };
 
 void load_image_data(ImageData &im_data, const std::string &fname);

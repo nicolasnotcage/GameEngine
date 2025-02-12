@@ -28,25 +28,30 @@ void StaticScene::init(SDLInfo *sdl_info)
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
     auto &sprite_0 = root_.get_child<0>();
+    auto &tex_0 = sprite_0.get_child<0>();
+    auto &geo_0 = tex_0.get_child<0>();
+
     auto &sprite_1 = root_.get_child<1>();
+    auto &tex_1 = sprite_1.get_child<0>();
+    auto &geo_1 = tex_1.get_child<0>();
 
     // Configure data of children nodes using wrapper functions
-    sprite_0.set_filepath("images/fireplace.png");
-    sprite_0.set_blend(true);
-    sprite_0.set_blend_alpha(200);
+    tex_0.set_filepath("images/fireplace.png");
+    tex_0.set_blend(true);
+    tex_0.set_blend_alpha(200);
 
-    sprite_1.set_filepath("images/witch_run.png");
-    sprite_1.set_blend(true);
-    sprite_1.set_blend_alpha(200);
+    tex_1.set_filepath("images/witch_run.png");
+    tex_1.set_blend(true);
+    tex_1.set_blend_alpha(200);
 
     // Set geometry locations
-    sprite_0.set_top_left(230, 150.0f);
-    sprite_0.set_top_right(394, 150.0f);
-    sprite_0.set_bottom_left(230, 314.0f);
+    geo_0.set_top_left(230, 150.0f);
+    geo_0.set_top_right(394, 150.0f);
+    geo_0.set_bottom_left(230, 314.0f);
 
-    sprite_1.set_top_left(380.0f, 150.0f);
-    sprite_1.set_top_right(544.0f, 150.0f);
-    sprite_1.set_bottom_left(380.0f, 314.0f);
+    geo_1.set_top_left(380.0f, 150.0f);
+    geo_1.set_top_right(544.0f, 150.0f);
+    geo_1.set_bottom_left(380.0f, 314.0f);
 
     /**
      * Set custom sprite sheet info (helpful to use Godot sprite sheet tool to get these values).
@@ -62,30 +67,27 @@ void StaticScene::init(SDLInfo *sdl_info)
      * TODO: Place these into a dedicated class. Part of the sprite node class?
      *
      **/
-    int sprite_0_frame_index = 0;
-    int sprite_0_frame_width = 64;
-    int sprite_0_frame_height = 64;
-    int sprite_0_x_offset = sprite_0_frame_index * sprite_0_frame_width;
+    int tex_0_frame_index = 0;
+    int tex_0_frame_width = 64;
+    int tex_0_frame_height = 64;
+    int tex_0_x_offset = tex_0_frame_index * tex_0_frame_width;
 
-    // Set data within sprite node
-    // TODO: Wrap this function too
-    sprite_0.get_child<0>().set_source_rect(
-        sprite_0_x_offset, 0, sprite_0_frame_width, sprite_0_frame_height);
+    // Set data within texture node
+    tex_0.set_source_rect(tex_0_x_offset, 0, tex_0_frame_width, tex_0_frame_height);
 
     /**
      * Sprite 1 frame info (note that this one uses a y-offset)
      **/
-    int sprite_1_frame_index = 0;
-    int sprite_1_frame_width = 64;
-    int sprite_1_frame_height = 64;
-    int sprite_1_y_offset = sprite_1_frame_index * sprite_1_frame_width;
+    int tex_1_frame_index = 0;
+    int tex_1_frame_width = 64;
+    int tex_1_frame_height = 64;
+    int tex_1_y_offset = tex_1_frame_index * tex_1_frame_width;
 
-    sprite_1.get_child<0>().set_source_rect(
-        0, sprite_1_y_offset, sprite_1_frame_width, sprite_1_frame_height);
+    tex_1.set_source_rect(0, tex_1_y_offset, tex_1_frame_width, tex_1_frame_height);
 
     // Flip sprite 1 for testing
-    sprite_1.get_child<0>().set_flip_horizontal(true);
-    sprite_1.get_child<0>().set_flip_vertical(true);
+    tex_1.set_flip_horizontal(true);
+    tex_1.set_flip_vertical(true);
 
     // Reset SDLInfo and texture node to nullptr within the scene state struct
     scene_state_.reset();

@@ -7,6 +7,9 @@
     <ClCompile Include="$(ProjectDir)..\src\platform\event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\platform\game_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\src\platform\core.hpp">
@@ -21,9 +24,9 @@
     <ClInclude Include="$(ProjectDir)..\src\platform\types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="$(ProjectDir)..\src\platform\CMakeLists.txt" />
+    <ClInclude Include="..\src\platform\game_manager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
