@@ -22,9 +22,11 @@ public:
         return &instance;
     }
 
-    // Delete copy constructor and assignment operator to prevent copying
+    // Delete copy and move constructor/assignment operators
     GameManager(const GameManager &) = delete;
     GameManager &operator=(const GameManager &) = delete;
+    GameManager(GameManager &&) = delete;
+    GameManager &operator=(GameManager &&) = delete;
 
     // Templated game loop that can handle arbitrary scene types
     template <typename T>

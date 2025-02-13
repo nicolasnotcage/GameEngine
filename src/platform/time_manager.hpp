@@ -16,9 +16,11 @@ public:
         return &instance;
     }
 
-    // Delete copy constructor and assignment operator to prevent copying
+    // Delete copy and move constructor/assignment operators
     TimeManager(const TimeManager &) = delete;
     TimeManager &operator=(const TimeManager &) = delete;
+    TimeManager(TimeManager &&) = delete;
+    TimeManager &operator=(TimeManager &&) = delete;
 
     void update();
     double get_delta_time() const;
