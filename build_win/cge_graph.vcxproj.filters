@@ -19,6 +19,9 @@
     <ClCompile Include="..\src\graph\sprite_node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\graph\analytics_node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\src\graph\geometry_node.hpp">
@@ -40,6 +43,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graph\sprite_node.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graph\analytics_node.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

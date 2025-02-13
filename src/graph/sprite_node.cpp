@@ -16,9 +16,8 @@ void SpriteNode::destroy()
 }
 
 void SpriteNode::update(SceneState &scene_state)
-{
-    // Do something
-   
+{ 
+    update_children(scene_state); 
 }
 
 } // namespace cge

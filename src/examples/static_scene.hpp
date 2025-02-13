@@ -11,6 +11,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/scene_state.hpp"
 #include "graph/sprite_node.hpp"
 #include "graph/texture_node.hpp"
+#include "graph/analytics_node.hpp"
 
 namespace cge
 {
@@ -26,11 +27,14 @@ class StaticScene
 
     void render();
 
+    void update(double delta);
+
   private:
     SDLInfo *sdl_info_;
     RootNodeT< //
         BasicSprite,
-        BasicSprite>
+        BasicSprite,
+        AnalyticsNodeT<>>
                root_;
     SceneState scene_state_;
 };

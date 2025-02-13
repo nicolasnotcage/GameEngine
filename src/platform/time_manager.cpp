@@ -22,11 +22,14 @@ void TimeManager::update()
 }
 
 // Return delta time
-uint64_t TimeManager::get_delta_time() const { return delta_time_; }
+double TimeManager::get_delta_time() const { return delta_time_; }
 
-uint64_t TimeManager::get_current_time() const
+// In time_manager.cpp
+double TimeManager::get_current_time() const
 {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(my_clock.now().time_since_epoch()).count();
+    return std::chrono::duration_cast<std::chrono::duration<double>>(
+               my_clock.now().time_since_epoch())
+        .count();
 }
 
 } // namespace cge

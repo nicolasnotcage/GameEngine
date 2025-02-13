@@ -78,8 +78,8 @@ void TextureNode::draw(SceneState &scene_state)
 }
 
 void TextureNode::update(SceneState &scene_state)
-{
-    // TODO: Do something.
+{ 
+    update_children(scene_state); 
 }
 
 SDL_Texture *TextureNode::sdl_texture() { return texture_; }

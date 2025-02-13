@@ -17,15 +17,11 @@ For more information, please refer to <https://unlicense.org>
 
 #include "platform/game_manager.hpp"
 #include "platform/io_handler.hpp"
+#include "platform/time_manager.hpp"
 
 #include <chrono>
 #include <iostream>
 #include <thread>
-
-void sleep(int milliseconds)
-{
-    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-}
 
 int main(int argc, char *argv[])
 {
@@ -51,9 +47,15 @@ int main(int argc, char *argv[])
     // Get instance of game manager class and run the game loop
     auto game_manager = cge::GameManager::get_instance();
 
-    // Create time handler instance
+    // Create io and time handler instances
     cge::IoHandler io_handler = cge::IoHandler();
+    cge::TimeManager *time_manager = cge::TimeManager::get_instance();
 
+    // Measure start time
+    double start_time = time_manager->get_current_time();
+    std::cout << "Time at loop start: " << start_time << std::endl;
+
+    // Main game loop
     bool run_game = true;
     while (run_game)
     {
@@ -64,6 +66,11 @@ int main(int argc, char *argv[])
         // Run game loop with scene
         game_manager->run_game_loop<cge::StaticScene>(scene);
     }
+
+    // Calculate end time and duration
+    double end_time = time_manager->get_current_time();
+    std::cout << "Time at loop end: " << end_time << std::endl;
+    std::cout << "Total elapsed time: " << end_time - start_time << "s..." << std::endl;
     
     // Cleanup after game loop
     scene.destroy();

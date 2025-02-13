@@ -133,6 +133,7 @@
     <ClCompile Include="$(ProjectDir)..\src\graph\root_node.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\graph\scene_state.cpp" />
     <ClCompile Include="$(ProjectDir)..\src\graph\texture_node.cpp" />
+    <ClCompile Include="..\src\graph\analytics_node.cpp" />
     <ClCompile Include="..\src\graph\sprite_node.cpp" />
     <ClInclude Include="$(ProjectDir)..\src\graph\geometry_node.hpp" />
     <ClInclude Include="$(ProjectDir)..\src\graph\node.hpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="$(ProjectDir)..\src\graph\root_node.hpp" />
     <ClInclude Include="$(ProjectDir)..\src\graph\scene_state.hpp" />
     <ClInclude Include="$(ProjectDir)..\src\graph\texture_node.hpp" />
+    <ClInclude Include="..\src\graph\analytics_node.hpp" />
     <ClInclude Include="..\src\graph\sprite_node.hpp" />
   </ItemGroup>
   <ItemGroup />

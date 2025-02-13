@@ -26,9 +26,6 @@ void RootNode::draw(SceneState &scene_state)
     SDL_RenderPresent(scene_state.sdl_info->renderer);
 }
 
-void RootNode::update(SceneState& scene_state)
-{
-    // TODO: Do something
-}
+void RootNode::update(SceneState &scene_state) { update_children(scene_state); }
 
 } // namespace cge

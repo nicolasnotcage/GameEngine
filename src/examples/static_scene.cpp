@@ -109,4 +109,10 @@ void StaticScene::render()
     root_.draw(scene_state_);
 }
 
+void StaticScene::update(double delta) 
+{ 
+    scene_state_.delta = delta;
+    root_.update(scene_state_); 
+}
+
 } // namespace cge

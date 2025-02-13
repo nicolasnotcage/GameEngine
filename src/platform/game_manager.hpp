@@ -16,22 +16,32 @@ public:
     static constexpr double DRAW_INTERVAL = 1.0 / NUM_DRAWS_PER_SECOND;
 
     // Static function to get an instance of the game manager object
-    static GameManager *get_instance();
+    static GameManager* get_instance()
+    { 
+        static GameManager instance;
+        return &instance;
+    }
 
-    // Templated game loop that uses T for a scene type
+    // Delete copy constructor and assignment operator to prevent copying
+    GameManager(const GameManager &) = delete;
+    GameManager &operator=(const GameManager &) = delete;
+
+    // Templated game loop that can handle arbitrary scene types
     template <typename T>
-    void run_game_loop(T scene)
+    void run_game_loop(T& scene)
     {
         time_manager_->update();
-        uint64_t current_time = time_manager_->get_current_time();
+        double current_time = time_manager_->get_current_time();
+        double delta_time = time_manager_->get_delta_time();
 
         int times_updated = 0;
         while(current_time - last_update_time_ > UPDATE_INTERVAL && times_updated < 3)
         {
-            // TODO: update_scene(UPDATE_INTERVAL);
+            scene.update(delta_time);
             last_update_time_ += UPDATE_INTERVAL;
             times_updated++;
         }
+
         if(times_updated == 3) last_update_time_ = current_time;
 
         if(current_time - last_draw_time_ > DRAW_INTERVAL)
@@ -42,14 +52,21 @@ public:
     }
 
 protected:
-    GameManager();
-    ~GameManager();
+
 
 private:
-    static GameManager *game_manager_;
+    GameManager::GameManager()
+    {
+        time_manager_ = TimeManager::get_instance();
+        last_update_time_ = time_manager_->get_current_time();
+        last_draw_time_ = last_update_time_;
+    }
+
+    ~GameManager() = default;
+
     TimeManager        *time_manager_;
-    static uint64_t     last_update_time_;
-    static uint64_t     last_draw_time_;
+    double              last_update_time_{0.0};
+    double              last_draw_time_{0.0};
 
     void sleep(int milliseconds);
 };
