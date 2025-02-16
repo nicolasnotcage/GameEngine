@@ -32,9 +32,8 @@ public:
     template <typename T>
     void run_game_loop(T& scene)
     {
-        time_manager_->update();
         double current_time = time_manager_->get_current_time();
-        double delta_time = time_manager_->get_delta_time();
+        double delta_time = current_time - last_time;
 
         int times_updated = 0;
         while(current_time - last_update_time_ > UPDATE_INTERVAL && times_updated < 3)
@@ -51,10 +50,9 @@ public:
             scene.render();
             last_draw_time_ = current_time;
         }
+
+        last_time = current_time;
     }
-
-protected:
-
 
 private:
     GameManager::GameManager()
@@ -67,6 +65,7 @@ private:
     ~GameManager() = default;
 
     TimeManager        *time_manager_;
+    double              last_time{0.0};
     double              last_update_time_{0.0};
     double              last_draw_time_{0.0};
 

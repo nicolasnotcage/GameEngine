@@ -1,0 +1,3 @@
+Implementation Notes
+
+1) Corrected timing issue within TimeManager class by refactoring the class to not hold state information. This class now simply provides a singleton interface for accessing a high resolution clock. 

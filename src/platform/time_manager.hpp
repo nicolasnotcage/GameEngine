@@ -22,8 +22,6 @@ public:
     TimeManager(TimeManager &&) = delete;
     TimeManager &operator=(TimeManager &&) = delete;
 
-    void update();
-    double get_delta_time() const;
     double get_current_time() const;
 
 private:
@@ -31,8 +29,6 @@ private:
     ~TimeManager();
 
     std::chrono::high_resolution_clock  my_clock;
-    double                             delta_time_;
-    double                              last_time_;
 };
 
 } // namespace cge

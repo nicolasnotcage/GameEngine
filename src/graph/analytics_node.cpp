@@ -20,7 +20,7 @@ void AnalyticsNode::draw(SceneState &scene_state)
 
 void AnalyticsNode::destroy()
 {
-    std::cout << "Total Updates: " << total_updates_ << std::endl;
+    std::cout << "Total Updates: " << total_updates_ << "\n";
     std::cout << "Total Draws: " << total_draws_ << std::endl;
 
     destroy_children();
