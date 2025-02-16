@@ -12,7 +12,8 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-// Sets SDLInfo and texture node data members to nullptr.
+// Sets SDLInfo and texture node data members to nullptr.n
+// TODO: Reset delta and matrix stack as well?
 void SceneState::reset()
 {
     sdl_info = nullptr;

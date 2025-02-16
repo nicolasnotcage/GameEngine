@@ -9,6 +9,7 @@ For more information, please refer to <https://unlicense.org>
 #define GRAPH_SCENE_STATE_HPP
 
 #include "platform/types.hpp"
+#include "platform/math.hpp"
 
 namespace cge
 {
@@ -23,6 +24,7 @@ struct SceneState
     SDLInfo     *sdl_info;
     TextureNode *texture_node;
     float        delta;
+    MatrixStack  matrix_stack;
 
     void reset();
 };

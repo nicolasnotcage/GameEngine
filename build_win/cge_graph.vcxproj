@@ -135,6 +135,7 @@
     <ClCompile Include="$(ProjectDir)..\src\graph\texture_node.cpp" />
     <ClCompile Include="..\src\graph\analytics_node.cpp" />
     <ClCompile Include="..\src\graph\sprite_node.cpp" />
+    <ClCompile Include="..\src\graph\transform_node.cpp" />
     <ClInclude Include="$(ProjectDir)..\src\graph\geometry_node.hpp" />
     <ClInclude Include="$(ProjectDir)..\src\graph\node.hpp" />
     <ClInclude Include="$(ProjectDir)..\src\graph\node_t.hpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="$(ProjectDir)..\src\graph\texture_node.hpp" />
     <ClInclude Include="..\src\graph\analytics_node.hpp" />
     <ClInclude Include="..\src\graph\sprite_node.hpp" />
+    <ClInclude Include="..\src\graph\transform_node.hpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
