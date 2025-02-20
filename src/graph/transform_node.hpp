@@ -5,6 +5,7 @@
 #include "graph/node.hpp"
 #include "graph/node_t.hpp"
 #include "graph/texture_node.hpp"
+#include "platform/math.hpp"
 
 namespace cge
 {
@@ -20,6 +21,19 @@ class TransformNode : public Node
     void destroy() override;
     void draw(SceneState &scene_state) override;
     void update(SceneState &scene_state) override;
+
+    void set_identity();
+    void left_scale(float x, float y);
+    void right_scale(float x, float y);
+    void left_rotate_degrees(float angle_deg);
+    void right_rotate_degrees(float angle_deg);
+    void left_rotate(float rad_deg);
+    void right_rotate(float rad_deg);
+    void left_translate(float x, float y);
+    void right_translate(float x, float y);
+
+private:
+    Matrix3 transform_;
 };
 
 template <typename... ChildrenTs>
