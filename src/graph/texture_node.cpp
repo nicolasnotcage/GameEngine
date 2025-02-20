@@ -102,23 +102,4 @@ void TextureNode::set_blend(bool blend) { apply_blend_ = blend; }
 
 void TextureNode::set_blend_alpha(uint8_t alpha) { blend_alpha_ = alpha; }
 
-// Define a sub-section of the texture to be displayed
-void TextureNode::set_source_rect(int x, int y, int w, int h) 
-{ 
-    use_src_rect_ = true; 
-    src_rect_.x = x;
-    src_rect_.y = y;
-    src_rect_.w = w;
-    src_rect_.h = h;
-}
-
-// Used by geometry nodes when determining what to draw
-bool TextureNode::use_source_rect() const
-{ 
-    return use_src_rect_; 
-}
-
-// Returns pointer to source rectangle
-SDL_Rect* TextureNode::get_src_rect() { return &src_rect_; }
-
 } // namespace cge

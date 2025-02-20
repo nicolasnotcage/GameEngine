@@ -1,5 +1,5 @@
-#ifndef GRAPH_SPRITE_NODE_HPP
-#define GRAPH_SPRITE_NODE_HPP
+#ifndef GRAPH_TRANSFORM_NODE_HPP
+#define GRAPH_TRANSFORM_NODE_HPP
 
 #include "graph/geometry_node.hpp"
 #include "graph/node.hpp"
@@ -41,4 +41,4 @@ using TransformNodeT = NodeT<TransformNode, ChildrenTs...>;
 
 } // namespace cge
 
-#endif // GRAPH_SPRITE_NODE_HPP
+#endif // GRAPH_TRANSFORM_NODE_HPP

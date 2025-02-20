@@ -12,11 +12,12 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/sprite_node.hpp"
 #include "graph/texture_node.hpp"
 #include "graph/analytics_node.hpp"
+#include "graph/transform_node.hpp"
 
 namespace cge
 {
 
-using BasicSprite = SpriteNodeT<TextureNodeT<GeometryNodeT<>>>;
+using BasicSprite = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 
 class StaticScene
 {
@@ -33,8 +34,7 @@ class StaticScene
     SDLInfo *sdl_info_;
     RootNodeT< //
         BasicSprite,
-        BasicSprite,
-        AnalyticsNodeT<>>
+        BasicSprite>
                root_;
     SceneState scene_state_;
 };

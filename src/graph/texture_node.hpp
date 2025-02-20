@@ -42,17 +42,6 @@ class TextureNode : public Node
     void set_blend(bool blend);
     void set_blend_alpha(uint8_t alpha);
 
-    // For working with sprite sheets
-    void set_source_rect(int x, int y, int w, int h);
-    bool use_source_rect() const;
-    SDL_Rect* get_src_rect();
-
-    // Flip textures
-    void set_flip_horizontal(bool flip_h) { flip_horizontal_ = flip_h; }
-    void set_flip_vertical(bool flip_v) { flip_vertical_ = flip_v; }
-    bool flip_horizontal() const { return flip_horizontal_; }
-    bool flip_vertical() const { return flip_vertical_; }
-
   protected:
     SDL_Texture *texture_;
     int          width_;
@@ -64,14 +53,6 @@ class TextureNode : public Node
 
     bool    apply_blend_;
     uint8_t blend_alpha_;
-
-    // For working with sprite sheets
-    bool use_src_rect_{false};
-    SDL_Rect src_rect_;
-
-    // For flipping textures
-    bool flip_horizontal_{false};
-    bool flip_vertical_{false};
 };
 
 template <typename... ChildrenTs>

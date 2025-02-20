@@ -29,15 +29,6 @@ class GeometryNode : public Node
     void draw(SceneState &scene_state) override;
 
     void update(SceneState &scene_state) override;
-
-    void set_top_left(float x, float y);
-
-    void set_top_right(float x, float y);
-
-    void set_bottom_left(float x, float y);
-
-  protected:
-    SDL_FPoint corners_[3];
 };
 
 template <typename... ChildrenTs>
