@@ -25,9 +25,13 @@ void StaticScene::init(SDLInfo *sdl_info)
     auto &tex_1 = transform_1.get_child<0>();
     auto &geo_1 = tex_1.get_child<0>();
 
-    // Set transform nodes to identity matrix
-    transform_0.set_identity();
-    transform_1.set_identity();
+    // Apply transformations
+    transform_0.left_scale(300, 300);
+    transform_0.left_translate(200, 200);
+
+    transform_1.left_scale(300, 300);
+    transform_1.left_translate(300, 300);
+    
 
     // Configure data of children nodes using wrapper functions
     tex_0.set_filepath("images/fireplace.png");
