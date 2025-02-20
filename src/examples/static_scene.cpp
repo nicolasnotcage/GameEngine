@@ -17,30 +17,53 @@ void StaticScene::init(SDLInfo *sdl_info)
     SDL_SetRenderDrawColor(sdl_info->renderer, 28, 40, 51, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
-    auto &transform_0 = root_.get_child<0>();
-    auto &tex_0 = transform_0.get_child<0>();
-    auto &geo_0 = tex_0.get_child<0>();
+    // Parent sprite (Sphere)
+    auto &parent = root_.get_child<0>();
+    auto &parent_tex = parent.get_child<0>();
+    auto &parent_geo = parent_tex.get_child<0>();
 
-    auto &transform_1 = root_.get_child<1>();
-    auto &tex_1 = transform_1.get_child<0>();
-    auto &geo_1 = tex_1.get_child<0>();
+    // First child sprite (MolePerson) - relative to parent
+    auto &child1 = parent.get_child<1>();
+    auto &child1_tex = child1.get_child<0>();
+    auto &child1_geo = child1_tex.get_child<0>();
 
-    // Apply transformations
-    transform_0.left_scale(300, 300);
-    transform_0.left_translate(200, 200);
+    // Second child sprite (Player) - relative to parent
+    auto &child2 = parent.get_child<2>();
+    auto &child2_tex = child2.get_child<0>();
+    auto &child2_geo = child2_tex.get_child<0>();
 
-    transform_1.left_scale(300, 300);
-    transform_1.left_translate(300, 300);
-    
+    // Parent Transform
+    parent.right_translate(400, 200);
+    parent.right_scale(300, 300);
 
-    // Configure data of children nodes using wrapper functions
-    tex_0.set_filepath("images/fireplace.png");
-    tex_0.set_blend(true);
-    tex_0.set_blend_alpha(200);
+    // Child Transforms
+    //     Must account for the scaling of the parent so we divide the transform values 
+    //     by 300 before applying them.
 
-    tex_1.set_filepath("images/witch_run.png");
-    tex_1.set_blend(true);
-    tex_1.set_blend_alpha(200);
+    // Place child 1 200 pixels to the left of the parent and 100 pixels up. 
+    // Also rotate it 315 to give a 45 degree left rotation.
+    child1.right_translate(-200.0f / 300.0f, -100.0f / 300.0f);
+    child1.right_rotate_degrees(315);
+    child1.right_scale(0.5f, 0.5f);
+
+    // Place child 2 200 pixels to the right of the parent and 100 pixels up. 
+    // Also rotate it 45 degrees to the right.
+    child2.right_translate(200.0f / 300.0f, -100.0f / 300.0f);
+    child2.right_rotate_degrees(45);
+    child2.right_scale(0.5f, 0.5f);
+
+    // Configure textures
+    parent_tex.set_filepath("images/Sphere.png");
+    parent_tex.set_blend(true);
+    parent_tex.set_blend_alpha(200);
+
+    child1_tex.set_filepath("images/MolePerson.png");
+    child1_tex.set_blend(true);
+    child1_tex.set_blend_alpha(200);
+
+    child2_tex.set_filepath("images/Player.png");
+    child2_tex.set_blend(true);
+    child2_tex.set_blend_alpha(200);
 
     // Reset SDLInfo and texture node to nullptr within the scene state struct
     scene_state_.reset();
@@ -48,7 +71,7 @@ void StaticScene::init(SDLInfo *sdl_info)
     // Set scene state SDLInfo data to new SDLInfo data
     scene_state_.sdl_info = sdl_info_;
 
-    // Initialize root node with new scene state (texture node is still null)
+    // Initialize root node with new scene state
     root_.init(scene_state_);
 }
 
@@ -62,10 +85,10 @@ void StaticScene::render()
     root_.draw(scene_state_);
 }
 
-void StaticScene::update(double delta) 
-{ 
+void StaticScene::update(double delta)
+{
     scene_state_.delta = delta;
-    root_.update(scene_state_); 
+    root_.update(scene_state_);
 }
 
 } // namespace cge

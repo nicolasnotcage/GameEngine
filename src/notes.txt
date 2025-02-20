@@ -1,3 +1,6 @@
 Implementation Notes
 
 1) Corrected timing issue within TimeManager class by refactoring the class to not hold state information. This class now simply provides a singleton interface for accessing a high resolution clock. 
+2) Added a line in TextureNode's init() function to perform nearest neighbor scaling on textures to prevent distortion when scaling up pixel art
+3) Removed all of my naive sprite sheet source rectangle and rotation code. I figure it was a nice idea but a bad approach. I'll revisit those ideas as we get to them in class.
+4) Added TransformNode hierarchy to static scene. A sphere texture sits at the top with two children that are positioned relative to the parent. This one took some time to wrap my head around when doing child transforms.

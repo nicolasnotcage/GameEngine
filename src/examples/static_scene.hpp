@@ -18,6 +18,13 @@ namespace cge
 {
 
 using BasicSprite = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
+// Parent sprite with two child sprites
+using HierarchicalSprite =
+    TransformNodeT< 
+        TextureNodeT<GeometryNodeT<>>,                
+        BasicSprite,                                
+        BasicSprite> ;
+
 
 class StaticScene
 {
@@ -32,10 +39,7 @@ class StaticScene
 
   private:
     SDLInfo *sdl_info_;
-    RootNodeT< //
-        BasicSprite,
-        BasicSprite>
-               root_;
+    RootNodeT<HierarchicalSprite> root_;
     SceneState scene_state_;
 };
 
