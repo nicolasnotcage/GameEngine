@@ -18,6 +18,7 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/game_manager.hpp"
 #include "platform/io_handler.hpp"
 #include "platform/time_manager.hpp"
+#include "platform/config.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -34,11 +35,8 @@ int main(int argc, char *argv[])
     // Generate default SDLInfo struct (contains pointers to an SDL renderer and SDL window) 
     cge::SDLInfo sdl_info;
 
-    constexpr int SCREEN_WIDTH = 800;
-    constexpr int SCREEN_HEIGHT = 600;
-
     // Create and configure components of SDL instance
-    cge::create_sdl_components(sdl_info, SCREEN_WIDTH, SCREEN_HEIGHT, "Class 605.688");
+    cge::create_sdl_components(sdl_info, cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT, "Class 605.688");
 
     // Initialize the active scene
     cge::StaticScene scene;

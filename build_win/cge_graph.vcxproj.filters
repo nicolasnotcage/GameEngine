@@ -25,6 +25,9 @@
     <ClCompile Include="..\src\graph\transform_node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\graph\camera_node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ProjectDir)..\src\graph\geometry_node.hpp">
@@ -52,6 +55,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\graph\transform_node.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\graph\camera_node.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

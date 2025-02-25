@@ -13,6 +13,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/texture_node.hpp"
 #include "graph/analytics_node.hpp"
 #include "graph/transform_node.hpp"
+#include "graph/camera_node.hpp"
 
 namespace cge
 {
@@ -21,10 +22,11 @@ using BasicSprite = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 
 // Parent sprite with two child sprites
 using HierarchicalSprite =
-    TransformNodeT< 
-        TextureNodeT<GeometryNodeT<>>,                
-        BasicSprite,                                
-        BasicSprite> ;
+    CameraNodeT<
+        TransformNodeT< 
+            TextureNodeT<GeometryNodeT<>>,                
+            BasicSprite,                                
+            BasicSprite>> ;
 
 class StaticScene
 {

@@ -18,9 +18,16 @@ void StaticScene::init(SDLInfo *sdl_info)
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
     // Parent sprite (Sphere)
-    auto &parent = root_.get_child<0>();
+    auto &camera = root_.get_child<0>();
+    auto &parent = camera.get_child<0>();
     auto &parent_tex = parent.get_child<0>();
     auto &parent_geo = parent_tex.get_child<0>();
+
+    // Set camera dimensions
+    camera.get_camera().set_dimensions(20.0f, 15.0f);
+
+    // Position camera to look at origin initially
+    camera.get_camera().set_position(0.0f, 0.0f);
 
     // First child sprite (MolePerson) - relative to parent
     auto &child1 = parent.get_child<1>();
@@ -33,22 +40,16 @@ void StaticScene::init(SDLInfo *sdl_info)
     auto &child2_geo = child2_tex.get_child<0>();
 
     // Parent Transform
-    parent.right_translate(400, 200);
-    parent.right_scale(300, 300);
+    parent.right_translate(5.0f, 3.0f);
+    parent.right_scale(3.0f, 3.0f);
 
-    // Child Transforms
-    //     Must account for the scaling of the parent so we divide the transform values 
-    //     by 300 before applying them.
-
-    // Place child 1 200 pixels to the left of the parent and 100 pixels up. 
-    // Also rotate it 315 to give a 45 degree left rotation.
-    child1.right_translate(-200.0f / 300.0f, -100.0f / 300.0f);
+    // Position child 1 at (-2, -1) relative to parent (in world units)
+    child1.right_translate(-2.0f / 3.0f, 1.0f / 3.0f);
     child1.right_rotate_degrees(315);
     child1.right_scale(0.5f, 0.5f);
 
-    // Place child 2 200 pixels to the right of the parent and 100 pixels up. 
-    // Also rotate it 45 degrees to the right.
-    child2.right_translate(200.0f / 300.0f, -100.0f / 300.0f);
+    // Position child 2 at (2, -1) relative to parent (in world units)
+    child2.right_translate(2.0f / 3.0f, 1.0f / 3.0f);
     child2.right_rotate_degrees(45);
     child2.right_scale(0.5f, 0.5f);
 
