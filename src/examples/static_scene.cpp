@@ -40,7 +40,7 @@ void StaticScene::init(SDLInfo *sdl_info)
     auto &child2_geo = child2_tex.get_child<0>();
 
     // Parent Transform
-    parent.right_translate(5.0f, 3.0f);
+    parent.right_translate(1.0f, 3.0f);
     parent.right_scale(3.0f, 3.0f);
 
     // Position child 1 at (-2, -1) relative to parent (in world units)
