@@ -132,6 +132,7 @@
     <ClCompile Include="$(ProjectDir)..\src\platform\event.cpp" />
     <ClCompile Include="..\src\platform\camera.cpp" />
     <ClCompile Include="..\src\platform\game_manager.cpp" />
+    <ClCompile Include="..\src\platform\input_interpreter.cpp" />
     <ClCompile Include="..\src\platform\io_handler.cpp" />
     <ClCompile Include="..\src\platform\math.cpp" />
     <ClCompile Include="..\src\platform\time_manager.cpp" />
@@ -141,7 +142,9 @@
     <ClInclude Include="$(ProjectDir)..\src\platform\types.hpp" />
     <ClInclude Include="..\src\platform\camera.hpp" />
     <ClInclude Include="..\src\platform\config.hpp" />
+    <ClInclude Include="..\src\platform\game_action.hpp" />
     <ClInclude Include="..\src\platform\game_manager.hpp" />
+    <ClInclude Include="..\src\platform\input_interpreter.hpp" />
     <ClInclude Include="..\src\platform\io_handler.hpp" />
     <ClInclude Include="..\src\platform\math.hpp" />
     <ClInclude Include="..\src\platform\time_manager.hpp" />

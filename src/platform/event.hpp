@@ -18,12 +18,26 @@ enum class EventType
 {
     PLAY_SOUND,
     TOGGLE_MUSIC,
-    QUIT
+    QUIT,
+
+    // New raw input events
+    KEY_DOWN_W, 
+    KEY_DOWN_A, 
+    KEY_DOWN_S, 
+    KEY_DOWN_D,
+    KEY_DOWN_PLUS,  // For keyboard zoom in
+    KEY_DOWN_MINUS, // For keyboard zoom out
+    MOUSE_WHEEL_UP,
+    MOUSE_WHEEL_DOWN,
+    MOUSE_BUTTON_LEFT,
+    MOUSE_BUTTON_RIGHT,
+    MOUSE_MOTION
 };
+
 
 struct SDLEventInfo
 {
-    static constexpr size_t MAX_EVENTS = 10;
+    static constexpr size_t MAX_EVENTS = 20;
     uint8_t                 num_events;
     EventType               events[MAX_EVENTS];
 };

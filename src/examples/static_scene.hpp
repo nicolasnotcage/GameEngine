@@ -14,6 +14,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/analytics_node.hpp"
 #include "graph/transform_node.hpp"
 #include "graph/camera_node.hpp"
+#include "platform/io_handler.hpp"
 
 namespace cge
 {
@@ -31,7 +32,7 @@ using HierarchicalSprite =
 class StaticScene
 {
   public:
-    void init(SDLInfo *sdl_info);
+    void init(SDLInfo *sdl_info, IoHandler *io_handler);
 
     void destroy();
 
@@ -40,9 +41,10 @@ class StaticScene
     void update(double delta);
 
   private:
-    SDLInfo *sdl_info_;
+    SDLInfo                      *sdl_info_;
     RootNodeT<HierarchicalSprite> root_;
-    SceneState scene_state_;
+    SceneState                    scene_state_;
+    IoHandler                     *io_handler_;
 };
 
 } // namespace cge

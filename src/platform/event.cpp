@@ -8,6 +8,8 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/event.hpp"
 #include "platform/sdl.h"
 
+#include <iostream>
+
 namespace cge
 {
 
@@ -21,17 +23,52 @@ SDLEventInfo get_current_events()
     {
         switch(e.type)
         {
-            case SDL_EVENT_MOUSE_BUTTON_DOWN: break;
+            // Mouse button actions
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                if(e.button.button == SDL_BUTTON_LEFT)
+                    event_info.events[num_events++] = EventType::MOUSE_BUTTON_LEFT;
+                else if(e.button.button == SDL_BUTTON_RIGHT)
+                    event_info.events[num_events++] = EventType::MOUSE_BUTTON_RIGHT;
+                break;
+
+            // Mouse wheel actions
+            case SDL_EVENT_MOUSE_WHEEL:
+                if(e.wheel.y > 0) 
+                    event_info.events[num_events++] = EventType::MOUSE_WHEEL_UP;
+                else if(e.wheel.y < 0)
+                    event_info.events[num_events++] = EventType::MOUSE_WHEEL_DOWN;
+                break;
+
+            // Quit action
             case SDL_EVENT_QUIT: event_info.events[num_events++] = EventType::QUIT; break;
+
+            // Key press actions
             case SDL_EVENT_KEY_DOWN:
                 switch(e.key.key)
                 {
+                    // Given actions
                     case SDLK_ESCAPE: event_info.events[num_events++] = EventType::QUIT; break;
                     case SDLK_SPACE: event_info.events[num_events++] = EventType::PLAY_SOUND; break;
                     case SDLK_M: event_info.events[num_events++] = EventType::TOGGLE_MUSIC; break;
+
+                    // Other keys
+                    case SDLK_W: event_info.events[num_events++] = EventType::KEY_DOWN_W; break;
+                    case SDLK_A: event_info.events[num_events++] = EventType::KEY_DOWN_A; break;
+                    case SDLK_S: event_info.events[num_events++] = EventType::KEY_DOWN_S; break;
+                    case SDLK_D: event_info.events[num_events++] = EventType::KEY_DOWN_D; break;
+                    case SDLK_PLUS:
+                    case SDLK_EQUALS:
+                        event_info.events[num_events++] = EventType::KEY_DOWN_PLUS;
+                        break;
+                    case SDLK_MINUS:
+                        event_info.events[num_events++] = EventType::KEY_DOWN_MINUS;
+                        break;
+
                     default: break;
                 }
+
                 break;
+
             default: break;
         }
     }

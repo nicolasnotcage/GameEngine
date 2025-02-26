@@ -1,6 +1,17 @@
 Implementation Notes
 
-1) Corrected timing issue within TimeManager class by refactoring the class to not hold state information. This class now simply provides a singleton interface for accessing a high resolution clock. 
-2) Added a line in TextureNode's init() function to perform nearest neighbor scaling on textures to prevent distortion when scaling up pixel art
-3) Removed all of my naive sprite sheet source rectangle and rotation code. I figure it was a nice idea but a bad approach. I'll revisit those ideas as we get to them in class.
-4) Added TransformNode hierarchy to static scene. A sphere texture sits at the top with two children that are positioned relative to the parent. This one took some time to wrap my head around when doing child transforms.
+1) Added IOHandler to scene state so that update methods can use IO events for update behavior. A reference to an IO handler is passed to a scene's update method along with a delta. Defined a GameAction Enum class (game_action.hpp).
+
+
+2) World coordinates were something that really took me some time to wrap my head around. I understood that these coordinates were arbitrary, but relating the coordinates of the camera to the coordinates of the objects within its viewport was something that I even still struggle wrapping my head around. In my implementation, we define the location of our camera, perform the equation on the camera from the slides, and then draw it to the screen. 
+
+3) Added new events to the EventType Enum class
+
+IO Handling
+Implemented a three-layer input system architecture to decouple raw device events from game logic. The first layer sits in event.hpp and event.cpp and captures raw device events through SDL. The second layer translates these device-specific events into device-agnostic game actions that are defined in game_action.hpp. The interpreter itself resides in input_interpreter.hpp and input_interpreter.cpp and simply provides a function to interpret game actions from raw input. 
+
+The third layer manages the IO pipeline and is contained within my original IoHandler class (io_handler.hpp and io_handler.cpp). This class now stores an interpreter object and collections of raw SDL input and game actions. The handler's update() function gets new raw input and translates those into game actions. It's the "central hub" of input processing and provides an interface for nodes within the scene graph to get input data that can be used to execute game logic.
+
+From the collection of game actions returned by the IO handler, update() functions within the scene graph can listen for relevant input and take action based on those inputs. For example, my camera node listens for WASD and scroll wheel inputs and modifies the camera based on the input received. 
+
+

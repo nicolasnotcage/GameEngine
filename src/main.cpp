@@ -38,16 +38,16 @@ int main(int argc, char *argv[])
     // Create and configure components of SDL instance
     cge::create_sdl_components(sdl_info, cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT, "Class 605.688");
 
+    // Create io and time handler instances
+    cge::IoHandler    io_handler = cge::IoHandler();
+    cge::TimeManager *time_manager = cge::TimeManager::get_instance();
+
     // Initialize the active scene
     cge::StaticScene scene;
-    scene.init(&sdl_info);
+    scene.init(&sdl_info, &io_handler);
 
     // Get instance of game manager class and run the game loop
     auto game_manager = cge::GameManager::get_instance();
-
-    // Create io and time handler instances
-    cge::IoHandler io_handler = cge::IoHandler();
-    cge::TimeManager *time_manager = cge::TimeManager::get_instance();
 
     // Measure start time
     double start_time = time_manager->get_current_time();
@@ -57,12 +57,11 @@ int main(int argc, char *argv[])
     bool run_game = true;
     while (run_game)
     {
-        // Update IO events and see if a quit was requested
-        io_handler.update();
-        if(io_handler.quit_requested()) run_game = false;
-
         // Run game loop with scene
-        game_manager->run_game_loop<cge::StaticScene>(scene);
+        game_manager->run_game_loop<cge::StaticScene>(scene, io_handler);
+
+        // See if a quit was requested
+        if(io_handler.quit_requested()) run_game = false;
     }
 
     // Calculate end time and duration

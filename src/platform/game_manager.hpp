@@ -1,7 +1,8 @@
 #ifndef PLATFORM_GAME_MANAGER
 #define PLATFORM_GAME_MANAGER
 
-#include "time_manager.hpp"
+#include "platform/time_manager.hpp"
+#include "platform/io_handler.hpp"
 
 namespace cge
 {
@@ -30,7 +31,7 @@ public:
 
     // Templated game loop that can handle arbitrary scene types
     template <typename T>
-    void run_game_loop(T& scene)
+    void run_game_loop(T& scene, IoHandler& io_handler)
     {
         double current_time = time_manager_->get_current_time();
         double delta_time = current_time - last_time;
@@ -38,6 +39,9 @@ public:
         int times_updated = 0;
         while(current_time - last_update_time_ > UPDATE_INTERVAL && times_updated < 3)
         {
+            // Update io_handler with each update loop
+            io_handler.update();
+
             scene.update(delta_time);
             last_update_time_ += UPDATE_INTERVAL;
             times_updated++;

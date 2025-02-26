@@ -10,9 +10,10 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-void StaticScene::init(SDLInfo *sdl_info)
+void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 {
     sdl_info_ = sdl_info;
+    io_handler_ = io_handler;
 
     SDL_SetRenderDrawColor(sdl_info->renderer, 28, 40, 51, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
@@ -72,6 +73,9 @@ void StaticScene::init(SDLInfo *sdl_info)
     // Set scene state SDLInfo data to new SDLInfo data
     scene_state_.sdl_info = sdl_info_;
 
+    // Configure io handler
+    scene_state_.io_handler = io_handler_;
+
     // Initialize root node with new scene state
     root_.init(scene_state_);
 }
@@ -82,13 +86,16 @@ void StaticScene::render()
 {
     scene_state_.reset();
     scene_state_.sdl_info = sdl_info_;
+    scene_state_.io_handler = io_handler_;
 
     root_.draw(scene_state_);
 }
 
 void StaticScene::update(double delta)
 {
+    scene_state_.io_handler = io_handler_;
     scene_state_.delta = delta;
+
     root_.update(scene_state_);
 }
 

@@ -1,23 +1,29 @@
 #ifndef PLATFORM_IO_HANDLER
 #define PLATFORM_IO_HANDLER
 
-#include "event.hpp"
+#include "platform/event.hpp"
+#include "platform/game_action.hpp"
+#include "platform/input_interpreter.hpp"
 
 namespace cge
 {
 
-// A singleton game manager class
 class IoHandler
 {
 public:
-    IoHandler() = default;
+    IoHandler();
     ~IoHandler() = default;
 
     void update();
     bool quit_requested() const;
 
+    // Access current game actions
+    const GameActionList &get_game_actions() const;
+
 private:
     SDLEventInfo curr_events_;
+    InputInterpreter interpreter_;
+    GameActionList   game_actions_;
 };
 
 } // namespace cge

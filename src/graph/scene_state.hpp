@@ -17,6 +17,7 @@ namespace cge
 // Forward declaration
 class TextureNode;
 class CameraNode;
+class IoHandler;
 
 // Struct containing pointers to an SDLInfo struct and a texture node. Contains 
 // a reset function to set both data members to nullptr.
@@ -27,7 +28,7 @@ struct SceneState
     float        delta;
     MatrixStack  matrix_stack;
     CameraNode  *active_camera;
-
+    IoHandler   *io_handler;
 
     void reset();
 };

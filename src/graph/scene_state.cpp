@@ -18,6 +18,7 @@ void SceneState::reset()
 {
     sdl_info = nullptr;
     texture_node = nullptr;
+    io_handler = nullptr;
 }
 
 } // namespace cge

@@ -23,7 +23,6 @@ class CameraNode : public Node
     // Accessing camera
     Camera &get_camera();
 
-
 private:
     Camera camera_;
 };
