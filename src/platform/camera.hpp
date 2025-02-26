@@ -19,24 +19,22 @@ class Camera
 {
 public:
 	Camera(float center_x = 0.0f, float center_y = 0.0f, 
-           float width = 10.0f, float height = 10.0f);
+           float height = 10.0f, float width = 10.0f);
 
     // Setters and getters
-	void set_position(float x, float y);
-    void set_dimensions(float width, float height);
-    Vector2 get_position() const;
-    float   get_width() const;
-    float    get_height() const;
+	void        set_position(float x, float y);
+    void        set_dimensions(float width, float height);
+    Vector2     get_position() const;
+    float       get_width() const;
+    float       get_height() const;
 
     // Camera movement and resizing
     void move(float dx, float dy);
     void zoom(float factor);
 
     // Convert world coordinates to screen coordinates
+    // TODO: Provide the inverse (screen to world), which would likely be useful when translating things like mouse clicks to world space
     Vector2 world_to_screen(const Vector2 &world_position, int screen_width, int screen_height) const;
-
-    // Convert screen coordinates to world coordinates
-    Vector2 screen_to_world(const Vector2 &screen_position, int screen_width, int screen_height) const;
 
     // Get world-to-screen matrix
     Matrix3 get_world_to_screen_matrix(int screen_width, int screen_height) const;

@@ -44,15 +44,15 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     parent.right_translate(1.0f, 3.0f);
     parent.right_scale(3.0f, 3.0f);
 
-    // Position child 1 at (-2, -1) relative to parent (in world units)
-    child1.right_translate(-2.0f / 3.0f, 1.0f / 3.0f);
-    child1.right_rotate_degrees(315);
-    child1.right_scale(0.5f, 0.5f);
+    // Position child 1 at (-3, 2) relative to parent (in world units)
+    child1.right_translate(-3.0f / 3.0f, 2.0f / 3.0f);
+    child1.right_rotate_degrees(235);
+    child1.right_scale(0.8f, 0.8f);
 
-    // Position child 2 at (2, -1) relative to parent (in world units)
-    child2.right_translate(2.0f / 3.0f, 1.0f / 3.0f);
-    child2.right_rotate_degrees(45);
-    child2.right_scale(0.5f, 0.5f);
+    // Position child 2 at (3, 2) relative to parent (in world units)
+    child2.right_translate(3.0f / 3.0f, 2.0f / 3.0f);
+    child2.right_rotate_degrees(135);
+    child2.right_scale(0.8f, 0.8f);
 
     // Configure textures
     parent_tex.set_filepath("images/Sphere.png");
