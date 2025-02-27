@@ -28,21 +28,15 @@ void GeometryNode::draw(SceneState &scene_state)
     rect.y = 0.0f;
     rect.h = static_cast<float>(scene_state.texture_node->height());
 
-    // Get vertices in world space from local space using the transform matrix on top of the stack
-    auto tl_world = scene_state.matrix_stack.top() * Vector2(-0.5f, -0.5f);
-    auto tr_world = scene_state.matrix_stack.top() * Vector2(0.5f, -0.5f);
-    auto bl_world = scene_state.matrix_stack.top() * Vector2(-0.5f, 0.5f);
-
-    // Convert from world space to screen space using the camera
-    auto tl_screen = scene_state.active_camera->get_camera().world_to_screen(tl_world, cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT);
-    auto tr_screen = scene_state.active_camera->get_camera().world_to_screen(tr_world, cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT);
-    auto bl_screen = scene_state.active_camera->get_camera().world_to_screen(bl_world, cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT);
-
+    // Get vertices in screen space from local space using the transform matrix on top of the stack
+    auto tl = scene_state.matrix_stack.top() * Vector2(-0.5f, -0.5f);
+    auto tr = scene_state.matrix_stack.top() * Vector2(0.5f, -0.5f);
+    auto bl = scene_state.matrix_stack.top() * Vector2(-0.5f, 0.5f);
 
     // Use the screen space coordinates for rendering
-    SDL_FPoint top_left{tl_screen.x, tl_screen.y};
-    SDL_FPoint top_right{tr_screen.x, tr_screen.y};
-    SDL_FPoint bottom_left{bl_screen.x, bl_screen.y};
+    SDL_FPoint top_left{tl.x, tl.y};
+    SDL_FPoint top_right{tr.x, tr.y};
+    SDL_FPoint bottom_left{bl.x, bl.y};
 
     SDL_RenderTextureAffine(scene_state.sdl_info->renderer,
                             scene_state.texture_node->sdl_texture(),

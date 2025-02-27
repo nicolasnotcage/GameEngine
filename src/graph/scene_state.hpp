@@ -16,7 +16,6 @@ namespace cge
 
 // Forward declaration
 class TextureNode;
-class CameraNode;
 class IoHandler;
 
 // Utility struct containing objects relevant to managing scene state. 
@@ -27,7 +26,6 @@ struct SceneState
     TextureNode *texture_node;
     float        delta;
     MatrixStack  matrix_stack;
-    CameraNode  *active_camera;
     IoHandler   *io_handler;
 
     void reset();

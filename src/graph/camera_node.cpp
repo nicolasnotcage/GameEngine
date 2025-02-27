@@ -1,15 +1,13 @@
 #include "graph/camera_node.hpp"
 #include "platform/math.hpp"
 #include "platform/io_handler.hpp"
+#include "platform/config.hpp"
 
 namespace cge
 {
 
 void CameraNode::init(SceneState &scene_state) 
 { 
-    // Set this camera as the active camera within the scene state
-    scene_state.active_camera = this;
-
     // Init children
     init_children(scene_state); 
 }
@@ -22,17 +20,13 @@ void CameraNode::destroy()
 
 void CameraNode::draw(SceneState &scene_state)
 {
-    // Store previous active camera and set this camera as the active camera
-    CameraNode *old_camera = scene_state.active_camera;
-    scene_state.active_camera = this;
-
-    // Update matrix stack and draw children
+    // Update matrix stack, push transform, and draw children
     scene_state.matrix_stack.push();
+    scene_state.matrix_stack.top() *= camera_.get_world_to_screen_matrix(cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT);
     draw_children(scene_state);
 
     // Pop matrix stack and restore previous camera
     scene_state.matrix_stack.pop();
-    scene_state.active_camera = old_camera;
 }
 
 void CameraNode::update(SceneState &scene_state) 

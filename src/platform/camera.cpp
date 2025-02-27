@@ -71,13 +71,5 @@ Matrix3 Camera::get_world_to_screen_matrix(int screen_width, int screen_height) 
     return scale_to_screen * translate_unit * flip_y * scaled_down * translate_center;
 }
 
-Vector2 Camera::world_to_screen(const Vector2 &world_position,
-                                int            screen_width,
-                                int            screen_height) const
-{
-    // Get the transformation matrix and apply it to the world position
-    Matrix3 transform = get_world_to_screen_matrix(screen_width, screen_height);
-    return transform * world_position;
-}
 
 } // namespace cge

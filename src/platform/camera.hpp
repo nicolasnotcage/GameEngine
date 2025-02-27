@@ -32,10 +32,6 @@ public:
     void move(float dx, float dy);
     void zoom(float factor);
 
-    // Convert world coordinates to screen coordinates
-    // TODO: Provide the inverse (screen to world), which would likely be useful when translating things like mouse clicks to world space
-    Vector2 world_to_screen(const Vector2 &world_position, int screen_width, int screen_height) const;
-
     // Get world-to-screen matrix
     Matrix3 get_world_to_screen_matrix(int screen_width, int screen_height) const;
 
