@@ -5,6 +5,7 @@
 namespace cge
 {
 
+// Translates raw SDL events into a list of game-specifc actions. 
 GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
 {
     GameActionList action_list;

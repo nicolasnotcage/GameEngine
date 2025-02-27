@@ -13,6 +13,8 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Actions specific to the game; will be used when mapping 
+// raw SDL input to game-specific behavior
 enum class GameAction
 {
     NONE, 
@@ -33,6 +35,7 @@ enum class GameAction
     CAMERA_ZOOM_OUT
 };
 
+// A collection of game actions
 struct GameActionList
 {
     static constexpr size_t MAX_ACTIONS = 20;

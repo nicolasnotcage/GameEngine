@@ -7,7 +7,9 @@
 namespace cge
 {
 
-// A singleton game manager class
+// A simple interpreter class. Is used to map 
+// raw SDL inputs to game-specific actions. 
+// TODO: I don't think a class is necessary for this. 
 class InputInterpreter
 {
 public:
@@ -16,8 +18,6 @@ public:
 
     // Convert raw inputs into game actions
     GameActionList interpret_events(const SDLEventInfo &events);
-
-private:
 };
 
 } // namespace cge

@@ -8,6 +8,12 @@
 namespace cge
 {
 
+// The central hub of input mapping. Contains 
+// raw SDL events, a list of game-specific actions, 
+// and an interpreter for translating raw events into 
+// game actions.
+//
+// TODO: Could probably get rid of the interpreter altogether and centralize mapping responsibility here. 
 class IoHandler
 {
 public:

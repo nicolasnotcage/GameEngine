@@ -19,8 +19,8 @@ class TextureNode;
 class CameraNode;
 class IoHandler;
 
-// Struct containing pointers to an SDLInfo struct and a texture node. Contains 
-// a reset function to set both data members to nullptr.
+// Utility struct containing objects relevant to managing scene state. 
+// TODO: Is this becoming too important/bloated?
 struct SceneState
 {
     SDLInfo     *sdl_info;

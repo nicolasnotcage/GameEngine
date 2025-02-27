@@ -6,7 +6,6 @@ For more information, please refer to <https://unlicense.org>
 */
 
 #include "graph/scene_state.hpp"
-
 #include "graph/texture_node.hpp"
 
 namespace cge

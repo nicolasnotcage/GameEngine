@@ -12,10 +12,9 @@ IoHandler::IoHandler() :
         game_actions_.num_actions = 0; 
     }
 
-// Update with raw events and interpret them to game actions
+// Update raw events and map them to game actions
 void IoHandler::update() 
 { 
-    // Update raw events
     curr_events_ = cge::get_current_events(); 
     game_actions_ = interpreter_.interpret_events(curr_events_);
 }   
