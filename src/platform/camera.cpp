@@ -59,7 +59,7 @@ Matrix3 Camera::get_world_to_screen_matrix(int screen_width, int screen_height) 
     // 3. Flip y-axis to match screen coordinates
     Matrix3 flip_y = Matrix3();
     flip_y.a[0] = 1.0f;  // scale x by 1 (already present in the given identity matrix but restated here for clarity)
-    flip_y.a[4] = -1.0f; // scale y by -1
+    flip_y.a[4] = 1.0f; // scale y by 1 (changed from -1 to resolve inverted sprites)
 
     // 2. Translate by (1,1)
     Matrix3 translate_unit = Matrix3::translation_matrix(1.0f, 1.0f);

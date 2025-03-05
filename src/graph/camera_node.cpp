@@ -47,9 +47,9 @@ void CameraNode::update(SceneState &scene_state)
 
             switch(action_list.actions[i])
             {
-                case GameAction::CAMERA_MOVE_UP: camera_.move(0.0f, move_speed); break;
+                case GameAction::CAMERA_MOVE_UP: camera_.move(0.0f, -move_speed); break;
 
-                case GameAction::CAMERA_MOVE_DOWN: camera_.move(0.0f, -move_speed); break;
+                case GameAction::CAMERA_MOVE_DOWN: camera_.move(0.0f, move_speed); break;
 
                 case GameAction::CAMERA_MOVE_LEFT: camera_.move(-move_speed, 0.0f); break;
 

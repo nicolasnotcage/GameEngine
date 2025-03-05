@@ -1,20 +1,14 @@
+Last Update: 3/4/25
+New Classes: Animation, Animator
+Updated Classes: TextureNode, GeometryNode, GameManager, StaticScene
+
 Implementation Notes
+1) New Animator class was initially inspired by Unity's "Animator" component. 
+2) TextureNode has been extended to include support for sprite sheets. Earlier in the semester, I had rudimentary sprite sheet support, but this refactor adds more comprehensive support. Texture nodes now contain an Animator object, which is an optional data member that allows for texture-specific animation configurations. Functions were also added for configuring sprite sheets based on individual frame data. There is also a more automated function for generating sprite sheet frame data when sprite sheets have consistent frame dimensions (define_grid()).
+3) GeometryNode has been updated to accommodate either full-sized textures or sprite sheets.
+4) GameManager has been updated to enforce 60fps-based delta values when actual deltas are below a defined threshold. I imagine this may present problems in the future, but my delta values were so low that my animation system was not synchronizing and this strictly defined timing did resolve the issue.
 
 
-Camera
-This one took me a long time to wrap my head around. In the end, I found the chapter on transformation matrices in Marschner and Shirley's "Fundamentals of Computer Graphics" to really help drive home these concepts. The fundamental problem that I had was understanding the function of the matrices and the conceptual essence of local space, world space, and screen space. Defining and working with arbitrary coordinate systems didn't come intuitively to me, but I think I've finally gotten a grasp on it. It's honestly fascinating how objects in some arbitrary coordinate space really only exist in relation to other objects/some arbitrarily defined origin. I look forward to exploring these ideas some more. 
-
-As it stands now, my camera architecture consists of a dedicated Camera class (camera.hpp and camera.cpp) and a CameraNode class (camera_node.hpp and camera_node.cpp). Cameras define and store a center point, a width, and a height, and they provide functions for getting a world-to-screen transform matrix, moving, and scaling. CameraNode objects provide generic node behavior, store a Camera object, and provide a getter for that Camera. 
-
-My revised scene places a CameraNode near the top of the scene graph hierarchy. As the game executes, the CameraNode's update() function listens for WASD and mouse wheel input to adjust position and scaling. On calls to draw(), the CameraNode pushes the matrix stack, gets the world-to-screen transform matrix from its stored camera object, and proceeds to draw its children. GeometryNode objects then derive their positions from the matrix stack, which now contains the screen space transform. 
-
-This is a markedly simplified version compared with my first camera implementation. In my initial implementation, I stored CameraNodes as pointers within SceneState, which were then accessed by GeometryNodes that would derive their position in world space from the MatrixStack and then use the CameraNode to convert their positions to screen space. After spending a long time with these concepts, I think I finally ended up at an implementation that makes some kind of sense. I'm happy with how it turned out, but if you spot anything that could be improved, please let me know. 
-
-IO Handling
-For this one, I implemented a three-layer input system architecture to decouple raw device events from game logic. The first layer sits in event.hpp and event.cpp and captures raw device events through SDL. The second layer (input_interpreter.hpp and input_interpreter.cpp) translates these device-specific events into device-agnostic game actions that are defined in game_action.hpp. The interpreter itself simply provides a function to interpret game actions from raw input. 
-
-The third layer manages the IO pipeline and is contained within my original IoHandler class (io_handler.hpp and io_handler.cpp). This class now stores an interpreter object and collections of raw SDL input and game actions. The handler's update() function gets new raw input and translates those into game actions. It's the "central hub" of input processing and provides an interface for nodes within the scene graph to get input data that can be used to execute game logic. SceneState objects now also contain pointers to an IoHandler object. In retrospect, I think I could bypass the Interpreter class entirely and store the mapping behavior directly within the IoHandler, which is something I'll probably do on the next iteration.
-
-From the collection of game actions returned by the IO handler, nodes within the scene graph can use their update() functions to listen for certain input and take action based on those inputs. For example, my CameraNode implementation listens for WASD and scroll wheel inputs and modifies the camera based on the input received. 
-
-
+TODO before next deliverable is complete:
+- Follow camera
+- NPC pathing

@@ -129,11 +129,7 @@ void TextureNode::set_blend_alpha(uint8_t alpha) { blend_alpha_ = alpha; }
 
 void TextureNode::define_frame(uint32_t frame_id, int x, int y, int width, int height)
 {
-    Frame frame;
-    frame.x = x;
-    frame.y = y;
-    frame.width = width;
-    frame.height = height;
+    Frame frame{x, y, width, height};
     frames_[frame_id] = frame;
     is_sprite_sheet_ = true;
 
@@ -148,14 +144,14 @@ void TextureNode::define_grid(int cols, int rows, int width, int height)
     is_sprite_sheet_ = true;
     uint32_t frame_id = 0;
 
-    for(int i = 0; i < rows; i++) 
-    { 
-        for(int j = 0; j < cols; j++) 
+    for(int y = 0; y < rows; y++)
+    {
+        for(int x = 0; x < cols; x++)
         {
-            define_frame(frame_id++, 
-                         i * width, 
-                         j * height, 
-                         width, 
+            define_frame(frame_id++,
+                         x * width,  // Column offset
+                         y * height, // Row offset
+                         width,
                          height);
         }
     }

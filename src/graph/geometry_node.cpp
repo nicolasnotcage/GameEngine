@@ -22,10 +22,6 @@ void GeometryNode::destroy() { clear_children(); }
 
 void GeometryNode::draw(SceneState &scene_state)
 {
-    SDL_FRect rect{};
-    rect.x = 0.0f;
-    rect.y = 0.0f;
-
     // Get vertices in screen space from local space
     auto tl = scene_state.matrix_stack.top() * Vector2(-0.5f, -0.5f);
     auto tr = scene_state.matrix_stack.top() * Vector2(0.5f, -0.5f);
@@ -36,26 +32,35 @@ void GeometryNode::draw(SceneState &scene_state)
     SDL_FPoint top_right{tr.x, tr.y};
     SDL_FPoint bottom_left{bl.x, bl.y};
 
-    // Draw based on sprite sheet status
-    if (scene_state.using_sprite_sheet)
-    { 
-        SDL_Rect src_rect = scene_state.current_frame_rect;
-        rect.w = static_cast<float>(src_rect.w);
-        rect.h = static_cast<float>(src_rect.h);
+    if(scene_state.using_sprite_sheet)
+    {
+        // Convert SDL_Rect to SDL_FRect for the source rectangle
+        SDL_FRect src_frect;
+        src_frect.x = static_cast<float>(scene_state.current_frame_rect.x);
+        src_frect.y = static_cast<float>(scene_state.current_frame_rect.y);
+        src_frect.w = static_cast<float>(scene_state.current_frame_rect.w);
+        src_frect.h = static_cast<float>(scene_state.current_frame_rect.h);
+
+        // Render just the current frame
+        SDL_RenderTextureAffine(scene_state.sdl_info->renderer,
+                                scene_state.texture_node->sdl_texture(),
+                                &src_frect, // Now using SDL_FRect*
+                                &top_left,
+                                &top_right,
+                                &bottom_left);
     }
     else
     {
-        rect.w = static_cast<float>(scene_state.texture_node->width());
-        rect.h = static_cast<float>(scene_state.texture_node->height());
+        // Render the entire texture as before
+        SDL_RenderTextureAffine(scene_state.sdl_info->renderer,
+                                scene_state.texture_node->sdl_texture(),
+                                nullptr,
+                                &top_left,
+                                &top_right,
+                                &bottom_left);
     }
-
-    SDL_RenderTextureAffine(scene_state.sdl_info->renderer,
-                            scene_state.texture_node->sdl_texture(),
-                            &rect,
-                            &top_left,
-                            &top_right,
-                            &bottom_left);
 }
+
 
 void GeometryNode::update(SceneState& scene_state)
 {

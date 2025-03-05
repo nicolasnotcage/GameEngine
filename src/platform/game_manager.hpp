@@ -36,6 +36,13 @@ public:
         double current_time = time_manager_->get_current_time();
         double delta_time = current_time - last_time;
 
+        // Force 60fps when delta time is too small. 
+        // TODO: Unsure if this is a good long-term solution, but it fixes our current animation problems.
+        if(delta_time < 0.001)
+        {
+            delta_time = 1.0 / 60.0; // 60fps equivalent
+        }
+
         int times_updated = 0;
         while(current_time - last_update_time_ > UPDATE_INTERVAL && times_updated < 3)
         {

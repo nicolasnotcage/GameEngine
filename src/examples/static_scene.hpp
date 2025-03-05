@@ -24,10 +24,8 @@ using BasicSprite = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 // Parent sprite with two child sprites
 using HierarchicalSprite =
     CameraNodeT<
-        TransformNodeT< 
-            TextureNodeT<GeometryNodeT<>>,                
-            BasicSprite,                                
-            BasicSprite>> ;
+        BasicSprite,
+        BasicSprite>;
 
 class StaticScene
 {

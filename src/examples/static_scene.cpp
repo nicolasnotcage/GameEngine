@@ -6,6 +6,7 @@ For more information, please refer to <https://unlicense.org>
 */
 
 #include "examples/static_scene.hpp"
+#include "platform/animation.hpp"
 
 namespace cge
 {
@@ -18,11 +19,8 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     SDL_SetRenderDrawColor(sdl_info->renderer, 28, 40, 51, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
-    // Parent sprite (Sphere)
+    // Camera
     auto &camera = root_.get_child<0>();
-    auto &parent = camera.get_child<0>();
-    auto &parent_tex = parent.get_child<0>();
-    auto &parent_geo = parent_tex.get_child<0>();
 
     // Set camera dimensions
     camera.get_camera().set_dimensions(20.0f, 15.0f);
@@ -30,42 +28,63 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     // Position camera to look at origin initially
     camera.get_camera().set_position(0.0f, 0.0f);
 
-    // First child sprite (MolePerson) - relative to parent
-    auto &child1 = parent.get_child<1>();
-    auto &child1_tex = child1.get_child<0>();
-    auto &child1_geo = child1_tex.get_child<0>();
+    // Configure Golem
+    auto &golem_transform = camera.get_child<0>();
+    auto &golem_tex = golem_transform.get_child<0>();
+    auto &golem_geo = golem_tex.get_child<0>();
+    
+    // Golem Transforms
+    golem_transform.right_translate(3.0f, 5.0f);
+    golem_transform.right_scale(3.0f, 3.0f);
 
-    // Second child sprite (Player) - relative to parent
-    auto &child2 = parent.get_child<2>();
-    auto &child2_tex = child2.get_child<0>();
-    auto &child2_geo = child2_tex.get_child<0>();
+    // Golem Textures
+    golem_tex.set_filepath("images/golem_walk.png");
+    golem_tex.set_blend(true);
+    golem_tex.set_blend_alpha(200);
 
-    // Parent Transform
-    parent.right_translate(1.0f, 3.0f);
-    parent.right_scale(3.0f, 3.0f);
+    // Golem SpriteSheet and Animations
+    uint32_t golem_frames = 7;
+    golem_tex.define_grid(golem_frames, 1, 64, 64);
+    golem_tex.create_animator();
+    Animation walk_animation("walk", true);
 
-    // Position child 1 at (-3, 2) relative to parent (in world units)
-    child1.right_translate(-3.0f / 3.0f, 2.0f / 3.0f);
-    child1.right_rotate_degrees(235);
-    child1.right_scale(0.8f, 0.8f);
+    // Add a frame to the animation for each frame in the sprite sheet
+    for(int i = 0; i < golem_frames; i++) { walk_animation.add_frame(i, 10); }
 
-    // Position child 2 at (3, 2) relative to parent (in world units)
-    child2.right_translate(3.0f / 3.0f, 2.0f / 3.0f);
-    child2.right_rotate_degrees(135);
-    child2.right_scale(0.8f, 0.8f);
+    // Add animation to animator
+    golem_tex.get_animator().add_animation(walk_animation);
 
-    // Configure textures
-    parent_tex.set_filepath("images/Sphere.png");
-    parent_tex.set_blend(true);
-    parent_tex.set_blend_alpha(200);
+    // Start playing animation (TODO: Make this animation only play while a directional key is pressed)
+    golem_tex.get_animator().play("walk");
+    
+    // Configure Witch
+    auto &witch_transform = camera.get_child<1>();
+    auto &witch_tex = witch_transform.get_child<0>();
+    auto &witch_geo = witch_tex.get_child<0>();
 
-    child1_tex.set_filepath("images/MolePerson.png");
-    child1_tex.set_blend(true);
-    child1_tex.set_blend_alpha(200);
+    // Witch Transforms
+    witch_transform.right_translate(3.0f, 10.0f);
+    witch_transform.right_scale(3.0f, 3.0f);
+    
+    // Witch Textures
+    witch_tex.set_filepath("images/witch_run.png");
+    witch_tex.set_blend(true);
+    witch_tex.set_blend_alpha(200);
 
-    child2_tex.set_filepath("images/Player.png");
-    child2_tex.set_blend(true);
-    child2_tex.set_blend_alpha(200);
+    // Witch SpriteSheet and Animations
+    uint32_t witch_frames = 6;
+    witch_tex.define_grid(1, witch_frames, 64, 64);
+    witch_tex.create_animator();
+    Animation witch_walk("walk", true);
+
+    // Add a frame to the animation for each frame in the sprite sheet
+    for(int i = 0; i < witch_frames; i++) { witch_walk.add_frame(i, 10); }
+
+    // Add animation to animator
+    witch_tex.get_animator().add_animation(witch_walk);
+
+    // Start playing animation (TODO: Automate this to walk from point to point)
+    witch_tex.get_animator().play("walk");
 
     // Reset SDLInfo and texture node to nullptr within the scene state struct
     scene_state_.reset();
