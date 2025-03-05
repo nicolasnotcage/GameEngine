@@ -28,6 +28,10 @@ struct SceneState
     MatrixStack  matrix_stack;
     IoHandler   *io_handler;
 
+    // For sprite sheet support
+    bool         using_sprite_sheet{false};
+    SDL_Rect     current_frame_rect = {0, 0, 0, 0};
+
     void reset();
 };
 

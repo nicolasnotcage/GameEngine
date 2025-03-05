@@ -12,6 +12,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/node_t.hpp"
 
 #include "platform/sdl.h"
+#include "platform/animation.hpp"
 
 namespace cge
 {
@@ -42,6 +43,16 @@ class TextureNode : public Node
     void set_blend(bool blend);
     void set_blend_alpha(uint8_t alpha);
 
+    // Sprite sheet functionality
+    void define_frame(uint32_t frame_id, int x, int y, int width, int height);
+    void define_grid(int cols, int rows, int frame_width, int frame_height);
+    void set_current_frame(uint32_t frame_id);
+
+    // Animation functionality
+    Animator &get_animator();
+    bool      has_animator() const;
+    void      create_animator();
+
   protected:
     SDL_Texture *texture_;
     int          width_;
@@ -53,6 +64,14 @@ class TextureNode : public Node
 
     bool    apply_blend_;
     uint8_t blend_alpha_;
+
+    // Sprite sheet members
+    std::unordered_map<uint32_t, Frame> frames_;
+    uint32_t current_frame_id_;
+    bool is_sprite_sheet_;
+
+    // Animation member
+    std::unique_ptr<Animator> animator_;
 };
 
 template <typename... ChildrenTs>
