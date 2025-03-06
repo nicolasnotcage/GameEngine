@@ -27,6 +27,13 @@ void GeometryNode::draw(SceneState &scene_state)
     auto tr = scene_state.matrix_stack.top() * Vector2(0.5f, -0.5f);
     auto bl = scene_state.matrix_stack.top() * Vector2(-0.5f, 0.5f);
 
+    // Flip sprite horizontally if needed
+    if (scene_state.sprite_flipped)
+    { 
+        std::swap(tl, tr);
+        std::swap(bl, scene_state.matrix_stack.top() * Vector2(0.5f, 0.5f));
+    }
+
     // Use the screen space coordinates for rendering
     SDL_FPoint top_left{tl.x, tl.y};
     SDL_FPoint top_right{tr.x, tr.y};

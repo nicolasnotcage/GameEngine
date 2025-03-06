@@ -96,14 +96,6 @@ void TextureNode::draw(SceneState &scene_state)
 
 void TextureNode::update(SceneState &scene_state)
 { 
-    // Update animator 
-    // TODO: Should this be handled by derived texture node classes (i.e., custom classes created by the client with specific animations?)
-    if(animator_)
-    {
-        animator_->update(scene_state.delta);
-        set_current_frame(animator_->get_current_frame_id());
-    }
-
     update_children(scene_state); 
 }
 
@@ -166,14 +158,8 @@ void TextureNode::set_current_frame(uint32_t frame_id)
     // TODO: Error handling for when frame not found
 }
 
-bool TextureNode::has_animator() const { return animator_ != nullptr; }
+const std::unordered_map<uint32_t, Frame> &TextureNode::get_frames() const { return frames_; }
 
-void TextureNode::create_animator() { if (!animator_) animator_ = std::make_unique<Animator>(); }
-
-Animator& TextureNode::get_animator()
-{
-    if (!animator_) create_animator();
-    return *animator_;
-}
+uint32_t TextureNode::get_current_frame_id() const { return current_frame_id_; }
 
 } // namespace cge

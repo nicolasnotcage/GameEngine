@@ -19,87 +19,126 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     SDL_SetRenderDrawColor(sdl_info->renderer, 28, 40, 51, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
-    // Camera
-    auto &camera = root_.get_child<0>();
-
-    // Set camera dimensions
-    camera.get_camera().set_dimensions(20.0f, 15.0f);
-
-    // Position camera to look at origin initially
-    camera.get_camera().set_position(0.0f, 0.0f);
-
-    // Configure Golem
-    auto &golem_transform = camera.get_child<0>();
-    auto &golem_tex = golem_transform.get_child<0>();
-    auto &golem_geo = golem_tex.get_child<0>();
-    
-    // Golem Transforms
-    golem_transform.right_translate(3.0f, 5.0f);
-    golem_transform.right_scale(3.0f, 3.0f);
-
-    // Golem Textures
-    golem_tex.set_filepath("images/golem_walk.png");
-    golem_tex.set_blend(true);
-    golem_tex.set_blend_alpha(200);
-
-    // Golem SpriteSheet and Animations
-    uint32_t golem_frames = 7;
-    golem_tex.define_grid(golem_frames, 1, 64, 64);
-    golem_tex.create_animator();
-    Animation walk_animation("walk", true);
-
-    // Add a frame to the animation for each frame in the sprite sheet
-    for(int i = 0; i < golem_frames; i++) { walk_animation.add_frame(i, 10); }
-
-    // Add animation to animator
-    golem_tex.get_animator().add_animation(walk_animation);
-
-    // Start playing animation (TODO: Make this animation only play while a directional key is pressed)
-    golem_tex.get_animator().play("walk");
-    
-    // Configure Witch
-    auto &witch_transform = camera.get_child<1>();
-    auto &witch_tex = witch_transform.get_child<0>();
-    auto &witch_geo = witch_tex.get_child<0>();
-
-    // Witch Transforms
-    witch_transform.right_translate(3.0f, 10.0f);
-    witch_transform.right_scale(3.0f, 3.0f);
-    
-    // Witch Textures
-    witch_tex.set_filepath("images/witch_run.png");
-    witch_tex.set_blend(true);
-    witch_tex.set_blend_alpha(200);
-
-    // Witch SpriteSheet and Animations
-    uint32_t witch_frames = 6;
-    witch_tex.define_grid(1, witch_frames, 64, 64);
-    witch_tex.create_animator();
-    Animation witch_walk("walk", true);
-
-    // Add a frame to the animation for each frame in the sprite sheet
-    for(int i = 0; i < witch_frames; i++) { witch_walk.add_frame(i, 10); }
-
-    // Add animation to animator
-    witch_tex.get_animator().add_animation(witch_walk);
-
-    // Start playing animation (TODO: Automate this to walk from point to point)
-    witch_tex.get_animator().play("walk");
-
-    // Reset SDLInfo and texture node to nullptr within the scene state struct
+    // Reset scene state
     scene_state_.reset();
-
-    // Set scene state SDLInfo data to new SDLInfo data
     scene_state_.sdl_info = sdl_info_;
-
-    // Configure io handler
     scene_state_.io_handler = io_handler_;
 
-    // Initialize root node with new scene state
+    // Initialize all textures
+
+    // Golem walk texture
+    golem_walk_texture_.set_filepath("images/golem_walk.png");
+    golem_walk_texture_.set_blend(true);
+    golem_walk_texture_.set_blend_alpha(200);
+    golem_walk_texture_.define_grid(7, 1, 64, 64);
+    golem_walk_texture_.init(scene_state_);
+
+    // Golem idle texture
+    golem_idle_texture_.set_filepath("images/golem_idle.png");
+    golem_idle_texture_.set_blend(true);
+    golem_idle_texture_.set_blend_alpha(200);
+    golem_idle_texture_.define_grid(12, 1, 64, 64);
+    golem_idle_texture_.init(scene_state_);
+
+    // Witch run texture
+    witch_run_texture_.set_filepath("images/witch_run.png");
+    witch_run_texture_.set_blend(true);
+    witch_run_texture_.set_blend_alpha(200);
+    witch_run_texture_.define_grid(1, 6, 64, 64);
+    witch_run_texture_.init(scene_state_);
+
+    // Camera setup
+    auto &camera = root_.get_child<0>();
+    camera.get_camera().set_dimensions(20.0f, 15.0f);
+    camera.get_camera().set_position(0.0f, 0.0f);
+
+    // Configure transforms
+    auto &golem_transform = camera.get_child<0>();
+    auto &witch_transform = camera.get_child<1>();
+
+    // Position golem and witch
+    golem_transform.right_translate(1.0f, 0.0f);
+    golem_transform.right_scale(3.0f, 3.0f);
+
+    witch_transform.right_translate(1.0f, 4.0f);
+    witch_transform.right_scale(3.0f, 3.0f);
+
+    // Setup animations for both characters
+    setup_golem_animations();
+    setup_witch_animations();
+
+    // Initialize root node
     root_.init(scene_state_);
 }
 
-void StaticScene::destroy() { root_.destroy(); }
+void StaticScene::setup_golem_animations()
+{
+    auto &camera = root_.get_child<0>();
+    auto &golem_transform = camera.get_child<0>();
+    auto &golem_sprite = golem_transform.get_child<0>();
+
+    // Create walk animation
+    Animation walk_animation("walk", true);
+    for(int i = 0; i < 7; i++) { walk_animation.add_frame(i, 10); }
+
+    // Create idle animation
+    Animation idle_animation("idle", true);
+    for(int i = 0; i < 12; i++) { idle_animation.add_frame(i, 10); }
+
+    // Add animations with their respective textures
+    golem_sprite.add_animation_with_texture(walk_animation, &golem_walk_texture_);
+    golem_sprite.add_animation_with_texture(idle_animation, &golem_idle_texture_);
+
+    // Set initial texture
+    golem_sprite.set_texture(&golem_idle_texture_);
+
+    // Start playing idle animation by default
+    golem_sprite.play("idle");
+
+    // Set golem as player-controlled
+    golem_sprite.set_player_controlled(golem_transform);
+}
+
+void StaticScene::setup_witch_animations()
+{
+    auto &camera = root_.get_child<0>();
+    auto &witch_transform = camera.get_child<1>();
+    auto &witch_sprite = witch_transform.get_child<0>();
+
+    // Create run animation
+    Animation walk_animation("walk", true);
+    for(int i = 0; i < 6; i++) { walk_animation.add_frame(i, 10); }
+
+    // Add animations with their respective textures
+    witch_sprite.add_animation_with_texture(walk_animation, &witch_run_texture_);
+
+    // Set initial texture
+    witch_sprite.set_texture(&witch_run_texture_);
+
+    // Start playing run animation by default
+    witch_sprite.play("run");
+
+    // Setup paths for automated movement
+    witch_path_.add_point(3.0f, 10.0f, 1.0f); // Start position with 1 sec pause
+    witch_path_.add_point(8.0f, 10.0f, 0.5f); // Move right
+    witch_path_.add_point(8.0f, 5.0f, 0.5f);  // Move up
+    witch_path_.add_point(3.0f, 5.0f, 0.5f);  // Move left
+    witch_path_.add_point(3.0f, 10.0f, 1.0f); // Back to start
+    witch_path_.set_looping(true);
+
+    // Set witch as path controlled
+    witch_sprite.set_path_controlled(witch_transform, witch_path_);
+}
+
+void StaticScene::destroy()
+{
+    root_.destroy();
+
+    // Explicitly destroy texture nodes
+    golem_walk_texture_.destroy();
+    golem_idle_texture_.destroy();
+    witch_run_texture_.destroy();
+}
 
 void StaticScene::render()
 {

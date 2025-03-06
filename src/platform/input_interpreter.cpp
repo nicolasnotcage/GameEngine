@@ -26,10 +26,10 @@ GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
             case EventType::TOGGLE_MUSIC: action = GameAction::TOGGLE_MUSIC; break;
 
             // WASD movement
-            case EventType::KEY_DOWN_W: action = GameAction::CAMERA_MOVE_UP; break;
-            case EventType::KEY_DOWN_S: action = GameAction::CAMERA_MOVE_DOWN; break;
-            case EventType::KEY_DOWN_A: action = GameAction::CAMERA_MOVE_LEFT; break;
-            case EventType::KEY_DOWN_D: action = GameAction::CAMERA_MOVE_RIGHT; break;
+            case EventType::KEY_DOWN_W: action = GameAction::PLAYER_MOVE_UP; break;
+            case EventType::KEY_DOWN_S: action = GameAction::PLAYER_MOVE_DOWN; break;
+            case EventType::KEY_DOWN_A: action = GameAction::PLAYER_MOVE_LEFT; break;
+            case EventType::KEY_DOWN_D: action = GameAction::PLAYER_MOVE_RIGHT; break;
 
             // Zoom behavior
             case EventType::KEY_DOWN_MINUS: 

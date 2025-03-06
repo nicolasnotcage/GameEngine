@@ -136,6 +136,7 @@
     <ClCompile Include="..\src\platform\input_interpreter.cpp" />
     <ClCompile Include="..\src\platform\io_handler.cpp" />
     <ClCompile Include="..\src\platform\math.cpp" />
+    <ClCompile Include="..\src\platform\movement_controller.cpp" />
     <ClCompile Include="..\src\platform\time_manager.cpp" />
     <ClInclude Include="$(ProjectDir)..\src\platform\core.hpp" />
     <ClInclude Include="$(ProjectDir)..\src\platform\event.hpp" />
@@ -149,6 +150,8 @@
     <ClInclude Include="..\src\platform\input_interpreter.hpp" />
     <ClInclude Include="..\src\platform\io_handler.hpp" />
     <ClInclude Include="..\src\platform\math.hpp" />
+    <ClInclude Include="..\src\platform\movement_controller.hpp" />
+    <ClInclude Include="..\src\platform\path.hpp" />
     <ClInclude Include="..\src\platform\time_manager.hpp" />
   </ItemGroup>
   <ItemGroup />

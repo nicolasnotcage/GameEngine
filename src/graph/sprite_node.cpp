@@ -2,22 +2,199 @@
 #include "graph/geometry_node.hpp"
 #include "graph/scene_state.hpp"
 #include "graph/texture_node.hpp"
+#include "graph/transform_node.hpp"
+
+#include "platform/movement_controller.hpp"
+
+#include <memory>
 
 namespace cge
 {
 
+SpriteNode::SpriteNode() : current_texture_(nullptr), current_frame_id_(0)
+{
+    // Create animator on construction
+    animator_ = std::make_unique<Animator>();
+}
+
 void SpriteNode::init(SceneState &scene_state) { init_children(scene_state); }
-void SpriteNode::draw(SceneState &scene_state) { draw_children(scene_state); }
 
 void SpriteNode::destroy()
 {
     destroy_children();
     clear_children();
+
+    // Clear references but don't destroy textures (they're owned elsewhere)
+    current_texture_ = nullptr;
+    animation_textures_.clear();
+}
+
+void SpriteNode::draw(SceneState &scene_state)
+{
+    // If we don't have a texture, just draw children
+    if(!current_texture_)
+    {
+        draw_children(scene_state);
+        return;
+    }
+
+    // Store original state
+    TextureNode *prev_texture_node = scene_state.texture_node;
+    bool         prev_using_sprite_sheet = scene_state.using_sprite_sheet;
+    SDL_Rect     prev_rect = scene_state.current_frame_rect;
+    bool         prev_sprite_flipped = scene_state.sprite_flipped;
+
+    // Set current state for rendering
+    scene_state.texture_node = current_texture_;
+
+    // Set sprite flipping state if we have a movement controller
+    if(movement_controller_)
+    {
+        scene_state.sprite_flipped = movement_controller_->is_facing_left();
+    }
+
+    // Set frame information
+    auto &frames = current_texture_->get_frames();
+    auto frame_it = frames.find(current_frame_id_);
+    if(frame_it != frames.end())
+    {
+        scene_state.using_sprite_sheet = true;
+        const Frame &frame = frame_it->second;
+        scene_state.current_frame_rect.x = frame.x;
+        scene_state.current_frame_rect.y = frame.y;
+        scene_state.current_frame_rect.w = frame.width;
+        scene_state.current_frame_rect.h = frame.height;
+    }
+    else 
+    { 
+        scene_state.using_sprite_sheet = false; 
+    }
+
+    // Draw children (which will use our updated scene state)
+    draw_children(scene_state);
+
+    // Restore original state
+    scene_state.texture_node = prev_texture_node;
+    scene_state.using_sprite_sheet = prev_using_sprite_sheet;
+    scene_state.current_frame_rect = prev_rect;
+    scene_state.sprite_flipped = prev_sprite_flipped;
 }
 
 void SpriteNode::update(SceneState &scene_state)
-{ 
-    update_children(scene_state); 
+{
+    // Update movement controller
+    if (movement_controller_) 
+    { 
+        movement_controller_->update(scene_state);
+        update_animation_for_movement();
+
+        // Set sprite flipping based on facing direction
+        scene_state.sprite_flipped = movement_controller_->is_facing_left();
+    }
+
+    // Update animation state if we have an animator
+    if(animator_ && animator_->is_playing())
+    {
+        // Update the animator
+        animator_->update(scene_state.delta);
+
+        // Get the current frame ID
+        current_frame_id_ = animator_->get_current_frame_id();
+
+        // Update current texture based on the animation
+        std::string current_anim = animator_->get_current_animation_name();
+        auto        it = animation_textures_.find(current_anim);
+        if(it != animation_textures_.end()) { current_texture_ = it->second; }
+    }
+
+    // Update children
+    update_children(scene_state);
+}
+
+void SpriteNode::set_texture(TextureNode *texture)
+{
+    current_texture_ = texture;
+
+    // If we have a texture and it's a sprite sheet, default to first frame
+    if(texture && !texture->get_frames().empty())
+    {
+        current_frame_id_ = texture->get_current_frame_id();
+    }
+}
+
+TextureNode *SpriteNode::get_texture() const { return current_texture_; }
+
+// Animation delegation methods
+void SpriteNode::add_animation(const Animation &animation) { animator_->add_animation(animation); }
+
+void SpriteNode::add_animation_with_texture(const Animation &animation, TextureNode *texture)
+{
+    animator_->add_animation(animation);
+    if(texture) { animation_textures_[animation.get_name()] = texture; }
+}
+
+void SpriteNode::play(const std::string &animation_name)
+{
+    // Update the texture first if we have a mapping
+    auto it = animation_textures_.find(animation_name);
+    if(it != animation_textures_.end()) { current_texture_ = it->second; }
+
+    // Then play the animation
+    animator_->play(animation_name);
+}
+
+void SpriteNode::pause() { animator_->pause(); }
+
+void SpriteNode::resume() { animator_->resume(); }
+
+void SpriteNode::reset() { animator_->reset(); }
+
+void SpriteNode::set_playback_speed(float speed) { animator_->set_playback_speed(speed); }
+
+void SpriteNode::set_looping(bool looping) { animator_->set_looping(looping); }
+
+bool SpriteNode::is_playing() const { return animator_->is_playing(); }
+
+const std::string &SpriteNode::get_current_animation_name() const
+{
+    return animator_->get_current_animation_name();
+}
+
+void SpriteNode::set_player_controlled(TransformNode& transform_node)
+{
+    movement_controller_ = std::make_unique<PlayerController>(transform_node);
+}
+
+void SpriteNode::set_path_controlled(TransformNode& transform_node, Path& path)
+{
+    auto path_controller = std::make_unique<PathController>(transform_node);
+    path_controller->set_path(path);
+    movement_controller_ = std::move(path_controller);
+}
+
+void SpriteNode::update_animation_for_movement()
+{
+    if(!movement_controller_) return;
+
+    // Update movement based on movement state
+    if(movement_controller_->is_moving())
+    {
+        // If we have a walk animation, play it when moving
+        if(animation_textures_.find("walk") != animation_textures_.end())
+        {
+            // Only switch if not already playing walk animation
+            if(get_current_animation_name() != "walk") { play("walk"); }
+        }
+    }
+    else
+    {
+        // Play idle animation when not moving
+        if(animation_textures_.find("idle") != animation_textures_.end())
+        {
+            // Only switch if not already playing idle animation
+            if(get_current_animation_name() != "idle") { play("idle"); }
+        }
+    }
 }
 
 } // namespace cge

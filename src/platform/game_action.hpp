@@ -32,7 +32,13 @@ enum class GameAction
     CAMERA_MOVE_LEFT,
     CAMERA_MOVE_RIGHT,
     CAMERA_ZOOM_IN,
-    CAMERA_ZOOM_OUT
+    CAMERA_ZOOM_OUT,
+
+    // Player actions
+    PLAYER_MOVE_UP, 
+    PLAYER_MOVE_DOWN,
+    PLAYER_MOVE_LEFT,
+    PLAYER_MOVE_RIGHT
 };
 
 // A collection of game actions

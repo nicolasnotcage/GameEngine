@@ -32,6 +32,8 @@ class TransformNode : public Node
     void left_translate(float x, float y);
     void right_translate(float x, float y);
 
+    Matrix3 &get_transform() { return transform_; }
+
 private:
     Matrix3 transform_;
 };

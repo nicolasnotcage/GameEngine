@@ -101,7 +101,7 @@ void Animator::update(double delta)
 void Animator::play(const std::string &animation_name)
 {
     // If already playing this animation, do nothing
-    if(is_playing_ && current_animation_ == animation_name) return;
+    if(is_playing_ && current_animation_ == animation_name) return; 
 
     // Make sure animation exists
     auto it = animations.find(animation_name);
@@ -159,6 +159,11 @@ void Animator::set_looping(bool looping)
     auto it = animations.find(current_animation_);
     if(it != animations.end()) it->second.set_looping(looping);
 }
+
+bool Animator::is_playing() const { return is_playing_; }
+
+const std::string &Animator::get_current_animation_name() const { return current_animation_; }
+
 
 } // namespace cge
 

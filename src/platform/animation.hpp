@@ -37,6 +37,7 @@ public:
     void set_looping(bool looping);
     bool is_looping() const;
     const std::vector<AnimationFrame> &get_frames() const;
+    
 
 private:
     std::string name_;
@@ -58,6 +59,9 @@ public:
 
     void add_animation(const Animation &animation);
     uint32_t get_current_frame_id() const;
+    const std::string &get_current_animation_name() const;
+    bool is_playing() const;
+
 
     // Timeline control
     void set_playback_speed(float speed); 

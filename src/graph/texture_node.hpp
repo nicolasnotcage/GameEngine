@@ -47,11 +47,8 @@ class TextureNode : public Node
     void define_frame(uint32_t frame_id, int x, int y, int width, int height);
     void define_grid(int cols, int rows, int frame_width, int frame_height);
     void set_current_frame(uint32_t frame_id);
-
-    // Animation functionality
-    Animator &get_animator();
-    bool      has_animator() const;
-    void      create_animator();
+    const std::unordered_map<uint32_t, Frame> &get_frames() const;
+    uint32_t get_current_frame_id() const;
 
   protected:
     SDL_Texture *texture_;
@@ -69,9 +66,6 @@ class TextureNode : public Node
     std::unordered_map<uint32_t, Frame> frames_;
     uint32_t current_frame_id_;
     bool is_sprite_sheet_;
-
-    // Animation member
-    std::unique_ptr<Animator> animator_;
 };
 
 template <typename... ChildrenTs>
