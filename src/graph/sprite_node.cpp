@@ -46,13 +46,8 @@ void SpriteNode::draw(SceneState &scene_state)
 
     // Set current state for rendering
     scene_state.texture_node = current_texture_;
-
-    // Set sprite flipping state if we have a movement controller
-    if(movement_controller_)
-    {
-        scene_state.sprite_flipped = movement_controller_->is_facing_left();
-        scene_state.in_sprite_context = true;
-    }
+    scene_state.sprite_flipped = facing_left_;
+    scene_state.in_sprite_context = true;
 
     // Set frame information
     auto &frames = current_texture_->get_frames();
@@ -84,15 +79,11 @@ void SpriteNode::draw(SceneState &scene_state)
 
 void SpriteNode::update(SceneState &scene_state)
 {
-    // Update movement controller
-    if (movement_controller_) 
-    { 
-        movement_controller_->update(scene_state);
-        update_animation_for_movement();
+    // Set sprite flip state
+    scene_state.sprite_flipped = facing_left_;
 
-        // Set sprite flipping based on facing direction
-        scene_state.sprite_flipped = movement_controller_->is_facing_left();
-    }
+    // Update animation based on movement state
+    update_animation_for_movement();
 
     // Update animation state if we have an animator
     if(animator_ && animator_->is_playing())
@@ -162,26 +153,9 @@ const std::string &SpriteNode::get_current_animation_name() const
     return animator_->get_current_animation_name();
 }
 
-void SpriteNode::set_player_controlled(TransformNode& transform_node)
-{
-    movement_controller_ = std::make_unique<PlayerController>(transform_node);
-}
-
-void SpriteNode::set_path_controlled(TransformNode& transform_node, Path& path)
-{
-    // Create new path controller object and set path. Assign it as active movement controller.
-    auto path_controller = std::make_unique<PathController>(transform_node);
-    path_controller->set_path(path);
-    movement_controller_ = std::move(path_controller);
-}
-
 void SpriteNode::update_animation_for_movement()
 {
-    if(!movement_controller_) return;
-
-    // Update movement based on movement state
-    // TODO: Add configurable animation names. These are hard-coded.
-    if(movement_controller_->is_moving())
+    if(is_moving_)
     {
         // If we have a walk animation, play it when moving
         if(animation_textures_.find("walk") != animation_textures_.end())
@@ -199,6 +173,13 @@ void SpriteNode::update_animation_for_movement()
             if(get_current_animation_name() != "idle") { play("idle"); }
         }
     }
+}
+
+void SpriteNode::set_movement_state(bool is_moving, MoveDirection direction, bool facing_left)
+{
+    is_moving_ = is_moving;
+    current_direction_ = direction;
+    facing_left_ = facing_left;
 }
 
 } // namespace cge

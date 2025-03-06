@@ -2,6 +2,10 @@ Last Update: 3/6/25
 New Classes: Animation, Animator, MovementController, PlayerController, PathController, Path
 Updated Classes: SpriteNode, CameraNode, TextureNode, GeometryNode, SceneState, GameManager, StaticScene, SceneState, Event, InputInterpreter
 
+UPDATE: After writing these notes and submitting, I realized that MovementControllers should be tied to TransformNodes. I performed a quick refactor, adding optional MovementControllers as components of TransformNodes. I then added movement-specific state information to SpriteNodes. I believe this provides better separation of concerns. Now, movement is linked to transform nodes, and animation is linked to sprite nodes, which I think is a much more appropriate design than I had before.
+
+Note on art: The character sprites were retrived from itch.io. The game map is something I worked on over the winter break. It's not done yet, but I'll flesh it out as I get time. 
+
 Implementation Notes
 1) New Animator class was initially inspired by Unity's "Animator" component. Animator objects handle actual animation playback and state, and Animation objects store individual Animation data. 
 
@@ -15,13 +19,13 @@ Implementation Notes
 
 6) GameManager has been updated to enforce 60fps-based delta values when actual deltas are below a defined threshold. I imagine this may present problems in the future, but my delta values were so low that my animation system was not synchronizing well, and adding strictly defined timing did resolve the issue.
 
-7) SpriteNodes are now used in the scene graph. Admittedly, they have taken on the role of a tightly coupled kind of "god object" for movement and animation. These nodes contain pointers to an Animator and MovementController and provide wrappers for animation control. The SpriteNode is very tightly coupled to Animation and Movement systems, and I'm very worried that these nodes will be prone to breaking as the sub-systems it depends on are extended. Refactoring this towards a more modular architecture is a key goal for me moving forward. 
+7) SEE UPDATE. SpriteNodes are now used in the scene graph. Admittedly, they have taken on the role of a tightly coupled kind of "god object" for movement and animation. These nodes contain pointers to an Animator and MovementController and provide wrappers for animation control. The SpriteNode is very tightly coupled to Animation and Movement systems, and I'm very worried that these nodes will be prone to breaking as the sub-systems it depends on are extended. Refactoring this towards a more modular architecture is a key goal for me moving forward. 
 
 8) CameraNode objects now have the ability to follow a target. Given that we're now moving our player-characters, I felt it was appropriate to follow the player as they move throughout the game world.
 
 9) Input handling now accounts for state-based input tracking. During the refactor, I configured a sprite to play a walking animation while WASD was pressed and to idle otherwise. I noticed that my event-based polling did not work well with this system, as each time a frame was updated, the character would go back to idling even if the key was held. To fix this, I added state-based input tracking to Event, which now tracks held keys. This allows for seamless animation transitions and also corrected the "jittery" nature of movement, which was caused by event-based polling. 
 
-Concerns
+Issues
 The fundamental problem I had with this assignment was architecting the solution. At first, I coupled animation to textures, which was a bad approach. I neglected the fact that 2D games generally have different textures for different animations of the same Sprite. I built out my whole implementation around this flaw, and when I went to add an "idle" animation to compliment my "walk" animation, I saw my mistake, and I had to start from scratch.
 
 This architecture is better than the first, but I'm still not a fan. Given the time constraints after having to start fresh, I'm happy to have all of the required functionality, but I aim to improve this architecture over time. If you have any suggestions/resources I should look into when approaching this refactor, I would appreciate it. Thank you!

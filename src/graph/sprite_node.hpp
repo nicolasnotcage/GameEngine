@@ -45,18 +45,12 @@ class SpriteNode : public Node
     void set_looping(bool looping);
     bool is_playing() const;
     const std::string &get_current_animation_name() const;
-
-    // Movement methods
-    // TODO: MovementController objects store a reference to the transform node
-    // of the entities they control movement of. I imagine this could be
-    // better.
-    void set_player_controlled(TransformNode& transform_node);
-    void set_path_controlled(TransformNode& transform_node, Path &path);
-    MovementController *get_movement_controller() { return movement_controller_.get(); }
-
+   
     // Animation integration with movement
-    // TODO: This forces SpriteNodes to coordinate animation and movement systems. Is there a better way?
     void update_animation_for_movement();
+
+    // Update sprite based on movement state
+    void set_movement_state(bool is_moving, MoveDirection direction, bool facing_left);
 
   private:
     // Current texture and frame
@@ -69,8 +63,10 @@ class SpriteNode : public Node
     // Animation component
     std::unique_ptr<Animator> animator_;
 
-    // Movement controller
-    std::unique_ptr<MovementController> movement_controller_;
+    // Movement state
+    bool is_moving_{false};
+    MoveDirection current_direction_{MoveDirection::NONE};
+    bool facing_left_{false};
 };
 
 template <typename... ChildrenTs>

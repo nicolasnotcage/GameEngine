@@ -8,11 +8,14 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/io_handler.hpp"
 #include "platform/movement_controller.hpp"
 #include "platform/path.hpp"
+#include "graph/transform_node.hpp"
 
 #include <cmath>
 
 namespace cge
 {
+
+MovementController::MovementController(TransformNode &transform_node) : transform_node_(transform_node) {}
 
 // Track sprite orientation
 void MovementController::update_sprite_orientation()

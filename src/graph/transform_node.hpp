@@ -1,14 +1,20 @@
 #ifndef GRAPH_TRANSFORM_NODE_HPP
 #define GRAPH_TRANSFORM_NODE_HPP
 
-#include "graph/geometry_node.hpp"
 #include "graph/node.hpp"
 #include "graph/node_t.hpp"
-#include "graph/texture_node.hpp"
 #include "platform/math.hpp"
+#include "platform/path.hpp"
+
+#include <memory>
 
 namespace cge
 {
+
+// Forward declarations
+class SpriteNode;
+class MovementController;
+enum class MoveDirection;
 
 class TransformNode : public Node
 {
@@ -22,6 +28,7 @@ class TransformNode : public Node
     void draw(SceneState &scene_state) override;
     void update(SceneState &scene_state) override;
 
+    // Transformation functions
     void set_identity();
     void left_scale(float x, float y);
     void right_scale(float x, float y);
@@ -34,8 +41,25 @@ class TransformNode : public Node
 
     Matrix3 &get_transform() { return transform_; }
 
+    // Movement controller methods
+    void                set_player_controlled();
+    void                set_path_controlled(Path &path);
+    bool                is_moving() const;
+    
+    
+    // Return movement direction
+    MoveDirection get_move_direction() const;
+
+    // Return if facing left
+    bool is_facing_left() const;
+
+    // Connect a sprite to this transform
+    void set_associated_sprite(SpriteNode *sprite);
+
 private:
     Matrix3 transform_;
+    std::unique_ptr<MovementController> movement_controller_;
+    SpriteNode                         *associated_sprite_{nullptr};
 };
 
 template <typename... ChildrenTs>

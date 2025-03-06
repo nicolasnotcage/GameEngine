@@ -108,7 +108,8 @@ void StaticScene::setup_golem_animations()
     golem_sprite.play("idle");
 
     // Set golem as player-controlled
-    golem_sprite.set_player_controlled(golem_transform);
+    golem_transform.set_player_controlled();
+    golem_transform.set_associated_sprite(&golem_sprite);
 }
 
 void StaticScene::setup_witch_animations()
@@ -138,8 +139,9 @@ void StaticScene::setup_witch_animations()
     witch_path_.add_point(3.0f, 0.0f, 1.0f); // Back to start
     witch_path_.set_looping(true);
 
-    // Set witch as path controlled
-    witch_sprite.set_path_controlled(witch_transform, witch_path_);
+    // Set witch as path controlled and connect sprite
+    witch_transform.set_path_controlled(witch_path_);
+    witch_transform.set_associated_sprite(&witch_sprite);
 }
 
 void StaticScene::destroy()

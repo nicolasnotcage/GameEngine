@@ -8,13 +8,14 @@ For more information, please refer to <https://unlicense.org>
 #ifndef PLATFORM_MOVEMENT_CONTROLLER_HPP
 #define PLATFORM_MOVEMENT_CONTROLLER_HPP
 
-#include "graph/transform_node.hpp"
 #include "graph/scene_state.hpp"
 #include "platform/game_action.hpp"
 #include "platform/path.hpp"
 
 namespace cge
 {
+
+class TransformNode;
 
 // Utility enum to track entity movement direction. 
 enum class MoveDirection
@@ -30,8 +31,7 @@ enum class MoveDirection
 class MovementController
 {
   public:
-    MovementController(TransformNode &transform_node) :
-        transform_node_(transform_node) {}
+    MovementController(TransformNode &transform_node);
 
     virtual ~MovementController() = default;
 
