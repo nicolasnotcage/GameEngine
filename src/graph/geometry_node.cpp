@@ -27,9 +27,9 @@ void GeometryNode::draw(SceneState &scene_state)
     auto tr = scene_state.matrix_stack.top() * Vector2(0.5f, -0.5f);
     auto bl = scene_state.matrix_stack.top() * Vector2(-0.5f, 0.5f);
 
-    bool should_flip = scene_state.sprite_flipped && scene_state.in_sprite_context;
-
     // Flip sprite horizontally if needed
+    // TODO: Better system for sprite flipping
+    bool should_flip = scene_state.sprite_flipped && scene_state.in_sprite_context;
     if(should_flip)
     { 
         std::swap(tl, tr);

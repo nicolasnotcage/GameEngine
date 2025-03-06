@@ -32,10 +32,17 @@ public:
     Animation();
     Animation(const std::string &name, bool looping);
 
+    // Add animation frame
     void add_frame(uint32_t frame_id, uint32_t duration);
+
+    // Get animation name
     const std::string &get_name() const;
+
+    // Set and get looping state
     void set_looping(bool looping);
     bool is_looping() const;
+
+    // Get animation frames
     const std::vector<AnimationFrame> &get_frames() const;
     
 
@@ -51,30 +58,37 @@ class Animator
 public:
     Animator();
 
-    void update(double delta);
+    void update(float delta);
     void play(const std::string &animation_name);
     void pause();
     void resume();
     void reset();
 
+    // Add animation to animator
     void add_animation(const Animation &animation);
-    uint32_t get_current_frame_id() const;
-    const std::string &get_current_animation_name() const;
-    bool is_playing() const;
 
+    // Get the current frame id
+    uint32_t get_current_frame_id() const;
+
+    // Get the current animation name
+    const std::string &get_current_animation_name() const;
+
+    // Check animator play state
+    bool is_playing() const;
 
     // Timeline control
     void set_playback_speed(float speed); 
     void set_looping(bool looping);
+    void set_ticks_per_second(float ticks_per_second);
 
 private:
     std::unordered_map<std::string, Animation> animations;
-    std::string current_animation_;
-    uint32_t current_frame_index_;
-    float time_accumulator_;
-    bool is_playing_;
-    float playback_speed_;
-
+    std::string current_animation_{""};
+    uint32_t current_frame_index_{0};
+    float time_accumulator_{0.0f};
+    bool is_playing_{false};
+    float                                      playback_speed_{1.0f};
+    float                                      ticks_per_second_{60.0f};
 };
 
 } // namespace cge

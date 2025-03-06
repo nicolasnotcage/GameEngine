@@ -70,7 +70,7 @@ void TextureNode::draw(SceneState &scene_state)
         SDL_SetTextureColorMod(texture_, color_mods_[0], color_mods_[1], color_mods_[2]);
     }     
 
-    // For sprite sheet support
+    // Handle sprite sheets
     if(is_sprite_sheet_ && frames_.find(current_frame_id_) != frames_.end())
     {
         scene_state.using_sprite_sheet = true;
@@ -121,21 +121,24 @@ void TextureNode::set_blend_alpha(uint8_t alpha) { blend_alpha_ = alpha; }
 
 void TextureNode::define_frame(uint32_t frame_id, int x, int y, int width, int height)
 {
+    // Define and store sprite sheet frame
     Frame frame{x, y, width, height};
     frames_[frame_id] = frame;
-    is_sprite_sheet_ = true;
 
+    // When initialized, set sprite sheet flag and update current frame ID
     if(frames_.size() == 1) 
     { 
+        is_sprite_sheet_ = true;
         current_frame_id_ = frame_id;
     }
 }
 
 void TextureNode::define_grid(int cols, int rows, int width, int height)
 {
-    is_sprite_sheet_ = true;
     uint32_t frame_id = 0;
 
+    // Iteratively define sprite sheet frames on 
+    // grid-based sheets
     for(int y = 0; y < rows; y++)
     {
         for(int x = 0; x < cols; x++)
@@ -155,7 +158,6 @@ void TextureNode::define_grid(int cols, int rows, int width, int height)
 void TextureNode::set_current_frame(uint32_t frame_id)
 {
     if (frames_.find(frame_id) != frames_.end()) current_frame_id_ = frame_id;
-    // TODO: Error handling for when frame not found
 }
 
 const std::unordered_map<uint32_t, Frame> &TextureNode::get_frames() const { return frames_; }

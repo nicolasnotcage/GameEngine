@@ -45,7 +45,7 @@ class StaticScene
     SceneState               scene_state_;
     IoHandler               *io_handler_;
 
-    // Texture nodes are owned by StaticScene
+    // Texture nodes for specific sprite sheets
     TextureNode golem_walk_texture_;
     TextureNode golem_idle_texture_;
     TextureNode witch_run_texture_;

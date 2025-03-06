@@ -12,40 +12,26 @@ Animation::Animation(const std::string &name, bool looping)
 	: name_(name), looping_(looping) 
 	{}
 
-// Add frame to animation.
-//      frame_id: ID of new frame
-//      duration: Duration of frame in ticks
 void Animation::add_frame(uint32_t frame_id, uint32_t duration) 
 {
     frames_.push_back({frame_id, duration});
 }
 
-// Get Animation name
 const std::string &Animation::get_name() const { return name_; }
 
-// Set if the animation should loop.
 void Animation::set_looping(bool looping) { looping_ = looping; }
 
-// Get if the animation is looping.
 bool Animation::is_looping() const { return looping_; }
 
-// Get reference to vector of AnimationFrames.
 const std::vector<cge::Animation::AnimationFrame> &Animation::get_frames() const { return frames_; }
 
 /**********************************************************************
 * Animator Class Implementation
 **********************************************************************/
-Animator::Animator() :
-    current_animation_(""),
-    current_frame_index_(0),
-    time_accumulator_(0.0f),
-    is_playing_(false),
-    playback_speed_(1.0f)
-{
-}
+Animator::Animator() = default;
 
 // Update Animator state for the current Animation.
-void Animator::update(double delta)
+void Animator::update(float delta)
 {
     if(!is_playing_ || current_animation_.empty()) return;
 
@@ -59,15 +45,13 @@ void Animator::update(double delta)
     if(frames.empty()) return;
 
     // Accumulate time
-    time_accumulator_ += static_cast<float>(delta * playback_speed_);
+    time_accumulator_ += delta * playback_speed_;
 
     // Get duration of current frame
     uint32_t current_duration = frames[current_frame_index_].duration;
 
-    // Convert from seconds to animation ticks (assuming 60 ticks per second)
-    // TODO: Is this the right approach?
-    float ticks_per_second = 60.0f;
-    float time_per_tick = 1.0f / ticks_per_second;
+    // Convert from seconds to animation ticks
+    float time_per_tick = 1.0f / ticks_per_second_;
 
     while(time_accumulator_ >= current_duration * time_per_tick)
     {
@@ -107,7 +91,7 @@ void Animator::play(const std::string &animation_name)
     auto it = animations.find(animation_name);
     if(it == animations.end()) return;
 
-    // 
+    // Initilize animation
     current_animation_ = animation_name;
     current_frame_index_ = 0;
     time_accumulator_ = 0.0f;
@@ -163,6 +147,8 @@ void Animator::set_looping(bool looping)
 bool Animator::is_playing() const { return is_playing_; }
 
 const std::string &Animator::get_current_animation_name() const { return current_animation_; }
+
+void Animator::set_ticks_per_second(float ticks_per_second) { ticks_per_second_ = ticks_per_second; }
 
 
 } // namespace cge

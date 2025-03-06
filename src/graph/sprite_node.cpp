@@ -24,7 +24,6 @@ void SpriteNode::destroy()
     destroy_children();
     clear_children();
 
-    // Clear references but don't destroy textures (they're owned elsewhere)
     current_texture_ = nullptr;
     animation_textures_.clear();
 }
@@ -170,6 +169,7 @@ void SpriteNode::set_player_controlled(TransformNode& transform_node)
 
 void SpriteNode::set_path_controlled(TransformNode& transform_node, Path& path)
 {
+    // Create new path controller object and set path. Assign it as active movement controller.
     auto path_controller = std::make_unique<PathController>(transform_node);
     path_controller->set_path(path);
     movement_controller_ = std::move(path_controller);
@@ -180,6 +180,7 @@ void SpriteNode::update_animation_for_movement()
     if(!movement_controller_) return;
 
     // Update movement based on movement state
+    // TODO: Add configurable animation names. These are hard-coded.
     if(movement_controller_->is_moving())
     {
         // If we have a walk animation, play it when moving

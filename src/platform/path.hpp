@@ -14,6 +14,10 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Defines a Point on a path. Contains 
+// both x, y coordinates and a pause time, 
+// which defines how long to remain at
+// the point.
 struct PathPoint
 {
     float x, y;
@@ -47,7 +51,7 @@ public:
 
 private:
     std::vector<PathPoint> points_;
-    bool looping_ = true;
+    bool looping_{true};
 };
 
 } // namespace cge

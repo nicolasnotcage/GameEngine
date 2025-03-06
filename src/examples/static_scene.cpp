@@ -68,7 +68,7 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     golem_transform.right_translate(1.0f, 0.0f);
     golem_transform.right_scale(3.0f, 3.0f);
 
-    witch_transform.right_translate(1.0f, 0.0f);
+    witch_transform.right_translate(3.0f, 0.0f);
     witch_transform.right_scale(3.0f, 3.0f);
 
     // Setup animations for both characters
@@ -130,11 +130,11 @@ void StaticScene::setup_witch_animations()
     // Start playing run animation by default
     witch_sprite.play("run");
 
-    // Setup paths for automated movement
-    witch_path_.add_point(3.0f, 0.0f, 1.0f); // Start position with 1 sec pause
+    // Setup path for automated movement
+    witch_path_.add_point(3.0f, 0.0f, 1.0f); // Start here
     witch_path_.add_point(8.0f, 0.0f, 0.5f); // Move right
-    witch_path_.add_point(8.0f, 2.0f, 0.5f);  // Move up
-    witch_path_.add_point(3.0f, 2.0f, 0.5f);  // Move left
+    witch_path_.add_point(8.0f, 2.0f, 0.5f); // Move down
+    witch_path_.add_point(3.0f, 2.0f, 0.5f); // Move left
     witch_path_.add_point(3.0f, 0.0f, 1.0f); // Back to start
     witch_path_.set_looping(true);
 
@@ -145,8 +145,6 @@ void StaticScene::setup_witch_animations()
 void StaticScene::destroy()
 {
     root_.destroy();
-
-    // Explicitly destroy texture nodes
     golem_walk_texture_.destroy();
     golem_idle_texture_.destroy();
     witch_run_texture_.destroy();

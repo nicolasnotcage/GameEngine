@@ -14,9 +14,9 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Track sprite orientation
 void MovementController::update_sprite_orientation()
 {
-    // Simply update the facing direction
     if(current_direction_ == MoveDirection::LEFT) 
     { 
         facing_left_ = true; 
@@ -104,7 +104,7 @@ void PathController::move_towards_target(float delta)
     // Get current target
     const PathPoint &target = path_.get_point(current_point_index_);
 
-    // Get transform's current position
+    // Get entity's current position in game world
     Matrix3 transform = transform_node_.get_transform();
     Vector2 position(transform.a[6], transform.a[7]);
 
@@ -127,7 +127,10 @@ void PathController::move_towards_target(float delta)
         // Handle end of path
         if(current_point_index_ >= path_.size())
         {
-            if(path_.is_looping()) { current_point_index_ = 0; }
+            if(path_.is_looping()) 
+            { 
+                current_point_index_ = 0; 
+            }
             else
             {
                 current_direction_ = MoveDirection::NONE;
@@ -139,7 +142,11 @@ void PathController::move_towards_target(float delta)
         return;
     }
 
-    // Normalize direction
+    // Normalize direction (unit vector). We must take 
+    // this step. If we don't, then the speed of the 
+    // entity will correlate with the magnitude of the
+    // distance vector (fast for large distances, slow 
+    // for small). Comment out this line for a demo.
     direction.x /= distance;
     direction.y /= distance;
 
@@ -148,17 +155,23 @@ void PathController::move_towards_target(float delta)
     {
         current_direction_ = direction.x > 0 ? MoveDirection::RIGHT : MoveDirection::LEFT;
     }
-    else { current_direction_ = direction.y > 0 ? MoveDirection::DOWN : MoveDirection::UP; }
+    else 
+    { 
+        current_direction_ = direction.y > 0 ? MoveDirection::DOWN : MoveDirection::UP; 
+    }
 
     // Move towards target
     float move_amount = speed_ * delta;
 
-    // If we would overshoot, just move to the target
+    // If we are going to overshoot, just move to the target
     if(move_amount > distance)
     {
         transform_node_.right_translate(direction.x * distance, direction.y * distance);
     }
-    else { transform_node_.right_translate(direction.x * move_amount, direction.y * move_amount); }
+    else 
+    { 
+        transform_node_.right_translate(direction.x * move_amount, direction.y * move_amount); 
+    }
 
     is_moving_ = true;
 

@@ -16,6 +16,7 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Utility enum to track entity movement direction. 
 enum class MoveDirection
 {
 	NONE, 
@@ -29,34 +30,30 @@ enum class MoveDirection
 class MovementController
 {
   public:
-  MovementController(TransformNode &transform_node) :
-      transform_node_(transform_node),
-      speed_(5.0f),
-      is_moving_(false),
-      current_direction_(MoveDirection::NONE)
-      {}
+    MovementController(TransformNode &transform_node) :
+        transform_node_(transform_node) {}
 
-  virtual ~MovementController() = default;
+    virtual ~MovementController() = default;
 
-  // Update movement, which will be overwritten by derived classes.
-  virtual void update(SceneState &scene_state) = 0;
+    // Update movement, which will be overwritten by derived classes.
+    virtual void update(SceneState &scene_state) = 0;
 
-  // Set movement speed
-  void set_speed(float speed) { speed_ = speed; }
+    // Set movement speed
+    void set_speed(float speed) { speed_ = speed; }
 
-  // Get current direction 
-  MoveDirection get_direction() const { return current_direction_; }
+    // Get current movement direction
+    MoveDirection get_direction() const { return current_direction_; }
 
-  // Flag getters
-  bool is_moving() const { return is_moving_; }
-  bool is_facing_left() const { return facing_left_; }
+    // Flag getters
+    bool is_moving() const { return is_moving_; }
+    bool is_facing_left() const { return facing_left_; }
 
-protected: 
-	TransformNode &transform_node_;
-	float          speed_;
-    bool           is_moving_;
-    MoveDirection  current_direction_;
-    bool           facing_left_ = false;
+protected:
+    TransformNode       &transform_node_;
+    float               speed_{2.5f};
+    bool                is_moving_{false};
+    MoveDirection       current_direction_{MoveDirection::NONE};
+    bool                facing_left_{false};
 
     void update_sprite_orientation();
 };
@@ -75,9 +72,7 @@ class PlayerController : public MovementController
 class PathController : public MovementController
 {
 public: 
-    PathController(TransformNode &transform_node) :
-    MovementController(transform_node), current_point_index_(0), pause_timer_(0.0f)
-    {}
+    PathController(TransformNode &transform_node) : MovementController(transform_node) {}
 
     // Update movement along path
     void update(SceneState &scene_state) override;
@@ -87,8 +82,8 @@ public:
 
 private:
     Path   path_;
-    size_t current_point_index_;
-    float  pause_timer_;
+    size_t current_point_index_{0};
+    float  pause_timer_{0.0f};
 
     // Move towards current target point
     void move_towards_target(float delta);
