@@ -21,8 +21,7 @@ void MovementController::update_sprite_orientation()
     { 
         facing_left_ = true; 
     }
-    else if(current_direction_ == MoveDirection::RIGHT || current_direction_ == MoveDirection::UP ||
-            current_direction_ == MoveDirection::DOWN)
+    else if(current_direction_ == MoveDirection::RIGHT)
     {
         facing_left_ = false;
     } 

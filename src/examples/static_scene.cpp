@@ -58,7 +58,7 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 
     // Set texture filepath and scale it large
     game_map_tex.set_filepath("images/game_map.png");
-    game_map_transform.right_scale(40.0f, 40.0f);
+    game_map_transform.right_scale(71.0f, 40.0f);
 
     // Get transforms
     auto &golem_transform = camera.get_child<1>();
@@ -66,10 +66,10 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 
     // Position golem and witch
     golem_transform.right_translate(1.0f, 0.0f);
-    golem_transform.right_scale(2.0f, 2.0f);
+    golem_transform.right_scale(3.0f, 3.0f);
 
-    witch_transform.right_translate(1.0f, 4.0f);
-    witch_transform.right_scale(2.0f, 2.0f);
+    witch_transform.right_translate(1.0f, 0.0f);
+    witch_transform.right_scale(3.0f, 3.0f);
 
     // Setup animations for both characters
     setup_golem_animations();
@@ -131,11 +131,11 @@ void StaticScene::setup_witch_animations()
     witch_sprite.play("run");
 
     // Setup paths for automated movement
-    witch_path_.add_point(3.0f, 10.0f, 1.0f); // Start position with 1 sec pause
-    witch_path_.add_point(8.0f, 10.0f, 0.5f); // Move right
-    witch_path_.add_point(8.0f, 5.0f, 0.5f);  // Move up
-    witch_path_.add_point(3.0f, 5.0f, 0.5f);  // Move left
-    witch_path_.add_point(3.0f, 10.0f, 1.0f); // Back to start
+    witch_path_.add_point(3.0f, 0.0f, 1.0f); // Start position with 1 sec pause
+    witch_path_.add_point(8.0f, 0.0f, 0.5f); // Move right
+    witch_path_.add_point(8.0f, 2.0f, 0.5f);  // Move up
+    witch_path_.add_point(3.0f, 2.0f, 0.5f);  // Move left
+    witch_path_.add_point(3.0f, 0.0f, 1.0f); // Back to start
     witch_path_.set_looping(true);
 
     // Set witch as path controlled
