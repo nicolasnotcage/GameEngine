@@ -43,6 +43,7 @@ void SpriteNode::draw(SceneState &scene_state)
     bool         prev_using_sprite_sheet = scene_state.using_sprite_sheet;
     SDL_Rect     prev_rect = scene_state.current_frame_rect;
     bool         prev_sprite_flipped = scene_state.sprite_flipped;
+    bool         prev_in_sprite_context = scene_state.in_sprite_context;
 
     // Set current state for rendering
     scene_state.texture_node = current_texture_;
@@ -51,6 +52,7 @@ void SpriteNode::draw(SceneState &scene_state)
     if(movement_controller_)
     {
         scene_state.sprite_flipped = movement_controller_->is_facing_left();
+        scene_state.in_sprite_context = true;
     }
 
     // Set frame information
@@ -78,6 +80,7 @@ void SpriteNode::draw(SceneState &scene_state)
     scene_state.using_sprite_sheet = prev_using_sprite_sheet;
     scene_state.current_frame_rect = prev_rect;
     scene_state.sprite_flipped = prev_sprite_flipped;
+    scene_state.in_sprite_context = prev_in_sprite_context;
 }
 
 void SpriteNode::update(SceneState &scene_state)

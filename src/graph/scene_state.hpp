@@ -33,7 +33,9 @@ struct SceneState
     SDL_Rect     current_frame_rect = {0, 0, 0, 0};
 
     // For flipping sprites
+    // TODO: This is not ideal. Need to rework this.
     bool sprite_flipped{false};
+    bool in_sprite_context{false};
 
     void reset();
 };

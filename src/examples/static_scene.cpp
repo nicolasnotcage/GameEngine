@@ -24,7 +24,7 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     scene_state_.sdl_info = sdl_info_;
     scene_state_.io_handler = io_handler_;
 
-    // Initialize all textures
+    // Initialize all sprite textures
 
     // Golem walk texture
     golem_walk_texture_.set_filepath("images/golem_walk.png");
@@ -52,16 +52,24 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     camera.get_camera().set_dimensions(20.0f, 15.0f);
     camera.get_camera().set_position(0.0f, 0.0f);
 
-    // Configure transforms
-    auto &golem_transform = camera.get_child<0>();
-    auto &witch_transform = camera.get_child<1>();
+    // Configure game map
+    auto &game_map_transform = camera.get_child<0>();
+    auto &game_map_tex = game_map_transform.get_child<0>();
+
+    // Set texture filepath and scale it large
+    game_map_tex.set_filepath("images/game_map.png");
+    game_map_transform.right_scale(40.0f, 40.0f);
+
+    // Get transforms
+    auto &golem_transform = camera.get_child<1>();
+    auto &witch_transform = camera.get_child<2>();
 
     // Position golem and witch
     golem_transform.right_translate(1.0f, 0.0f);
-    golem_transform.right_scale(3.0f, 3.0f);
+    golem_transform.right_scale(2.0f, 2.0f);
 
     witch_transform.right_translate(1.0f, 4.0f);
-    witch_transform.right_scale(3.0f, 3.0f);
+    witch_transform.right_scale(2.0f, 2.0f);
 
     // Setup animations for both characters
     setup_golem_animations();
@@ -78,7 +86,7 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 void StaticScene::setup_golem_animations()
 {
     auto &camera = root_.get_child<0>();
-    auto &golem_transform = camera.get_child<0>();
+    auto &golem_transform = camera.get_child<1>();
     auto &golem_sprite = golem_transform.get_child<0>();
 
     // Create walk animation
@@ -106,7 +114,7 @@ void StaticScene::setup_golem_animations()
 void StaticScene::setup_witch_animations()
 {
     auto &camera = root_.get_child<0>();
-    auto &witch_transform = camera.get_child<1>();
+    auto &witch_transform = camera.get_child<2>();
     auto &witch_sprite = witch_transform.get_child<0>();
 
     // Create run animation

@@ -26,9 +26,10 @@ namespace cge
 
 // Define animated sprite with proper hierarchy
 using AnimatedSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
+using GameMap = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 
 // Parent camera with two child animated sprites
-using AnimatedScene = CameraNodeT<AnimatedSprite, AnimatedSprite > ;
+using AnimatedScene = CameraNodeT<GameMap, AnimatedSprite, AnimatedSprite>;
 
 class StaticScene
 {
