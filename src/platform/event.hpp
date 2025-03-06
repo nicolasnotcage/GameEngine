@@ -31,7 +31,13 @@ enum class EventType
     MOUSE_WHEEL_DOWN,
     MOUSE_BUTTON_LEFT,
     MOUSE_BUTTON_RIGHT,
-    MOUSE_MOTION
+    MOUSE_MOTION,
+
+    // Key held states
+    KEY_HELD_W,
+    KEY_HELD_A,
+    KEY_HELD_S,
+    KEY_HELD_D,
 };
 
 

@@ -73,6 +73,20 @@ SDLEventInfo get_current_events()
         }
     }
 
+    // Check for held keys
+    int numkeys;
+    const bool *keystate = SDL_GetKeyboardState(&numkeys);
+
+    // Add key held states to the event list
+    if(keystate[SDL_SCANCODE_W] && num_events < SDLEventInfo::MAX_EVENTS)
+        event_info.events[num_events++] = EventType::KEY_HELD_W;
+    if(keystate[SDL_SCANCODE_A] && num_events < SDLEventInfo::MAX_EVENTS)
+        event_info.events[num_events++] = EventType::KEY_HELD_A;
+    if(keystate[SDL_SCANCODE_S] && num_events < SDLEventInfo::MAX_EVENTS)
+        event_info.events[num_events++] = EventType::KEY_HELD_S;
+    if(keystate[SDL_SCANCODE_D] && num_events < SDLEventInfo::MAX_EVENTS)
+        event_info.events[num_events++] = EventType::KEY_HELD_D;
+
     event_info.num_events = num_events;
 
     return event_info;
