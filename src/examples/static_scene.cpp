@@ -67,6 +67,10 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     setup_golem_animations();
     setup_witch_animations();
 
+    // Set camera to follow golem
+    camera.set_target(&golem_transform, true);
+    camera.set_follow_smoothness(1.0f);
+
     // Initialize root node
     root_.init(scene_state_);
 }

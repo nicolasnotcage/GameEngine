@@ -3,6 +3,7 @@
 
 #include "graph/node.hpp"
 #include "graph/node_t.hpp"
+#include "graph/transform_node.hpp"
 #include "platform/camera.hpp"
 
 namespace cge
@@ -23,8 +24,18 @@ class CameraNode : public Node
     // Accessing camera
     Camera &get_camera();
 
+    // Camera following features
+    void set_target(TransformNode *target, bool follow = true);
+    void set_follow_smoothness(float smoothness);
+    bool is_following_target() const;
+
 private:
     Camera camera_;
+    TransformNode *target_transform_{nullptr};
+    bool           follow_target_{false};
+    float          follow_smoothness_{0.1f};
+
+
 };
 
 template <typename... ChildrenTs>

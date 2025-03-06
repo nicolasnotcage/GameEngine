@@ -31,6 +31,26 @@ void CameraNode::draw(SceneState &scene_state)
 
 void CameraNode::update(SceneState &scene_state) 
 {
+    // Follow target if one is set
+    if(follow_target_ && target_transform_)
+    {
+        // Get target position (world space)
+        Matrix3 transform = target_transform_->get_transform();
+        Vector2 target_position(transform.a[6], transform.a[7]);
+
+        // Get current camera position
+        Vector2 current_position = camera_.get_position();
+
+        // Calculate interpolated position (smooth follow)
+        float   lerp_factor = std::min(1.0f, follow_smoothness_ * scene_state.delta * 60.0f);
+        Vector2 new_position =
+            Vector2(current_position.x + (target_position.x - current_position.x) * lerp_factor,
+                    current_position.y + (target_position.y - current_position.y) * lerp_factor);
+
+        // Update camera position
+        camera_.set_position(new_position.x, new_position.y);
+    }
+
     // Handle camera controls from game actions
     if(scene_state.io_handler)
     {
@@ -47,18 +67,8 @@ void CameraNode::update(SceneState &scene_state)
 
             switch(action_list.actions[i])
             {
-                case GameAction::CAMERA_MOVE_UP: camera_.move(0.0f, -move_speed); break;
-
-                case GameAction::CAMERA_MOVE_DOWN: camera_.move(0.0f, move_speed); break;
-
-                case GameAction::CAMERA_MOVE_LEFT: camera_.move(-move_speed, 0.0f); break;
-
-                case GameAction::CAMERA_MOVE_RIGHT: camera_.move(move_speed, 0.0f); break;
-
                 case GameAction::CAMERA_ZOOM_IN: camera_.zoom(1.0f / zoom_speed); break;
-
                 case GameAction::CAMERA_ZOOM_OUT: camera_.zoom(zoom_speed); break;
-
                 default: break;
             }
         }
@@ -69,5 +79,18 @@ void CameraNode::update(SceneState &scene_state)
 }
 
 Camera &CameraNode::get_camera() { return camera_; }
+
+void CameraNode::set_target(TransformNode *target, bool follow)
+{
+    target_transform_ = target;
+    follow_target_ = follow;
+}
+
+void CameraNode::set_follow_smoothness(float smoothness)
+{
+    follow_smoothness_ = std::max(0.001f, std::min(1.0f, smoothness));
+}
+
+bool CameraNode::is_following_target() const { return follow_target_ && target_transform_ != nullptr; }
 
 } // namespace cge
