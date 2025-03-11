@@ -254,4 +254,38 @@ void MatrixStack::pop()
 
 Matrix3 &MatrixStack::top() { return stack_.back(); }
 
+// Collison objects
+// Circle
+Circle::Circle(const Vector2 &center_in, float radius_in) 
+    : center(center_in), radius(radius_in) 
+    {}
+
+bool Circle::intersects(const Circle &other) const 
+{
+    // Calculate distance between centers
+    Vector2 diff = center - other.center;
+    float   distanceSquared = diff.dot(diff);
+
+    // Check if the distance is less than or equal the sum of the radii
+    float radiusSum = radius + other.radius;
+    return distanceSquared <= radiusSum * radiusSum;
+}
+
+// Bounding box
+AABB2::AABB2(const Vector2 &min_in, const Vector2 &max_in) 
+    : min(min_in), max(max_in)
+    {}
+
+// Note: This algorithm taken from Ericson
+bool AABB2::intersects(const AABB2 &other) const
+{
+    // Not intersecting if separated along an axis
+    if(this->max.x < other.min.x || this->min.x > other.max.x) return false;
+    if(this->max.y < other.min.y || this->min.y > other.max.y) return false;
+
+    // Overlapping on all axes means AABBs are intersecting
+    return true;
+}
+
+
 } // namespace cge

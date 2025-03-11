@@ -171,6 +171,24 @@ class MatrixStack
     std::list<Matrix3> stack_;
 };
 
+// For collision detection
+struct Circle
+{
+    Vector2 center;
+    float   radius;
+    Circle(const Vector2 &center_in, float radius_in);
+    bool intersects(const Circle &other) const;
+};
+
+struct AABB2
+{
+    Vector2 min;
+    Vector2 max;
+    AABB2(const Vector2 &min_in, const Vector2 &max_in);
+    bool intersects(const AABB2 &other) const;
+};
+
+
 } // namespace cge
 
 #endif // GRAPH_MATH_HPP
