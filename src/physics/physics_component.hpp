@@ -8,11 +8,6 @@ For more information, please refer to <https://unlicense.org>
 #ifndef PHYSICS_PHYSICS_COMPONENT
 #define PHYSICS_PHYSICS_COMPONENT
 
-#include "graph/node.hpp"
-#include "graph/node_t.hpp"
-
-#include "platform/sdl.h"
-
 namespace cge
 {
 
