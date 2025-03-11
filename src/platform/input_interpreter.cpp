@@ -37,6 +37,9 @@ GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
             case EventType::KEY_DOWN_PLUS:
             case EventType::MOUSE_WHEEL_UP: action = GameAction::CAMERA_ZOOM_IN; break;
 
+            // For clicking to get world coordinates
+            case EventType::MOUSE_BUTTON_LEFT: action = GameAction::MOUSE_BUTTON_LEFT; break;
+
             // Skip over unbound events
             default: continue;
         }

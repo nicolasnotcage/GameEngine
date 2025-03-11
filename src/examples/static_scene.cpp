@@ -56,6 +56,9 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     camera.get_camera().set_dimensions(20.0f, 15.0f);
     camera.get_camera().set_position(0.0f, 0.0f);
 
+    // Set camera to print world coordinates on click; used for testing and defining collision boundaries
+    camera.set_print_on_click(true);
+
     // Configure game map
     auto &game_map_transform = camera.get_child<0>();
     auto &game_map_tex = game_map_transform.get_child<0>();
