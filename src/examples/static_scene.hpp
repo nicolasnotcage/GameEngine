@@ -26,7 +26,7 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-// Define animated sprite with proper hierarchy
+// Define animated sprite
 using AnimatedSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
 using GameMap = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 
