@@ -44,6 +44,9 @@ class MovementController
     // Get current movement direction
     MoveDirection get_direction() const { return current_direction_; }
 
+    // Override this function to provide controller-specific collision behavior
+    virtual void handle_collision() {}
+
     // Flag getters
     bool is_moving() const { return is_moving_; }
     bool is_facing_left() const { return facing_left_; }
@@ -66,6 +69,9 @@ class PlayerController : public MovementController
 
     // Update movement based on player input
     void update(SceneState &scene_state) override;
+
+    // Stop movement on collision
+    void handle_collision() override;
 };
 
 // NPC movement; driven by path-based automation

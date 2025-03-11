@@ -157,43 +157,70 @@ void StaticScene::setup_witch_animations()
 void StaticScene::setup_collisions()
 {
     auto &camera = root_.get_child<0>();
+    auto &game_map_transform = camera.get_child<0>();
     auto &golem_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
 
+    // Configure world boundaries
+    // 1. Water on the bottom of the map
+    AABBCollisionComponent *boundary = game_map_transform.add_aabb_collider(Vector2(-35.5, 18.5), Vector2(35.4, 20));
+
+    // 2. Left hand column
+
+    // 3. Right hand column
+
+    // 4. 
+
     // Add collision component to golem (player)
-    CircleCollisionComponent *golem_collider = golem_transform.add_circle_collider(1.0f);
+    AABBCollisionComponent *golem_collider = golem_transform.add_aabb_collider(Vector2(-0.5f, -1.0f), Vector2(0.5f, 1.0f));
 
     // Add collision component to witch (NPC)
     CircleCollisionComponent *witch_collider = witch_transform.add_circle_collider(1.0f);
 
     // Register components with the collision system
+    collision_system_.add_component(boundary);
     collision_system_.add_component(golem_collider);
     collision_system_.add_component(witch_collider);
 
     // Register collision callback
     collision_system_.register_collision_callback(
-        [this](CollisionComponent *a, CollisionComponent *b)
+        [this, &game_map_transform](CollisionComponent *a, CollisionComponent *b)
         {
-            // Example collision response:
-            // Log the collision to console
-            std::cout << "Collision detected between game entities!" << std::endl;
-
             // Get the transform nodes
             TransformNode *transform_a = a->get_owner();
             TransformNode *transform_b = b->get_owner();
 
-            // Example: If one is moving, stop its movement
-            // This is just a simple example - you can implement more complex behaviors
-            if(transform_a->is_moving())
-            {
-                // This would require more implementation to actually stop movement
-                std::cout << "Entity A is moving, collision response triggered" << std::endl;
-            }
+            // Determine which component is the boundary and which is the entity
+            TransformNode *entity_transform = nullptr;
 
-            if(transform_b->is_moving())
+            // Simple check - if transform_a is the game map transform, entity is b
+            if(transform_a == &game_map_transform) entity_transform = transform_b;
+            else if(transform_b == &game_map_transform) entity_transform = transform_a;
+            else return; // Neither is a boundary, handle differently
+
+            if(entity_transform)
             {
-                // This would require more implementation to actually stop movement
-                std::cout << "Entity B is moving, collision response triggered" << std::endl;
+                // Log current position for debugging
+                float curr_x = entity_transform->get_position_x();
+                float curr_y = entity_transform->get_position_y();
+                float prev_x = entity_transform->get_prev_position_x();
+                float prev_y = entity_transform->get_prev_position_y();
+
+                std::cout << "Collision detected! Current: (" << curr_x << ", " << curr_y
+                          << "), Previous: (" << prev_x << ", " << prev_y << ")" << std::endl;
+
+                // Simple resolution: revert to previous position
+                entity_transform->set_position(prev_x, prev_y);
+
+                // If you need to explicitly notify the movement controller:
+                if(auto *controller = entity_transform->get_movement_controller())
+                {
+                    // The controller can update any internal state based on the position change
+                    controller->handle_collision();
+                }
+
+                std::cout << "Entity blocked by boundary - reverted to previous position"
+                          << std::endl;
             }
         });
 }

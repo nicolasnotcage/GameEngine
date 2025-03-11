@@ -79,6 +79,9 @@ void PlayerController::update(SceneState &scene_state)
     update_sprite_orientation();
 }
 
+// Player specific collision handling; should make this specific to the scenario; perhaps a list of entities?
+void PlayerController::handle_collision() { is_moving_ = false; }
+
 // Update movement along path
 void PathController::update(SceneState &scene_state)
 {

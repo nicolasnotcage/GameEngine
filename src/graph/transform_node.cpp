@@ -26,6 +26,9 @@ void TransformNode::update(SceneState &scene_state)
     // Update movement controller if it exists
     if(movement_controller_) 
     { 
+        // Store previous transform before processing movement
+        store_previous_transform();
+
         movement_controller_->update(scene_state); 
         
         // Update associated sprite with movement state
@@ -112,8 +115,12 @@ CircleCollisionComponent *TransformNode::add_circle_collider(float radius)
 
 AABBCollisionComponent *TransformNode::add_aabb_collider(const Vector2 &min, const Vector2 &max)
 {
-    // Clean up existing collision component if it exists
-    delete collision_component_;
+    // Safe cleanup
+    if(collision_component_)
+    {
+        delete collision_component_;
+        collision_component_ = nullptr;
+    }
 
     // Create a new AABB collision component
     auto *collider = new AABBCollisionComponent(this, min, max);

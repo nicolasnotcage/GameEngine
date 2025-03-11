@@ -1,9 +1,10 @@
 Last Update: 3/11/25
 New Classes: CollisionComponent, CollisionSystem
-Updated Classes: TransformNode, StaticScene 
+Updated Classes: TransformNode, StaticScene, CameraNode, InputInterpreter, GameAction
 
 Implementation Notes
 1) New Collision system added. Specific CollisionComponents are part of the CollisionSystem.
+2) Because my game uses a top-down world map, I needed a way to define AABB colliders. The first thing that came to mind was to implement a function in the camera node that outputs the world coordinates of a left click. This way, I can click the "boundaries" of the world and get their world coordinates, allowing me to better define AABB colliders. I'm sure there are more elegant ways to handle this (e.g., grid-based maps), but this way seems to work fine for our purposes. 
 
 TODO:
 1) More game-specific collision responses

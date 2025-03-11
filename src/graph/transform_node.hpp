@@ -48,6 +48,7 @@ class TransformNode : public Node
     void                set_player_controlled();
     void                set_path_controlled(Path &path);
     bool                is_moving() const;
+    MovementController *get_movement_controller() { return movement_controller_.get(); }
     
     
     // Return movement direction
@@ -64,8 +65,25 @@ class TransformNode : public Node
     AABBCollisionComponent   *add_aabb_collider(const Vector2 &min, const Vector2 &max);
     CollisionComponent       *get_collision_component() const { return collision_component_; }
 
+    // Position-related functions
+    void store_previous_transform() { previous_transform_ = transform_; }
+
+    float get_position_x() const { return transform_.a[6]; }
+    float get_position_y() const { return transform_.a[7]; }
+    float get_prev_position_x() const { return previous_transform_.a[6]; }
+    float get_prev_position_y() const { return previous_transform_.a[7]; }
+
+    void set_position(float x, float y)
+    {
+        store_previous_transform();
+        // Update only the translation components of the matrix
+        transform_.a[6] = x;
+        transform_.a[7] = y;
+    }
+
 private:
     Matrix3 transform_;
+    Matrix3 previous_transform_;
     std::unique_ptr<MovementController> movement_controller_;
     SpriteNode                         *associated_sprite_{nullptr};
 
