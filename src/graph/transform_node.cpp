@@ -101,31 +101,23 @@ bool TransformNode::is_facing_left() const
 
 void TransformNode::set_associated_sprite(SpriteNode *sprite) { associated_sprite_ = sprite; } 
 
-// New collision component methods
+// Collision component methods
 CircleCollisionComponent *TransformNode::add_circle_collider(float radius)
 {
-    // Clean up existing collision component if it exists
-    delete collision_component_;
-
-    // Create a new circle collision component
-    auto *collider = new CircleCollisionComponent(this, radius);
-    collision_component_ = collider;
-    return collider;
+    // Smart pointer automatically cleans up old component
+    auto                      collider = std::make_unique<CircleCollisionComponent>(this, radius);
+    CircleCollisionComponent *raw_ptr = collider.get();
+    collision_component_ = std::move(collider);
+    return raw_ptr;
 }
 
 AABBCollisionComponent *TransformNode::add_aabb_collider(const Vector2 &min, const Vector2 &max)
 {
-    // Safe cleanup
-    if(collision_component_)
-    {
-        delete collision_component_;
-        collision_component_ = nullptr;
-    }
-
-    // Create a new AABB collision component
-    auto *collider = new AABBCollisionComponent(this, min, max);
-    collision_component_ = collider;
-    return collider;
+    // Smart pointer automatically cleans up old component
+    auto                    collider = std::make_unique<AABBCollisionComponent>(this, min, max);
+    AABBCollisionComponent *raw_ptr = collider.get();
+    collision_component_ = std::move(collider);
+    return raw_ptr;
 }
 
 } // namespace cge

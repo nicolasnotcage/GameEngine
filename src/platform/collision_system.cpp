@@ -29,12 +29,12 @@ void CollisionSystem::remove_component(CollisionComponent *component)
     if(it != components_.end()) { components_.erase(it); }
 }
 
-void CollisionSystem::check_collisions()
+std::vector<CollisionPair> CollisionSystem::check_collisions()
 {
-    // Early exit if no callbacks are registered
-    if(callbacks_.empty()) { return; }
+    std::vector<CollisionPair> colliding_pairs;
 
     // Check all components against each other
+    // TODO: O(n^2). Optimize?
     for(size_t i = 0; i < components_.size(); ++i)
     {
         for(size_t j = i + 1; j < components_.size(); ++j)
@@ -48,22 +48,18 @@ void CollisionSystem::check_collisions()
             // Check for collision
             if(a->collides_with(*b))
             {
-                // Notify all callbacks
-                for(const auto &callback : callbacks_) { callback(a, b); }
+                // Add the pair to our result list
+                colliding_pairs.emplace_back(a, b);
             }
         }
     }
-}
 
-void CollisionSystem::register_collision_callback(CollisionCallback callback)
-{
-    callbacks_.push_back(callback);
+    return colliding_pairs;
 }
 
 void CollisionSystem::clear()
 {
     components_.clear();
-    callbacks_.clear();
 }
 
 } // namespace cge

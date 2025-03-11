@@ -12,6 +12,15 @@ namespace cge
 // Forward declarations
 class CollisionComponent;
 
+// A pair of components that have collided
+struct CollisionPair
+{
+    CollisionComponent *first;
+    CollisionComponent *second;
+
+    CollisionPair(CollisionComponent *a, CollisionComponent *b) : first(a), second(b) {}
+};
+
 // Collision system to manage and check collisions between components
 class CollisionSystem
 {
@@ -24,20 +33,14 @@ class CollisionSystem
     void remove_component(CollisionComponent *component);
 
     // Check all registered components for collisions
-    void check_collisions();
+    std::vector<CollisionPair> check_collisions();
 
-    // Callback type for collision responses
-    using CollisionCallback = std::function<void(CollisionComponent *, CollisionComponent *)>;
-
-    // Register a callback for collision responses
-    void register_collision_callback(CollisionCallback callback);
-
-    // Clear all components and callbacks
+    // Clear all components
     void clear();
 
   private:
     std::vector<CollisionComponent *> components_;
-    std::vector<CollisionCallback>    callbacks_;
+
 };
 
 } // namespace cge

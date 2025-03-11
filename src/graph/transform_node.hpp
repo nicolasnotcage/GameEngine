@@ -63,7 +63,7 @@ class TransformNode : public Node
     // Collision component methods
     CircleCollisionComponent *add_circle_collider(float radius);
     AABBCollisionComponent   *add_aabb_collider(const Vector2 &min, const Vector2 &max);
-    CollisionComponent       *get_collision_component() const { return collision_component_; }
+    CollisionComponent       *get_collision_component() const { return collision_component_.get(); }
 
     // Position-related functions
     void store_previous_transform() { previous_transform_ = transform_; }
@@ -76,6 +76,7 @@ class TransformNode : public Node
     void set_position(float x, float y)
     {
         store_previous_transform();
+
         // Update only the translation components of the matrix
         transform_.a[6] = x;
         transform_.a[7] = y;
@@ -88,7 +89,7 @@ private:
     SpriteNode                         *associated_sprite_{nullptr};
 
     // Collision component
-    CollisionComponent *collision_component_{nullptr};
+    std::unique_ptr<CollisionComponent> collision_component_;
 };
 
 template <typename... ChildrenTs>

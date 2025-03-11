@@ -43,8 +43,6 @@ class StaticScene
 
     // Collision management methods
     void             register_collision_component(CollisionComponent *component);
-    void             register_collision_callback(CollisionSystem::CollisionCallback callback);
-    CollisionSystem &get_collision_system() { return collision_system_; }
 
   private:
     SDLInfo                 *sdl_info_;
@@ -74,6 +72,11 @@ class StaticScene
     void setup_witch_animations();
     void setup_collisions();
     void setup_trigger_zones();
+
+    // Collision handling methods
+    void handle_collisions();
+    void handle_boundary_collision(TransformNode *entity, TransformNode *boundary);
+    void handle_trigger_zone_collision(TransformNode *witch, TransformNode *zone);
 };
 
 } // namespace cge
