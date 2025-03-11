@@ -15,6 +15,9 @@ namespace cge
 class SpriteNode;
 class MovementController;
 enum class MoveDirection;
+class CollisionComponent;
+class CircleCollisionComponent;
+class AABBCollisionComponent;
 
 class TransformNode : public Node
 {
@@ -56,10 +59,18 @@ class TransformNode : public Node
     // Connect a sprite to this transform
     void set_associated_sprite(SpriteNode *sprite);
 
+    // Collision component methods
+    CircleCollisionComponent *add_circle_collider(float radius);
+    AABBCollisionComponent   *add_aabb_collider(const Vector2 &min, const Vector2 &max);
+    CollisionComponent       *get_collision_component() const { return collision_component_; }
+
 private:
     Matrix3 transform_;
     std::unique_ptr<MovementController> movement_controller_;
     SpriteNode                         *associated_sprite_{nullptr};
+
+    // Collision component
+    CollisionComponent *collision_component_{nullptr};
 };
 
 template <typename... ChildrenTs>

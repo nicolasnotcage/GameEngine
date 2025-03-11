@@ -22,8 +22,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cge_platform", "cge_platfor
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cge_system", "cge_system.vcxproj", "{5EDEC50C-A053-3350-B166-211B0751429E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cge_physics", "cge_physics.vcxproj", "{BA18B61D-4B7F-42E3-8DF3-02585497422E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -54,10 +52,6 @@ Global
 		{5EDEC50C-A053-3350-B166-211B0751429E}.Debug|x64.Build.0 = Debug|x64
 		{5EDEC50C-A053-3350-B166-211B0751429E}.Release|x64.ActiveCfg = Release|x64
 		{5EDEC50C-A053-3350-B166-211B0751429E}.Release|x64.Build.0 = Release|x64
-		{BA18B61D-4B7F-42E3-8DF3-02585497422E}.Debug|x64.ActiveCfg = Debug|x64
-		{BA18B61D-4B7F-42E3-8DF3-02585497422E}.Debug|x64.Build.0 = Debug|x64
-		{BA18B61D-4B7F-42E3-8DF3-02585497422E}.Release|x64.ActiveCfg = Release|x64
-		{BA18B61D-4B7F-42E3-8DF3-02585497422E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

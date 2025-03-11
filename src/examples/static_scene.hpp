@@ -21,6 +21,8 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/io_handler.hpp"
 #include "platform/path.hpp"
 
+#include "platform/collision_system.hpp"
+
 namespace cge
 {
 
@@ -39,6 +41,11 @@ class StaticScene
     void render();
     void update(double delta);
 
+    // Collision management methods
+    void             register_collision_component(CollisionComponent *component);
+    void             register_collision_callback(CollisionSystem::CollisionCallback callback);
+    CollisionSystem &get_collision_system() { return collision_system_; }
+
   private:
     SDLInfo                 *sdl_info_;
     RootNodeT<AnimatedScene> root_;
@@ -53,9 +60,13 @@ class StaticScene
     // Paths for NPCs
     Path witch_path_;
 
+    // Collision system
+    CollisionSystem collision_system_;
+
     // Helper methods for setup
     void setup_golem_animations();
     void setup_witch_animations();
+    void setup_collisions();
 };
 
 } // namespace cge

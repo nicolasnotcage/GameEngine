@@ -1,6 +1,7 @@
 #include "graph/transform_node.hpp"
 #include "graph/sprite_node.hpp"
 #include "platform/movement_controller.hpp"
+#include "platform/collision_component.hpp"
 
 namespace cge
 {
@@ -96,5 +97,28 @@ bool TransformNode::is_facing_left() const
 }
 
 void TransformNode::set_associated_sprite(SpriteNode *sprite) { associated_sprite_ = sprite; } 
+
+// New collision component methods
+CircleCollisionComponent *TransformNode::add_circle_collider(float radius)
+{
+    // Clean up existing collision component if it exists
+    delete collision_component_;
+
+    // Create a new circle collision component
+    auto *collider = new CircleCollisionComponent(this, radius);
+    collision_component_ = collider;
+    return collider;
+}
+
+AABBCollisionComponent *TransformNode::add_aabb_collider(const Vector2 &min, const Vector2 &max)
+{
+    // Clean up existing collision component if it exists
+    delete collision_component_;
+
+    // Create a new AABB collision component
+    auto *collider = new AABBCollisionComponent(this, min, max);
+    collision_component_ = collider;
+    return collider;
+}
 
 } // namespace cge

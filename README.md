@@ -40,8 +40,8 @@ The input system decouples raw device events from game logic, allowing for flexi
 
 ## Roadmap
 
-- **Animation System** (In Development): Implementation of sprite-based animation and animation state management
-- Physics System: Basic collision detection and response
+- Animation System (Completed 3/6/25): Implementation of sprite-based animation and animation state management
+- **Physics System** (In Development): Basic collision detection and response
 - Particle System: Support for particle effects
 - Audio System: Sound effect and music playback
 - UI Framework: In-game user interface components

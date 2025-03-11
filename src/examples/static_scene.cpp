@@ -7,6 +7,10 @@ For more information, please refer to <https://unlicense.org>
 
 #include "examples/static_scene.hpp"
 #include "platform/animation.hpp"
+#include "platform/collision_component.hpp" 
+#include "platform/collision_system.hpp"
+
+#include <iostream>
 
 namespace cge
 {
@@ -74,6 +78,9 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     // Setup animations for both characters
     setup_golem_animations();
     setup_witch_animations();
+
+    // Setup collision components and responses
+    setup_collisions();
 
     // Set camera to follow golem
     camera.set_target(&golem_transform, true);
@@ -144,6 +151,50 @@ void StaticScene::setup_witch_animations()
     witch_transform.set_associated_sprite(&witch_sprite);
 }
 
+void StaticScene::setup_collisions()
+{
+    auto &camera = root_.get_child<0>();
+    auto &golem_transform = camera.get_child<1>();
+    auto &witch_transform = camera.get_child<2>();
+
+    // Add collision component to golem (player)
+    CircleCollisionComponent *golem_collider = golem_transform.add_circle_collider(1.0f);
+
+    // Add collision component to witch (NPC)
+    CircleCollisionComponent *witch_collider = witch_transform.add_circle_collider(1.0f);
+
+    // Register components with the collision system
+    collision_system_.add_component(golem_collider);
+    collision_system_.add_component(witch_collider);
+
+    // Register collision callback
+    collision_system_.register_collision_callback(
+        [this](CollisionComponent *a, CollisionComponent *b)
+        {
+            // Example collision response:
+            // Log the collision to console
+            std::cout << "Collision detected between game entities!" << std::endl;
+
+            // Get the transform nodes
+            TransformNode *transform_a = a->get_owner();
+            TransformNode *transform_b = b->get_owner();
+
+            // Example: If one is moving, stop its movement
+            // This is just a simple example - you can implement more complex behaviors
+            if(transform_a->is_moving())
+            {
+                // This would require more implementation to actually stop movement
+                std::cout << "Entity A is moving, collision response triggered" << std::endl;
+            }
+
+            if(transform_b->is_moving())
+            {
+                // This would require more implementation to actually stop movement
+                std::cout << "Entity B is moving, collision response triggered" << std::endl;
+            }
+        });
+}
+
 void StaticScene::destroy()
 {
     root_.destroy();
@@ -166,7 +217,22 @@ void StaticScene::update(double delta)
     scene_state_.io_handler = io_handler_;
     scene_state_.delta = delta;
 
+    // Check for collisions before updating the scene
+    collision_system_.check_collisions();
+
+    // Then update the scene graph
     root_.update(scene_state_);
+}
+
+// New collision management methods
+void StaticScene::register_collision_component(CollisionComponent *component)
+{
+    collision_system_.add_component(component);
+}
+
+void StaticScene::register_collision_callback(CollisionSystem::CollisionCallback callback)
+{
+    collision_system_.register_collision_callback(callback);
 }
 
 } // namespace cge
