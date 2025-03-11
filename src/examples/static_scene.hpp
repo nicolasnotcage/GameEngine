@@ -30,8 +30,8 @@ namespace cge
 using AnimatedSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
 using GameMap = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 
-// Parent camera with two child animated sprites
-using AnimatedScene = CameraNodeT<GameMap, AnimatedSprite, AnimatedSprite>;
+// Parent camera with two child animated sprites and a zone transform node
+using AnimatedScene = CameraNodeT<GameMap, AnimatedSprite, AnimatedSprite, TransformNodeT<>>;
 
 class StaticScene
 {
@@ -63,10 +63,17 @@ class StaticScene
     // Collision system
     CollisionSystem collision_system_;
 
+    // Counter for witch passes
+    int witch_zone_passes_{0};
+
+    // Status of witch in zone
+    bool witch_in_zone_{false};
+
     // Helper methods for setup
     void setup_golem_animations();
     void setup_witch_animations();
     void setup_collisions();
+    void setup_trigger_zones();
 };
 
 } // namespace cge

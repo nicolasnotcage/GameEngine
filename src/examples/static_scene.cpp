@@ -84,6 +84,7 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 
     // Setup collision components and responses
     setup_collisions();
+    setup_trigger_zones();
 
     // Set camera to follow golem
     camera.set_target(&golem_transform, true);
@@ -162,14 +163,13 @@ void StaticScene::setup_collisions()
     auto &witch_transform = camera.get_child<2>();
 
     // Configure world boundaries
-    // 1. Water on the bottom of the map
+    // 1. Bottom boundary (water on the bottom of the map)
     AABBCollisionComponent *boundary = game_map_transform.add_aabb_collider(Vector2(-35.5, 18.5), Vector2(35.4, 20));
 
-    // 2. Left hand column
-
-    // 3. Right hand column
-
-    // 4. 
+    // TODO: Better map boundary handling
+    // 2. Left boundary
+    // 3. Right boundary
+    // 4. Top boundary
 
     // Add collision component to golem (player)
     AABBCollisionComponent *golem_collider = golem_transform.add_aabb_collider(Vector2(-0.5f, -1.0f), Vector2(0.5f, 1.0f));
@@ -190,39 +190,37 @@ void StaticScene::setup_collisions()
             TransformNode *transform_a = a->get_owner();
             TransformNode *transform_b = b->get_owner();
 
-            // Determine which component is the boundary and which is the entity
-            TransformNode *entity_transform = nullptr;
+            auto &camera = root_.get_child<0>();
+            auto &witch_transform = camera.get_child<2>();
+            auto &witch_sprite = witch_transform.get_child<0>();
+            auto &zone_transform = camera.get_child<3>();
 
-            // Simple check - if transform_a is the game map transform, entity is b
-            if(transform_a == &game_map_transform) entity_transform = transform_b;
-            else if(transform_b == &game_map_transform) entity_transform = transform_a;
-            else return; // Neither is a boundary, handle differently
-
-            if(entity_transform)
+            // Boundary collision handling for player and map boundaries (AABB-to-AABB)
+            if(transform_a == &game_map_transform || transform_b == &game_map_transform)
             {
-                // Log current position for debugging
-                float curr_x = entity_transform->get_position_x();
-                float curr_y = entity_transform->get_position_y();
-                float prev_x = entity_transform->get_prev_position_x();
-                float prev_y = entity_transform->get_prev_position_y();
+                TransformNode *entity_transform =
+                    (transform_a == &game_map_transform) ? transform_b : transform_a;
 
-                std::cout << "Collision detected! Current: (" << curr_x << ", " << curr_y
-                          << "), Previous: (" << prev_x << ", " << prev_y << ")" << std::endl;
+                // Revert to previous position
+                entity_transform->set_position(entity_transform->get_prev_position_x(),
+                                               entity_transform->get_prev_position_y());
 
-                // Simple resolution: revert to previous position
-                entity_transform->set_position(prev_x, prev_y);
-
-                // If you need to explicitly notify the movement controller:
-                if(auto *controller = entity_transform->get_movement_controller())
-                {
-                    // The controller can update any internal state based on the position change
-                    controller->handle_collision();
-                }
-
-                std::cout << "Entity blocked by boundary - reverted to previous position"
-                          << std::endl;
-            }
+                return;
+            }     
         });
+}
+
+void StaticScene::setup_trigger_zones() 
+{ 
+    auto &camera = root_.get_child<0>(); 
+    auto &zone_transform = camera.get_child<3>();
+
+    // Position zone along witch's path
+    zone_transform.right_translate(6.0f, 1.0f);
+
+    // Add circular collider to zone
+    CircleCollisionComponent *zone_collider = zone_transform.add_circle_collider(0.75f);
+    collision_system_.add_component(zone_collider);
 }
 
 void StaticScene::destroy()
@@ -246,6 +244,39 @@ void StaticScene::update(double delta)
 {
     scene_state_.io_handler = io_handler_;
     scene_state_.delta = delta;
+
+    auto &camera = root_.get_child<0>();
+    auto &witch_transform = camera.get_child<2>();
+    auto &witch_sprite = witch_transform.get_child<0>();
+    auto &zone_transform = camera.get_child<3>();
+
+    // Get collision components
+    CircleCollisionComponent *witch_collider = static_cast<CircleCollisionComponent *>(witch_transform.get_collision_component());
+    CircleCollisionComponent *zone_collider = static_cast<CircleCollisionComponent *>(zone_transform.get_collision_component());
+
+    // Check if the witch and zone are colliding
+    bool is_colliding = false;
+    if(witch_collider && zone_collider)
+    {
+        is_colliding = witch_collider->collides_with(*zone_collider);
+    }
+
+    // Handle entering the zone
+    if(is_colliding && !witch_in_zone_)
+    {
+        witch_in_zone_ = true;
+        witch_zone_passes_++;
+        witch_sprite.set_playback_speed(10.0f);
+       
+    }
+    // Handle exiting the zone
+    else if(!is_colliding && witch_in_zone_)
+    {
+        witch_in_zone_ = false;
+
+        // Reset visual effects
+        witch_sprite.set_playback_speed(1.0f);
+    }
 
     // Check for collisions before updating the scene
     collision_system_.check_collisions();
