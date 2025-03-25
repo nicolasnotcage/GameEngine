@@ -20,12 +20,36 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/time_manager.hpp"
 #include "platform/config.hpp"
 
+#include "fmod/fmod.hpp"
+
 #include <chrono>
 #include <iostream>
 #include <thread>
 
 int main(int argc, char *argv[])
 {
+    // ===== FMOD Test Code =====
+    FMOD::System *fmodSystem = nullptr;
+    FMOD_RESULT   result = FMOD::System_Create(&fmodSystem);
+    if(result != FMOD_OK) { std::cerr << "FMOD System_Create error: " << result << std::endl; }
+    else
+    {
+        result = fmodSystem->init(32, FMOD_INIT_NORMAL, nullptr);
+        if(result != FMOD_OK) { std::cerr << "FMOD system init error: " << result << std::endl; }
+        else
+        {
+            unsigned int version;
+            fmodSystem->getVersion(&version);
+            std::cout << "FMOD version: " << version << std::endl;
+        }
+    }
+    if(fmodSystem)
+    {
+        fmodSystem->close();
+        fmodSystem->release();
+    }
+    // ===== End FMOD Test Code =====
+
     // Configure system paths and initialize SDL
     auto source_path = STD_STRING(SRC_DIR);
     auto resource_path = STD_STRING(RESOURCE_DIR);
