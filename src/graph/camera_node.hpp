@@ -32,10 +32,6 @@ class CameraNode : public Node
     // Utility functions to extract coordinates via mouse click
     void set_print_on_click(bool enabled);
     bool get_print_on_click() const;
-    Vector2 screen_to_world_coordinates(int screen_x,
-                                        int screen_y,
-                                        int screen_width,
-                                        int screen_height) const;
 
 private:
     Camera camera_;

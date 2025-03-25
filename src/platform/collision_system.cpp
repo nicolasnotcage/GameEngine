@@ -13,6 +13,9 @@ namespace cge
 
 CollisionSystem::~CollisionSystem() { clear(); }
 
+// Add a collision component to the collection of components. First 
+// checks if the component already exists within the collection before 
+// adding. 
 void CollisionSystem::add_component(CollisionComponent *component)
 {
     if(component)
@@ -23,21 +26,24 @@ void CollisionSystem::add_component(CollisionComponent *component)
     }
 }
 
+// Remove a component from the collection if it exists. 
 void CollisionSystem::remove_component(CollisionComponent *component)
 {
     auto it = std::find(components_.begin(), components_.end(), component);
     if(it != components_.end()) { components_.erase(it); }
 }
 
+// Iteratively evaluates collision components to detect collisions. Returns 
+// a vector of collision pairs. 
 std::vector<CollisionPair> CollisionSystem::check_collisions()
 {
     std::vector<CollisionPair> colliding_pairs;
 
     // Check all components against each other
     // TODO: O(n^2). Optimize?
-    for(size_t i = 0; i < components_.size(); ++i)
+    for(int i = 0; i < components_.size(); i++)
     {
-        for(size_t j = i + 1; j < components_.size(); ++j)
+        for(int j = i + 1; j < components_.size(); j++)
         {
             CollisionComponent *a = components_[i];
             CollisionComponent *b = components_[j];

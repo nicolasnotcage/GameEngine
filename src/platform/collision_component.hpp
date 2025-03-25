@@ -6,12 +6,14 @@
 namespace cge
 {
 
+// Forward declarations
 class TransformNode;
 
-// Base class for collision components
+// Pure virtual base class for collision components
 class CollisionComponent
 {
 public:
+    // Utility type enum for simplified type checking
     enum class Type
     {
         CIRCLE,
@@ -37,14 +39,14 @@ public:
     void set_enabled(bool enabled) { enabled_ = enabled; }
     bool is_enabled() const { return enabled_; }
 
-    // Set/get local position offset from the transform's position
+    // Set/get local position offset from the owner transform's position
     void           set_offset(const Vector2 &offset) { offset_ = offset; }
     const Vector2 &get_offset() const { return offset_; }
 
 protected:
     TransformNode *owner_;
     bool           enabled_{true};
-    Vector2        offset_; // Offset from the transform's position
+    Vector2        offset_;
 };
 
 // Circle-based collision component
@@ -56,10 +58,10 @@ public:
     bool collides_with(const CollisionComponent &other) const override;
     Type get_type() const override { return Type::CIRCLE; }
 
-    // Get the circle in world space
+    // Get bounding volume Circle in world space
     Circle get_world_circle() const;
 
-    // Radius accessors
+    // Radius get/set
     float get_radius() const { return radius_; }
     void  set_radius(float radius) { radius_ = radius; }
 
@@ -67,7 +69,7 @@ private:
     float radius_;
 };
 
-// AABB-based collision component using min/max points
+// Axis-aligned box collision component
 class AABBCollisionComponent : public CollisionComponent
 {
 public:
@@ -76,18 +78,18 @@ public:
     bool collides_with(const CollisionComponent &other) const override;
     Type get_type() const override { return Type::AABB; }
 
-    // Get the AABB in world space
+    // Get bounding volume AABB in world space
     AABB2 get_world_aabb() const;
 
-    // Min/Max accessors
+    // Min/Max get/set
     const Vector2 &get_min() const { return local_min_; }
     const Vector2 &get_max() const { return local_max_; }
     void           set_min(const Vector2 &min) { local_min_ = min; }
     void           set_max(const Vector2 &max) { local_max_ = max; }
 
 private:
-    Vector2 local_min_; // Min point relative to transform position
-    Vector2 local_max_; // Max point relative to transform position
+    Vector2 local_min_;
+    Vector2 local_max_;
 };
 
 } // namespace cge

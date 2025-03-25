@@ -18,10 +18,9 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/texture_node.hpp"
 #include "graph/transform_node.hpp"
 
+#include "platform/collision_system.hpp"
 #include "platform/io_handler.hpp"
 #include "platform/path.hpp"
-
-#include "platform/collision_system.hpp"
 
 namespace cge
 {
@@ -41,8 +40,8 @@ class StaticScene
     void render();
     void update(double delta);
 
-    // Collision management methods
-    void             register_collision_component(CollisionComponent *component);
+    // Register collision components with the stored collision system. 
+    void register_collision_component(CollisionComponent *component);
 
   private:
     SDLInfo                 *sdl_info_;
@@ -54,6 +53,7 @@ class StaticScene
     TextureNode golem_walk_texture_;
     TextureNode golem_idle_texture_;
     TextureNode witch_run_texture_;
+    TextureNode witch_take_damage_;
 
     // Paths for NPCs
     Path witch_path_;
@@ -61,13 +61,10 @@ class StaticScene
     // Collision system
     CollisionSystem collision_system_;
 
-    // Counter for witch passes
-    int witch_zone_passes_{0};
-
     // Status of witch in zone
     bool witch_in_zone_{false};
 
-    // Helper methods for setup
+    // Helper methods for scene setup
     void setup_golem_animations();
     void setup_witch_animations();
     void setup_collisions();

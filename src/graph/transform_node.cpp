@@ -45,7 +45,6 @@ void TransformNode::update(SceneState &scene_state)
     update_children(scene_state); 
 }
 
-// TODO: Test this
 void TransformNode::set_identity() { transform_.set_identity(); }
 
 void TransformNode::left_scale(float x, float y) { transform_.left_scale(x, y); }
@@ -70,13 +69,13 @@ void TransformNode::right_rotate(float rad_deg) { transform_.right_rotate(rad_de
 void TransformNode::left_translate(float x, float y) { transform_.left_translate(x, y); }
 void TransformNode::right_translate(float x, float y) { transform_.right_translate(x, y); }
 
-// Configure player controller. Use this TransformNode in the constructor.
+// Configure player controller
 void TransformNode::set_player_controlled()
 {
     movement_controller_ = std::make_unique<PlayerController>(*this);
 }
 
-// Configure path controller. Use this TransformNode in the constructor.
+// Configure path controller
 void TransformNode::set_path_controlled(Path &path)
 {
     auto path_controller = std::make_unique<PathController>(*this);
@@ -84,36 +83,43 @@ void TransformNode::set_path_controlled(Path &path)
     movement_controller_ = std::move(path_controller);
 }
 
+// Returns if the stored movement controller is currently moving.
 bool TransformNode::is_moving() const
 {
     return movement_controller_ && movement_controller_->is_moving();
 }
 
+// Returns the movement direction of the stored movement controller. 
 MoveDirection TransformNode::get_move_direction() const
 {
     return movement_controller_ ? movement_controller_->get_direction() : MoveDirection::NONE;
 }
 
+// Returns if the stored movement controller is currently facing left. 
 bool TransformNode::is_facing_left() const
 {
     return movement_controller_ ? movement_controller_->is_facing_left() : false;
 }
 
+// Associates this TransformNode with a SpriteNode. 
 void TransformNode::set_associated_sprite(SpriteNode *sprite) { associated_sprite_ = sprite; } 
 
+//------------------------------
 // Collision component methods
+//------------------------------
+
+// Create and return a pointer to a CircleCollisionComponent. 
 CircleCollisionComponent *TransformNode::add_circle_collider(float radius)
 {
-    // Smart pointer automatically cleans up old component
     auto                      collider = std::make_unique<CircleCollisionComponent>(this, radius);
     CircleCollisionComponent *raw_ptr = collider.get();
     collision_component_ = std::move(collider);
     return raw_ptr;
 }
 
+// Create and return a pointer to an AABBCollisionComponent. 
 AABBCollisionComponent *TransformNode::add_aabb_collider(const Vector2 &min, const Vector2 &max)
 {
-    // Smart pointer automatically cleans up old component
     auto                    collider = std::make_unique<AABBCollisionComponent>(this, min, max);
     AABBCollisionComponent *raw_ptr = collider.get();
     collision_component_ = std::move(collider);

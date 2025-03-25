@@ -71,5 +71,27 @@ Matrix3 Camera::get_world_to_screen_matrix(int screen_width, int screen_height) 
     return scale_to_screen * translate_unit * flip_y * scaled_down * translate_center;
 }
 
+Vector2 Camera::screen_to_world(const Vector2 &screen_position,
+                                int            screen_width,
+                                int            screen_height) const
+{
+    // 1. Translate screen position relative to screen center
+    float screen_x = screen_position.x - screen_width / 2.0f;
+    float screen_y = screen_position.y - screen_height / 2.0f;
+
+    // 2. Scale from screen to normalized device coordinates
+    screen_x /= (screen_width / 2.0f);
+    screen_y /= (screen_height / 2.0f);
+
+    // 3. Flip Y back
+    screen_y = -screen_y;
+
+    // 4. Scale from normalized device coordinates to world coordinates
+    float world_x = (screen_x * width / 2.0f) + center_x;
+    float world_y = (screen_y * height / 2.0f) + center_y;
+
+    return Vector2(world_x, world_y);
+}
+
 
 } // namespace cge

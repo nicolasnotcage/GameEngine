@@ -172,6 +172,7 @@ class MatrixStack
 };
 
 // For collision detection
+// Circle Bounding Volume
 struct Circle
 {
     Vector2 center;
@@ -180,6 +181,7 @@ struct Circle
     bool intersects(const Circle &other) const;
 };
 
+// Axis-Aligned Box Bounding Volume
 struct AABB2
 {
     Vector2 min;

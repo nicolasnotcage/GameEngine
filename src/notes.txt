@@ -1,12 +1,16 @@
-Last Update: 3/11/25
+Last Update: 3/12/25
 New Classes: CollisionComponent, CollisionSystem
-Updated Classes: TransformNode, StaticScene, CameraNode, InputInterpreter, GameAction
+Updated Classes: Math, TransformNode, StaticScene, Camera, CameraNode, InputInterpreter, GameAction
 
+Usage
+To test the colliders, you can move the player character to the bottom of the map and try to walk into the water. His position will be reset and a collision notification will be written to output. The witch passes through a trigger zone and changes animations while in the zone, so you can just watch her pathing. A collision notification is also written to output when she passes through the zone. 
+ 
 Implementation Notes
-1) New Collision system added. Specific CollisionComponents are part of the CollisionSystem.
-2) Because my game uses a top-down world map, I needed a way to define AABB colliders. The first thing that came to mind was to implement a function in the camera node that outputs the world coordinates of a left click. This way, I can click the "boundaries" of the world and get their world coordinates, allowing me to better define AABB colliders. I'm sure there are more elegant ways to handle this (e.g., grid-based maps), but this way seems to work fine for our purposes. 
+1) New Collision system added. Specific CollisionComponents are part of the CollisionSystem. Scenes manage their own collision systems. 
 
-TODO:
-1) More game-specific collision responses
-2) Click on screen and transform screen position to world position to print world coordinates to console (need this so we can define the collision boundaries on our map)
-3) Need a way to store multiple collision components in one transform node (for map boundaries)?
+2) Because my game uses a top-down world map, I needed a way to define AABB colliders for world and map boundaries. The first thing that came to mind was to implement a function in the camera and camera node that outputs the world coordinates to standard output after a left click. This way, I can click the "boundaries" of the world and get their world coordinates, allowing me to better define AABB colliders for these boundaries. I'm sure there are more elegant ways to handle this (e.g., grid-based maps), but this seems to work fine for now.  
+
+3) I played around with callback functions in the collision system, but it seemed more straightforward to get a collection of collision pairs from the collision system and handle collisions directly in the scene. The result was simpler, so I kept this version. The scene is growing quite a bit, though, but I imagine this is just something that happens when developing a game and engine side-by-side. 
+
+Looking Forward
+I think my implementation would benefit from unique identifiers in the collision components. For example, an Enum or string identifier would allow me to take specific actions depending on the identity of the collision. If we have a "witch" collider, then we can do "witch" collider things, rather than depending on structuring all of that within the scene itself. 

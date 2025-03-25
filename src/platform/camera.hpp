@@ -35,7 +35,11 @@ public:
     // Get world-to-screen matrix
     Matrix3 get_world_to_screen_matrix(int screen_width, int screen_height) const;
 
-private:
+    // Get screen-to-world position
+    Vector2 screen_to_world(const Vector2 &screen_position, int screen_width, int screen_height) const;
+
+
+  private:
     float center_x;
     float center_y;
     float width;

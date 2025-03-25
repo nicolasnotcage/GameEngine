@@ -61,13 +61,15 @@ class TransformNode : public Node
     void set_associated_sprite(SpriteNode *sprite);
 
     // Collision component methods
+    // TODO: Could a transform reasonably handle a collection of collision components? If each has an offset and 
+    // a global position, then we could likely simplify things like map boundaries by accommodating collections 
+    // of components. 
     CircleCollisionComponent *add_circle_collider(float radius);
     AABBCollisionComponent   *add_aabb_collider(const Vector2 &min, const Vector2 &max);
     CollisionComponent       *get_collision_component() const { return collision_component_.get(); }
 
-    // Position-related functions
+    // Position-related functions; primarily used when handling collisions. 
     void store_previous_transform() { previous_transform_ = transform_; }
-
     float get_position_x() const { return transform_.a[6]; }
     float get_position_y() const { return transform_.a[7]; }
     float get_prev_position_x() const { return previous_transform_.a[6]; }

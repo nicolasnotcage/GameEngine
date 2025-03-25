@@ -13,6 +13,9 @@ namespace cge
 
 CollisionComponent::CollisionComponent(TransformNode *owner) : owner_(owner), offset_(0.0f, 0.0f) {}
 
+// Get world position of the collision component. If no owner, position is just the offset of 
+// the component. Otherwise, get tranfsorm of owner and return the sum of the transform's position
+// and the collision component's offset. 
 Vector2 CollisionComponent::get_world_position() const
 {
     if(!owner_) { return offset_; }
@@ -28,11 +31,14 @@ Vector2 CollisionComponent::get_world_position() const
 }
 
 // CircleCollisionComponent implementation
-CircleCollisionComponent::CircleCollisionComponent(TransformNode *owner, float radius) :
-    CollisionComponent(owner), radius_(radius)
-{
-}
+CircleCollisionComponent::CircleCollisionComponent(TransformNode *owner, float radius) 
+    : CollisionComponent(owner), radius_(radius)
+    {}
 
+// Return whether two circle collision components collide. First checks that collisions 
+// are enabled for both components. If so, check type, and if the other component is also 
+// a circle, check that the collisions collide using the intersects function of the bounding
+// volume struct. 
 bool CircleCollisionComponent::collides_with(const CollisionComponent &other) const
 {
     if(!enabled_ || !other.is_enabled()) { return false; }
@@ -47,6 +53,7 @@ bool CircleCollisionComponent::collides_with(const CollisionComponent &other) co
     return false;
 }
 
+// Create and return a bounding volume Circle with world position data. 
 Circle CircleCollisionComponent::get_world_circle() const
 {
     Vector2 world_pos = get_world_position();
@@ -54,13 +61,14 @@ Circle CircleCollisionComponent::get_world_circle() const
 }
 
 // AABBCollisionComponent implementation
-AABBCollisionComponent::AABBCollisionComponent(TransformNode *owner,
-                                               const Vector2 &min,
-                                               const Vector2 &max) :
-    CollisionComponent(owner), local_min_(min), local_max_(max)
-{
-}
+AABBCollisionComponent::AABBCollisionComponent(TransformNode *owner, const Vector2 &min, const Vector2 &max) 
+    : CollisionComponent(owner), local_min_(min), local_max_(max)
+    {}
 
+// Return whether two AABB collision components collide. First checks that collisions
+// are enabled for both components. If so, check type, and if the other component is also
+// AABB, check that the collisions collide using the intersects function of the bounding
+// volume struct.
 bool AABBCollisionComponent::collides_with(const CollisionComponent &other) const
 {
     if(!enabled_ || !other.is_enabled()) { return false; }
@@ -75,6 +83,7 @@ bool AABBCollisionComponent::collides_with(const CollisionComponent &other) cons
     return false;
 }
 
+// Create and return a bounding volume AABB with world position data.
 AABB2 AABBCollisionComponent::get_world_aabb() const
 {
     Vector2 world_pos = get_world_position();

@@ -81,10 +81,10 @@ void CameraNode::update(SceneState &scene_state)
                         float mouse_x;
                         float mouse_y;
                         SDL_GetMouseState(&mouse_x, &mouse_y);
+                        Vector2 screen_position(mouse_x, mouse_y);
 
                         // Convert to world coordinates
-                        Vector2 world_pos = screen_to_world_coordinates(
-                            mouse_x, mouse_y, cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT);
+                        Vector2 world_pos = camera_.screen_to_world(screen_position, cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT);
 
                         // Print world coordinates
                         std::cout << "Click at screen position (" << mouse_x << ", " << mouse_y
@@ -120,22 +120,5 @@ bool CameraNode::is_following_target() const { return follow_target_ && target_t
 // Print on click functions
 void CameraNode::set_print_on_click(bool enabled) { print_on_click_ = enabled; }
 bool CameraNode::get_print_on_click() const { return print_on_click_; }
-
-Vector2 CameraNode::screen_to_world_coordinates(int screen_x, int screen_y, int screen_width, int screen_height) const
-{
-    // Normalize screen coordinates
-    float normalized_x = static_cast<float>(screen_x) / screen_width;
-    float normalized_y = static_cast<float>(screen_y) / screen_height;
-
-    // Convert to [-1, 1]
-    float device_x = 2.0f * normalized_x - 1.0f;
-    float device_y = 2.0f * normalized_y - 1.0f;
-
-    // Scale to camera dimensions
-    float world_x = camera_.get_position().x + (device_x * camera_.get_width() / 2.0f);
-    float world_y = camera_.get_position().y + (device_y * camera_.get_height() / 2.0f);
-
-    return Vector2(world_x, world_y);
-}
 
 } // namespace cge
