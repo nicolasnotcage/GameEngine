@@ -72,7 +72,7 @@ void StaticScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 
     // Set texture filepath and scale it large
     game_map_tex.set_filepath("images/game_map.png");
-    game_map_transform.right_scale(71.0f, 40.0f);
+    game_map_transform.right_scale(35.5f, 20.0f);
 
     // Get transforms
     auto &golem_transform = camera.get_child<1>();
