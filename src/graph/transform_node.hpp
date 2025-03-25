@@ -91,7 +91,7 @@ private:
     SpriteNode                         *associated_sprite_{nullptr};
 
     // Collision component
-    std::unique_ptr<CollisionComponent> collision_component_;
+    std::shared_ptr<CollisionComponent> collision_component_;
 };
 
 template <typename... ChildrenTs>

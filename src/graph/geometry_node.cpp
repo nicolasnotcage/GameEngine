@@ -33,7 +33,7 @@ void GeometryNode::draw(SceneState &scene_state)
     if(should_flip)
     { 
         std::swap(tl, tr);
-        std::swap(bl, scene_state.matrix_stack.top() * Vector2(0.5f, 0.5f));
+        bl = scene_state.matrix_stack.top() * Vector2(0.5f, 0.5f);
     }
 
     // Use the screen space coordinates for rendering

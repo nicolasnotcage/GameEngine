@@ -66,7 +66,7 @@ public:
     }
 
 private:
-    GameManager::GameManager()
+    GameManager()
     {
         time_manager_ = TimeManager::get_instance();
         last_update_time_ = time_manager_->get_current_time();
