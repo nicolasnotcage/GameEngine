@@ -10,7 +10,4 @@ Implementation Notes
 
 2) Channel management proved to be a bit of a pain point. While dry sounds were correctly being loaded into separate channels, they would sometimes cut each other off. After adding reserved channels, this stopped happening. 
 
-3) I played around with callback functions in the collision system, but it seemed more straightforward to get a collection of collision pairs from the collision system and handle collisions directly in the scene. The result was simpler, so I kept this version. The scene is growing quite a bit, though, but I imagine this is just something that happens when developing a game and engine side-by-side. 
-
-Looking Forward
-I think my implementation would benefit from unique identifiers in the collision components. For example, an Enum or string identifier would allow me to take specific actions depending on the identity of the collision. If we have a "witch" collider, then we can do "witch" collider things, rather than depending on structuring all of that within the scene itself. 
+3) 
