@@ -128,12 +128,10 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="$(ProjectDir)..\src\examples\dynamic_scene.cpp" />
-    <ClCompile Include="$(ProjectDir)..\src\examples\hybrid_scene.cpp" />
-    <ClCompile Include="$(ProjectDir)..\src\examples\static_scene.cpp" />
-    <ClInclude Include="$(ProjectDir)..\src\examples\dynamic_scene.hpp" />
-    <ClInclude Include="$(ProjectDir)..\src\examples\hybrid_scene.hpp" />
-    <ClInclude Include="$(ProjectDir)..\src\examples\static_scene.hpp" />
+    <ClCompile Include="..\src\examples\main_scene.cpp" />
+    <ClCompile Include="..\src\examples\old_static_scene.cpp" />
+    <ClInclude Include="..\src\examples\main_scene.hpp" />
+    <ClInclude Include="..\src\examples\old_static_scene.hpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

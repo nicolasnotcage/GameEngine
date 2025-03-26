@@ -10,10 +10,7 @@ For more information, please refer to <https://unlicense.org>
 #include "system/file_locator.hpp"
 #include "system/preprocessor.h"
 
-#include "examples/dynamic_scene.hpp"
-#include "examples/hybrid_scene.hpp"
-#include "examples/static_scene.hpp"
-
+#include "examples/main_scene.hpp"
 
 #include "platform/game_manager.hpp"
 #include "platform/io_handler.hpp"
@@ -28,28 +25,6 @@ For more information, please refer to <https://unlicense.org>
 
 int main(int argc, char *argv[])
 {
-    // ===== FMOD Test Code =====
-    FMOD::System *fmodSystem = nullptr;
-    FMOD_RESULT   result = FMOD::System_Create(&fmodSystem);
-    if(result != FMOD_OK) { std::cerr << "FMOD System_Create error: " << result << std::endl; }
-    else
-    {
-        result = fmodSystem->init(32, FMOD_INIT_NORMAL, nullptr);
-        if(result != FMOD_OK) { std::cerr << "FMOD system init error: " << result << std::endl; }
-        else
-        {
-            unsigned int version;
-            fmodSystem->getVersion(&version);
-            std::cout << "FMOD version: " << version << std::endl;
-        }
-    }
-    if(fmodSystem)
-    {
-        fmodSystem->close();
-        fmodSystem->release();
-    }
-    // ===== End FMOD Test Code =====
-
     // Configure system paths and initialize SDL
     auto source_path = STD_STRING(SRC_DIR);
     auto resource_path = STD_STRING(RESOURCE_DIR);
@@ -67,7 +42,7 @@ int main(int argc, char *argv[])
     cge::TimeManager *time_manager = cge::TimeManager::get_instance();
 
     // Initialize the active scene
-    cge::StaticScene scene;
+    cge::MainScene scene;
     scene.init(&sdl_info, &io_handler);
 
     // Get instance of game manager class and run the game loop
@@ -82,7 +57,7 @@ int main(int argc, char *argv[])
     while (run_game)
     {
         // Run game loop with scene
-        game_manager->run_game_loop<cge::StaticScene>(scene, io_handler);
+        game_manager->run_game_loop<cge::MainScene>(scene, io_handler);
 
         // See if a quit was requested
         if(io_handler.quit_requested()) run_game = false;

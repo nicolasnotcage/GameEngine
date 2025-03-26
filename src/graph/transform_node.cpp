@@ -2,6 +2,7 @@
 #include "graph/sprite_node.hpp"
 #include "platform/movement_controller.hpp"
 #include "platform/collision_component.hpp"
+#include "platform/audio_component.hpp"
 
 namespace cge
 {
@@ -124,6 +125,15 @@ AABBCollisionComponent *TransformNode::add_aabb_collider(const Vector2 &min, con
     AABBCollisionComponent *raw_ptr = collider.get();
     collision_component_ = std::move(collider);
     return raw_ptr;
+}
+
+//------------------------------
+// Audio component methods
+//------------------------------
+AudioComponent *TransformNode::add_audio_component() 
+{ 
+    audio_component_ = new AudioComponent(this);
+    return audio_component_;
 }
 
 } // namespace cge

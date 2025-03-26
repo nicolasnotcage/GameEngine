@@ -158,10 +158,10 @@ void SpriteNode::update_animation_for_movement()
     if(is_moving_)
     {
         // If we have a walk animation, play it when moving
-        if(animation_textures_.find("walk") != animation_textures_.end())
+        if(animation_textures_.find("run") != animation_textures_.end())
         {
             // Only switch if not already playing walk animation
-            if(get_current_animation_name() != "walk") { play("walk"); }
+            if(get_current_animation_name() != "run") { play("run"); }
         }
     }
     else

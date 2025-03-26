@@ -1,14 +1,14 @@
-Last Update: 3/12/25
-New Classes: CollisionComponent, CollisionSystem
-Updated Classes: Math, TransformNode, StaticScene, Camera, CameraNode, InputInterpreter, GameAction
+Last Update: 3/26/25
+New Classes: AudioEngine, AudioComponent, MainScene
+Updated Classes: TransformNode, Event, GameAction, InputInterpreter
 
 Usage
-To test the colliders, you can move the player character to the bottom of the map and try to walk into the water. His position will be reset and a collision notification will be written to output. The witch passes through a trigger zone and changes animations while in the zone, so you can just watch her pathing. A collision notification is also written to output when she passes through the zone. 
+The Golem NPC plays a clapping sound once every three seconds. The player character can press Space to play a different clapping sound. If the player walks through the Golem, another sound effect will play. 
  
 Implementation Notes
-1) New Collision system added. Specific CollisionComponents are part of the CollisionSystem. Scenes manage their own collision systems. 
+1) New AudioEngine and AudioComponent classes were added. The AudioEngine is a singleton that handles the FMOD system and individual sound clips and playback. AudioComponents represent singular audio objects. TransformNodes can be configured with audio components. I chose this approach to simplify 3D audio in future updates.  
 
-2) Because my game uses a top-down world map, I needed a way to define AABB colliders for world and map boundaries. The first thing that came to mind was to implement a function in the camera and camera node that outputs the world coordinates to standard output after a left click. This way, I can click the "boundaries" of the world and get their world coordinates, allowing me to better define AABB colliders for these boundaries. I'm sure there are more elegant ways to handle this (e.g., grid-based maps), but this seems to work fine for now.  
+2) Channel management proved to be a bit of a pain point. While dry sounds were correctly being loaded into separate channels, they would sometimes cut each other off. After adding reserved channels, this stopped happening. 
 
 3) I played around with callback functions in the collision system, but it seemed more straightforward to get a collection of collision pairs from the collision system and handle collisions directly in the scene. The result was simpler, so I kept this version. The scene is growing quite a bit, though, but I imagine this is just something that happens when developing a game and engine side-by-side. 
 

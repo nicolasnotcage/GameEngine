@@ -83,10 +83,7 @@ Vector2 Camera::screen_to_world(const Vector2 &screen_position,
     screen_x /= (screen_width / 2.0f);
     screen_y /= (screen_height / 2.0f);
 
-    // 3. Flip Y back
-    screen_y = -screen_y;
-
-    // 4. Scale from normalized device coordinates to world coordinates
+    // 3. Scale from normalized device coordinates to world coordinates
     float world_x = (screen_x * width / 2.0f) + center_x;
     float world_y = (screen_y * height / 2.0f) + center_y;
 

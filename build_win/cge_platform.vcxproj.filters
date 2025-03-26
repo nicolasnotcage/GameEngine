@@ -22,7 +22,8 @@
     <ClCompile Include="..\src\platform\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\platform\input_interpreter.cpp">
+    <ClCompile Include="..\src\platform\
+			   _interpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\platform\animation.cpp">

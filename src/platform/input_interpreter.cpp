@@ -40,6 +40,9 @@ GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
             // For clicking to get world coordinates
             case EventType::MOUSE_BUTTON_LEFT: action = GameAction::MOUSE_BUTTON_LEFT; break;
 
+            // For player clapping
+            case EventType::KEY_DOWN_SPACE: action = GameAction::PLAYER_CLAP; break;
+
             // Skip over unbound events
             default: continue;
         }

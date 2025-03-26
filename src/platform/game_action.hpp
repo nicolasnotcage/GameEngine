@@ -39,6 +39,7 @@ enum class GameAction
     PLAYER_MOVE_DOWN,
     PLAYER_MOVE_LEFT,
     PLAYER_MOVE_RIGHT,
+    PLAYER_CLAP,
 
     // Mouse actions
     MOUSE_BUTTON_LEFT

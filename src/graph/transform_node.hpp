@@ -18,6 +18,7 @@ enum class MoveDirection;
 class CollisionComponent;
 class CircleCollisionComponent;
 class AABBCollisionComponent;
+class AudioComponent;
 
 class TransformNode : public Node
 {
@@ -60,7 +61,10 @@ class TransformNode : public Node
     // Connect a sprite to this transform
     void set_associated_sprite(SpriteNode *sprite);
 
-    // Collision component methods
+    // ------------------------------------
+    //          Collision Code
+    // ------------------------------------
+   
     // TODO: Could a transform reasonably handle a collection of collision components? If each has an offset and 
     // a global position, then we could likely simplify things like map boundaries by accommodating collections 
     // of components. 
@@ -84,14 +88,23 @@ class TransformNode : public Node
         transform_.a[7] = y;
     }
 
+    // ------------------------------------
+    //             Audio Code
+    // ------------------------------------
+    AudioComponent *add_audio_component();
+    AudioComponent *get_audio_component() const { return audio_component_; }
+
 private:
     Matrix3 transform_;
     Matrix3 previous_transform_;
     std::unique_ptr<MovementController> movement_controller_;
     SpriteNode                         *associated_sprite_{nullptr};
 
-    // Collision component
+    // Collision Component
     std::shared_ptr<CollisionComponent> collision_component_;
+
+    // Audio Component
+    AudioComponent *audio_component_;
 };
 
 template <typename... ChildrenTs>
