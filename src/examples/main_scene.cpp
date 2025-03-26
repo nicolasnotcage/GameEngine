@@ -123,6 +123,9 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     setup_trigger_zones();
     setup_audio();
 
+    // Begin theme music at low volume
+    AudioEngine::get_instance()->play_sound("theme_music", 0.2f);
+
     // Initialize root node
     root_.init(scene_state_);
 }
@@ -233,15 +236,20 @@ void MainScene::setup_audio()
     auto player_file_info = locate_path_for_filename("audio/player_clap.wav");
     auto npc_file_info = locate_path_for_filename("audio/npc_clap.wav");
     auto collision_sound_info = locate_path_for_filename("audio/creepy_ha_oneshot.wav");
+    auto theme_sound_info = locate_path_for_filename("audio/theme_music.mp3");
 
     // Load sounds
     audio_engine->load_sound(player_file_info.path, "player_clap", false, false);
     audio_engine->load_sound(npc_file_info.path, "npc_clap", false, false);
     audio_engine->load_sound(collision_sound_info.path, "creepy_ha", false, false);
+    audio_engine->load_sound(theme_sound_info.path, "theme_music", false, true);
 
+
+    // Reserve channels for each sound
     audio_engine->reserve_channel_for_sound("creepy_ha", 0);
     audio_engine->reserve_channel_for_sound("npc_clap", 1);
     audio_engine->reserve_channel_for_sound("player_clap", 2);
+    audio_engine->reserve_channel_for_sound("theme_music", 3);
 }
 
 void MainScene::destroy()

@@ -20,6 +20,13 @@ void TransformNode::destroy()
 {
     destroy_children();
     clear_children();
+
+    // TODO: Use smart pointer here to prevent the need for this. 
+    if(audio_component_)
+    {
+        delete audio_component_;
+        audio_component_ = nullptr;
+    }
 }
 
 void TransformNode::update(SceneState &scene_state) 

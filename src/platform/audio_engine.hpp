@@ -67,8 +67,6 @@ private:
     std::unordered_map<std::string, int>            reserved_channels_;
     std::vector<FMOD::Channel *>                    channels_;
     int                                             num_channels_{32};
-
-
 };
 
 } // namespace cge

@@ -3,11 +3,11 @@ New Classes: AudioEngine, AudioComponent, MainScene
 Updated Classes: TransformNode, Event, GameAction, InputInterpreter
 
 Usage
-The Golem NPC plays a clapping sound once every three seconds. The player character can press Space to play a different clapping sound. If the player walks through the Golem, another sound effect will play. 
+The game's theme music plays upon program initialization. The Golem NPC plays a clapping sound once every three seconds. The player character can press Space to play a different clapping sound with an echo effect. If the player walks through the Golem, another sound effect will play. 
  
 Implementation Notes
-1) New AudioEngine and AudioComponent classes were added. The AudioEngine is a singleton that handles the FMOD system and individual sound clips and playback. AudioComponents represent singular audio objects. TransformNodes can be configured with audio components. I chose this approach to simplify 3D audio in future updates.  
+1) New AudioEngine and AudioComponent classes were added. The AudioEngine is a singleton that handles the FMOD system and individual sound clips and playback. AudioComponents represent singular audio objects. TransformNodes can be configured with audio components.
 
-2) Channel management proved to be a bit of a pain point. While dry sounds were correctly being loaded into separate channels, they would sometimes cut each other off. After adding reserved channels, this stopped happening. 
+2) Channel management proved to be a bit of a pain point. While dry sounds were correctly being loaded into separate channels, they would sometimes cut each other off despite being assigned to separate channels. After adding individual sounds to reserved channels, the problem was resolved. 
 
-3) 
+3) I tried adding support for spatial audio, but I wasn't quite able to get it to work on this attempt. Ideally, the golem's clapping should be positioned relative to the player position. This is something that I'll flesh out as I work towards the final project. 
