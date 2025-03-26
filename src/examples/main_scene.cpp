@@ -108,7 +108,7 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     // Add audio to witch with delay
     auto *witch_audio = witch_transform.add_audio_component();
     witch_audio->set_sound("player_clap");
-    witch_audio->set_echo(true, 160.0f, 75.0f); // Use 350ms delay time for a single clap repeat
+    witch_audio->set_echo(true, 160.0f, 75.0f); // Use 350ms delay time for a nice single clap repeat
 
     // Set camera to follow player (witch)
     camera.set_target(&witch_transform, true);
@@ -333,7 +333,7 @@ void MainScene::handle_collisions()
         // TODO: Handle other collision types
     }
 
-    // Handle laugh sound logic in a single place
+    // Handle laugh sound logic on player-npc collision
     if(witch_golem_colliding && !has_laughed_)
     {
         // Play sound only if not already in cooldown period

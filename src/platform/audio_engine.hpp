@@ -13,7 +13,8 @@ namespace cge
 
 class AudioComponent;
 
-// A Singleton audio engine
+// A Singleton audio engine to manage 
+// an FMOD system. 
 class AudioEngine
 {
 public:

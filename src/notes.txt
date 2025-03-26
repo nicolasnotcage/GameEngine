@@ -3,11 +3,16 @@ New Classes: AudioEngine, AudioComponent, MainScene
 Updated Classes: TransformNode, Event, GameAction, InputInterpreter
 
 Usage
-The game's theme music plays upon program initialization. The Golem NPC plays a clapping sound once every three seconds. The player character can press Space to play a different clapping sound with an echo effect. If the player walks through the Golem, another sound effect will play. 
+The game's theme music plays upon program initialization. The Golem NPC plays a clapping sound once every three seconds. The player character can press Space to play a different clapping sound with an echo effect. If the player walks through the Golem, another sound effect will play. All audio sourced from Splice, which I have an active subscription for. 
  
 Implementation Notes
-1) New AudioEngine and AudioComponent classes were added. The AudioEngine is a singleton that handles the FMOD system and individual sound clips and playback. AudioComponents represent singular audio objects. TransformNodes can be configured with audio components.
+1) New AudioEngine and AudioComponent classes were added. The AudioEngine is a singleton that handles the FMOD system and individual sound clips and playback. AudioComponents represent singular audio objects to be attached to game objects. TransformNodes can be configured with audio components. The echo effect is present and configurable. I'd like to add some more effects in later updates, maybe generalizing the DSP interface a bit so I can build and add effects on the fly. 
 
-2) Channel management proved to be a bit of a pain point. While dry sounds were correctly being loaded into separate channels, they would sometimes cut each other off despite being assigned to separate channels. After adding individual sounds to reserved channels, the problem was resolved. 
+2) Channel management proved to be a bit of a pain point. While dry sounds were correctly being loaded into separate channels, they would sometimes cut each other off despite being assigned to separate channels. After assigning individual sounds to reserved channels, the problem was resolved. 
 
 3) I tried adding support for spatial audio, but I wasn't quite able to get it to work on this attempt. Ideally, the golem's clapping should be positioned relative to the player position. This is something that I'll flesh out as I work towards the final project. 
+
+4) I made a more "square" game map that will be used for my final project. I also made the golem an NPC and the witch player-controlled. The player now has a "clap" action that they can use by pressing the spacebar. This will eventually change to a "whistle", and invisible NPCs in range will respond with a "clap", which the player will use to find them.
+
+Question
+Like I mentioned in my email, I'm very interested in audio programming and synthesis (I have a lot of hardware, modular, and software synthesizers and some limited experience in embedded music software and general audio plug-in development). Spatial audio for games is new to me, but I'm very interested in it. Do you have any suggested research focuses for my component survey?

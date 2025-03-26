@@ -20,6 +20,7 @@ AudioEngine* AudioEngine::get_instance()
 AudioEngine::AudioEngine() = default;
 AudioEngine::~AudioEngine() { this->shutdown(); }
 
+// Initialize the FMOD system. Returns true if successful, false otherwise. 
 bool AudioEngine::init(int max_channels, bool use_3d)
 {
 	// Create FMOD system
@@ -57,6 +58,7 @@ bool AudioEngine::init(int max_channels, bool use_3d)
     return true;
 }
 
+// Shutdown the FMOD system. 
 void AudioEngine::shutdown()
 {
     // Release all sounds
@@ -78,6 +80,7 @@ void AudioEngine::shutdown()
     channels_.clear();
 }
 
+// Load a sound into the FMOD system.  
 bool AudioEngine::load_sound(const std::string &path,
                              const std::string &key,
                              bool               is_3d,
@@ -106,6 +109,8 @@ bool AudioEngine::load_sound(const std::string &path,
     return true;
 }
 
+// Unload a sound from the sound map by key. 
+// TODO: Should notify user if bad key passed?
 void AudioEngine::unload_sound(const std::string &key)
 {
     auto it = sound_map_.find(key);
@@ -116,6 +121,7 @@ void AudioEngine::unload_sound(const std::string &key)
     }
 }
 
+// Get sound object by key. 
 FMOD::Sound* AudioEngine::get_sound(const std::string &key)
 {
     auto it = sound_map_.find(key);
@@ -123,6 +129,11 @@ FMOD::Sound* AudioEngine::get_sound(const std::string &key)
     return nullptr;
 }
 
+// Play sound by key and return the channel id. Takes a boolean argument representing whether the sound 
+// should be played immediately or paused, which allows the caller to determine when the audio is played.
+// This is useful when callers intend to add DSP effects to the audio. 
+// 
+// TODO: Break this into separate play() and prepare() functions?
 int AudioEngine::play_sound(const std::string &key, float volume, bool pause)
 {
     FMOD::Sound *sound = this->get_sound(key);
@@ -145,6 +156,7 @@ int AudioEngine::play_sound(const std::string &key, float volume, bool pause)
     // Stop any sound playing on this channel
     if(channels_[channel_id]) channels_[channel_id]->stop();
 
+    // For debugging
     std::cout << "Total Number of Channels: " << num_channels_ << "\n";
     std::cout << "Channel ID Assigned: " << channel_id << "\n";
 
@@ -158,6 +170,7 @@ int AudioEngine::play_sound(const std::string &key, float volume, bool pause)
     return channel_id;
 }
 
+// Creates echo effect and adds it to the passed channel. 
 void AudioEngine::add_echo(int channel_id, float delay_ms, float feedback)
 {
     if(channel_id < 0 || channel_id >= num_channels_ || !channels_[channel_id]) return;
@@ -174,6 +187,8 @@ void AudioEngine::add_echo(int channel_id, float delay_ms, float feedback)
     channels_[channel_id]->addDSP(0, dsp);
 }
 
+// Update the FMOD system and clean up unused channels.
+// TODO: Is channel cleanup already handled by FMOD system?
 void AudioEngine::update()
 {
     if(fmod_system_) 
@@ -183,6 +198,7 @@ void AudioEngine::update()
     }
 }
 
+// Returns the next available channel id. 
 int AudioEngine::get_next_available_channel()
 {
     // Check for nullptr channels
@@ -195,12 +211,14 @@ int AudioEngine::get_next_available_channel()
     return num_channels_;
 }
 
+// Returns the channel object associated with a channel id.
 FMOD::Channel* AudioEngine::get_channel(int channel_id)
 {
     if(channel_id >= 0 && channel_id < channels_.size()) { return channels_[channel_id]; }
     return nullptr;
 }
 
+// Clean up unused channels. 
 void AudioEngine::update_channel_statuses()
 {
     for(int i = 0; i < num_channels_; i++)
@@ -216,6 +234,7 @@ void AudioEngine::update_channel_statuses()
     }
 }
 
+// Reserves a channel id for the given sound key. 
 void AudioEngine::reserve_channel_for_sound(const std::string &sound_key, int channel_id)
 {
     if(channel_id >= 0 && channel_id < num_channels_)
@@ -223,7 +242,8 @@ void AudioEngine::reserve_channel_for_sound(const std::string &sound_key, int ch
         reserved_channels_[sound_key] = channel_id;
     }
 }
-    // TODO: Get this working so we can have directional audio
+
+// TODO: Get this working so we can have directional audio
 void AudioEngine::set_3d_listener_position(const Vector2& position)
 {
     if(!fmod_system_) return;
@@ -234,6 +254,8 @@ void AudioEngine::set_3d_listener_position(const Vector2& position)
     // Set up direction vector
     FMOD_VECTOR forward = {0.0f, 1.0f, 0.0f};
     FMOD_VECTOR up = {0.0f, 0.0f, 1.0f};
+
+    // TODO: Still unsure of how to think of velocity in the context of the game and the audio.
     FMOD_VECTOR velocity = {0.0f, 0.0f, 0.0f};
 
     // Update listener position

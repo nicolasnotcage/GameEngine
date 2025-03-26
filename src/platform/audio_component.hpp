@@ -9,6 +9,8 @@ namespace cge
 
 class TransformNode;
 
+// A component class that represents a singular instance of audio
+// that is attached to a game object. 
 class AudioComponent
 {
 public:
@@ -22,7 +24,7 @@ public:
     void pause();
     void resume();
 
-    // Control
+    // Sound Control
     void set_volume(float volume);
     void set_pitch(float pitch);
     void set_loop(bool loop);

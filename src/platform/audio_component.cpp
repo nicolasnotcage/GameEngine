@@ -15,6 +15,7 @@ namespace cge
 AudioComponent::AudioComponent(TransformNode *owner) : owner_(owner) {}
 AudioComponent::~AudioComponent() { this->stop(); }
 
+// Sets the associated sound and whether that sound is 3D. 
 void AudioComponent::set_sound(const std::string &sound_key)
 {
     sound_key_ = sound_key;
@@ -29,6 +30,7 @@ void AudioComponent::set_sound(const std::string &sound_key)
     }
 }
 
+// Play the audio clip.
 int AudioComponent::play(float volume)
 {
     // Stop existing playback
@@ -52,6 +54,7 @@ int AudioComponent::play(float volume)
     return channel_id_;
 }
 
+// Stop the audio clip.
 void AudioComponent::stop()
 {
     if(channel_id_ >= 0) 
@@ -62,6 +65,7 @@ void AudioComponent::stop()
     }
 }
 
+// Pause the audio clip.
 void AudioComponent::pause() 
 {
     if(channel_id_ >= 0)
@@ -71,6 +75,7 @@ void AudioComponent::pause()
     }
 }
 
+// Resume the audio clip.
 void AudioComponent::resume()
 {
     if(channel_id_ >= 0)
@@ -80,6 +85,7 @@ void AudioComponent::resume()
     }
 }
 
+// Set the volume of the audio clip.
 void AudioComponent::set_volume(float volume)
 {
     volume_ = volume;
@@ -90,6 +96,7 @@ void AudioComponent::set_volume(float volume)
     }
 }
 
+// Set the pitch of the audio clip.
 void AudioComponent::set_pitch(float pitch)
 {
     pitch_ = pitch;
@@ -100,6 +107,7 @@ void AudioComponent::set_pitch(float pitch)
     }
 }
 
+// Set whether the audio clip should loop.
 void AudioComponent::set_loop(bool loop)
 {
     loop_ = loop;
@@ -122,6 +130,7 @@ void AudioComponent::set_loop(bool loop)
     }
 }
 
+// Configure echo effect. 
 void AudioComponent::set_echo(bool enabled, float delay_ms, float feedback)
 { 
     has_echo_ = enabled;
@@ -129,6 +138,7 @@ void AudioComponent::set_echo(bool enabled, float delay_ms, float feedback)
     echo_feedback_ = feedback;
 }
 
+// Returns whether the audio clip is currently playing.
 bool AudioComponent::is_playing() const
 {
     if(channel_id_ < 0) return false;
@@ -146,6 +156,7 @@ bool AudioComponent::is_playing() const
 // -------------------------------------------------------
 // TODO: Need to get these working
 
+// Minimum distance for 3D audio attenuation.
 void AudioComponent::set_min_distance(float min_distance)
 {
     min_distance_ = min_distance;
@@ -156,6 +167,7 @@ void AudioComponent::set_min_distance(float min_distance)
     }
 }
 
+// Maximum distance for 3D audio attenuation.
 void AudioComponent::set_max_distance(float max_distance)
 {
     max_distance_ = max_distance;
@@ -166,6 +178,7 @@ void AudioComponent::set_max_distance(float max_distance)
     }
 }
 
+// Update the 3D attributes of the current channel to track position. 
 void AudioComponent::update_position()
 {
     if(!is_3d_ || !owner_ || channel_id_ < 0) return;
