@@ -31,7 +31,7 @@ public:
     GameManager &operator=(GameManager &&) = delete;
 
     // Run game loop using a SceneManager
-    void run_game_loop_with_scene_manager(SceneManager& scene_manager, IoHandler& io_handler)
+    void run_game_loop(SceneManager& scene_manager, IoHandler& io_handler)
     {
         double current_time = time_manager_->get_current_time();
         double delta_time = current_time - last_time;

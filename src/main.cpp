@@ -16,6 +16,7 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/io_handler.hpp"
 #include "platform/time_manager.hpp"
 #include "platform/config.hpp"
+#include "platform/scene_manager.hpp"
 
 #include "fmod/fmod.hpp"
 
@@ -41,35 +42,31 @@ int main(int argc, char *argv[])
     cge::IoHandler    io_handler = cge::IoHandler();
     cge::TimeManager *time_manager = cge::TimeManager::get_instance();
 
-    // Initialize the active scene
-    cge::MainScene scene;
-    scene.init(&sdl_info, &io_handler);
+    // Initialize the scene manager
+    cge::SceneManager *scene_manager = cge::SceneManager::get_instance();
+    scene_manager->init(&sdl_info, &io_handler);
 
-    // Get instance of game manager class and run the game loop
+    // Create and push the main scene
+    cge::MainScene *main_scene = new cge::MainScene();
+    scene_manager->push_scene(main_scene);
+
+    // Get instance of game manager class
     auto game_manager = cge::GameManager::get_instance();
-
-    // Measure start time
-    double start_time = time_manager->get_current_time();
-    std::cout << "Time at loop start: " << start_time << std::endl;
 
     // Main game loop
     bool run_game = true;
     while (run_game)
     {
-        // Run game loop with scene
-        game_manager->run_game_loop<cge::MainScene>(scene, io_handler);
+        // Run game loop with scene manager
+        game_manager->run_game_loop(*scene_manager, io_handler);
 
         // See if a quit was requested
         if(io_handler.quit_requested()) run_game = false;
     }
-
-    // Calculate end time and duration
-    double end_time = time_manager->get_current_time();
-    std::cout << "Time at loop end: " << end_time << std::endl;
-    std::cout << "Total elapsed time: " << end_time - start_time << "s..." << std::endl;
     
     // Cleanup after game loop
-    scene.destroy();
+    scene_manager->clear_all_scenes();
+    delete main_scene;
     cge::destroy_sdl_components(sdl_info);
     return 0;
 }
