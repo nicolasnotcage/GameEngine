@@ -3,6 +3,7 @@
 
 #include "platform/time_manager.hpp"
 #include "platform/io_handler.hpp"
+#include "platform/scene_manager.hpp"
 
 namespace cge
 {
@@ -29,15 +30,13 @@ public:
     GameManager(GameManager &&) = delete;
     GameManager &operator=(GameManager &&) = delete;
 
-    // Templated game loop that can handle arbitrary scene types
-    template <typename T>
-    void run_game_loop(T& scene, IoHandler& io_handler)
+    // Run game loop using a SceneManager
+    void run_game_loop_with_scene_manager(SceneManager& scene_manager, IoHandler& io_handler)
     {
         double current_time = time_manager_->get_current_time();
         double delta_time = current_time - last_time;
 
-        // Force 60fps when delta time is too small. 
-        // TODO: Unsure if this is a good long-term solution, but it fixes our current animation problems.
+        // Force 60fps when delta time is too small
         if(delta_time < 0.001)
         {
             delta_time = 1.0 / 60.0; // 60fps equivalent
@@ -49,7 +48,7 @@ public:
             // Update io_handler with each update loop
             io_handler.update();
 
-            scene.update(delta_time);
+            scene_manager.update(delta_time);
             last_update_time_ += UPDATE_INTERVAL;
             times_updated++;
         }
@@ -58,7 +57,7 @@ public:
 
         if(current_time - last_draw_time_ > DRAW_INTERVAL)
         {
-            scene.render();
+            scene_manager.render();
             last_draw_time_ = current_time;
         }
 
@@ -71,6 +70,7 @@ private:
         time_manager_ = TimeManager::get_instance();
         last_update_time_ = time_manager_->get_current_time();
         last_draw_time_ = last_update_time_;
+        last_time = last_update_time_;
     }
 
     ~GameManager() = default;

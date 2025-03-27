@@ -160,6 +160,8 @@
     <ClInclude Include="..\src\platform\math.hpp" />
     <ClInclude Include="..\src\platform\movement_controller.hpp" />
     <ClInclude Include="..\src\platform\path.hpp" />
+    <ClInclude Include="..\src\platform\scene.hpp" />
+    <ClInclude Include="..\src\platform\scene_manager.hpp" />
     <ClInclude Include="..\src\platform\time_manager.hpp" />
   </ItemGroup>
   <ItemGroup />

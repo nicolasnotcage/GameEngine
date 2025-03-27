@@ -21,6 +21,7 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/collision_system.hpp"
 #include "platform/io_handler.hpp"
 #include "platform/path.hpp"
+#include "platform/scene.hpp"
 
 namespace cge
 {
@@ -32,7 +33,7 @@ using GameMap = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 // Parent camera with two child animated sprites and a zone transform node
 using AnimatedScene = CameraNodeT<GameMap, AnimatedSprite, AnimatedSprite, TransformNodeT<>>;
 
-class MainScene
+class MainScene : public Scene
 {
   public:
     void init(SDLInfo *sdl_info, IoHandler *io_handler);

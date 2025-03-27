@@ -23,12 +23,19 @@ public:
     TimeManager &operator=(TimeManager &&) = delete;
 
     double get_current_time() const;
+    
+    // Get time of the last frame
+    double get_last_time() const { return last_time_; }
+    
+    // Set time of the last frame
+    void set_last_time(double time) { last_time_ = time; }
 
 private:
     TimeManager();
     ~TimeManager();
 
     std::chrono::high_resolution_clock  my_clock;
+    double last_time_{0.0};
 };
 
 } // namespace cge
