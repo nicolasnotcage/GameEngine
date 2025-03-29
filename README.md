@@ -55,7 +55,7 @@ This project is designed to be built and run directly in **Visual Studio (Window
 
 1. Clone the repository:
    ```bash
-   https://github.com/nicolasnotcage/GameEngine.git
+   git clone https://github.com/nicolasnotcage/GameEngine.git
    ```
 2. Open the `.sln` file in Visual Studio 2022 (or later).
 3. Set the build configuration to Release or Debug, and ensure the target platform is set to `x64`.
