@@ -27,7 +27,6 @@ A modular 2D game engine written in modern C++ with SDL. Designed with real-time
 
 ### 🧱 Collision
 - Modular collision system with AABB and circle colliders
-- O(n²) broad-phase detection with callback-based resolution logic
 - Dynamic component registration and per-frame collision state tracking
 - Integrated sound triggers and behavior changes on collision events
 
