@@ -186,53 +186,37 @@ bool BinarySerializer::open(const std::string& filepath, bool write_mode)
         std::ifstream file(filepath_, std::ios::binary);
         if (!file.is_open()) return false;
 
-        // Get file size
-        file.seekg(0, std::ios::end);
-        std::streampos fileSize = file.tellg();
-        file.seekg(0, std::ios::beg);
+        // Read number of entries
+        int num_entries;
+        file.read(reinterpret_cast<char*>(&num_entries), sizeof(int));
 
-        if (fileSize > 0) {
-            // Read the number of entries in the index table
-            int num_entries;
-            file.read(reinterpret_cast<char*>(&num_entries), sizeof(int));
-                        
-            // Read the index table
-            size_t index_table_size = 0;
-            for (int i = 0; i < num_entries; ++i) {
-                // Read key size
-                int key_size;
-                file.read(reinterpret_cast<char*>(&key_size), sizeof(int));
-                
-                // Read key
-                std::string key(key_size, '\0');
-                file.read(&key[0], key_size);
-                
-                // Read offset and size
-                size_t offset, size;
-                file.read(reinterpret_cast<char*>(&offset), sizeof(size_t));
-                file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-                
-                // Store in map
-                data_map_[key] = { offset, size };
+        // Read each key-value pair
+        for (int i = 0; i < num_entries; i++) {
+            // Read key length
+            int key_length;
+            file.read(reinterpret_cast<char*>(&key_length), sizeof(int));
 
-                std::cout << "BinarySerializer::open - Read key: " << key
-                    << ", offset: " << offset << ", size: " << size << std::endl;
-                
-                // Calculate the size of the index table entry
-                index_table_size += sizeof(int) + key_size + sizeof(size_t) * 2;
-            }
-            
-            // Calculate the total size of the index table including the num_entries
-            index_table_size += sizeof(int);
-            
-            // Calculate the size of the data buffer
-            size_t data_buffer_size = static_cast<size_t>(fileSize) - index_table_size;
-            
-            // Read the data buffer
-            data_buffer_.resize(data_buffer_size);
-            file.read(data_buffer_.data(), data_buffer_size);
-        } 
-      
+            // Read key
+            std::string key(key_length, '\0');
+            file.read(&key[0], key_length);
+
+            // Read data size
+            size_t data_size;
+            file.read(reinterpret_cast<char*>(&data_size), sizeof(size_t));
+
+            // Store the current position in the buffer as the offset
+            size_t offset = data_buffer_.size();
+
+            // Resize buffer to accommodate the new data
+            data_buffer_.resize(offset + data_size);
+
+            // Read data into buffer
+            file.read(&data_buffer_[offset], data_size);
+
+            // Store in map
+            data_map_[key] = { offset, data_size };
+        }
+
         file.close();
     }
 
@@ -249,37 +233,29 @@ bool BinarySerializer::save()
 {
     if (!is_write_mode_) return false;
 
-    std::ofstream file(filepath_, std::ios::binary | std::ios::trunc);
+    std::ofstream file(filepath_, std::ios::binary);
     if (!file.is_open()) return false;
-    
-    // Print all keys being saved
-    for (const auto& [key, value] : data_map_) 
-    {
-        std::cout << "BinarySerializer::save - Key: " << key << ", Offset: " << value.first 
-                  << ", Size: " << value.second << std::endl;
-    }
 
-    // Write the index table at the beginning of the file
-    // First, write the number of entries
+    // Write number of entries
     int num_entries = data_map_.size();
     file.write(reinterpret_cast<const char*>(&num_entries), sizeof(int));
 
-    // Then write each entry: key size, key, offset, size
-    for (const auto& [key, value] : data_map_) {
-        // Key size
-        int key_size = key.size();
-        file.write(reinterpret_cast<const char*>(&key_size), sizeof(int));
+    // Write each key-value pair sequentially
+    for (const auto& [key, value_pair] : data_map_) {
+        // Write key length
+        int key_length = key.size();
+        file.write(reinterpret_cast<const char*>(&key_length), sizeof(int));
 
-        // Key
-        file.write(key.data(), key_size);
+        // Write key content
+        file.write(key.data(), key_length);
 
-        // Offset and size
-        file.write(reinterpret_cast<const char*>(&value.first), sizeof(size_t));
-        file.write(reinterpret_cast<const char*>(&value.second), sizeof(size_t));
+        // Write data size
+        size_t data_size = value_pair.second;
+        file.write(reinterpret_cast<const char*>(&data_size), sizeof(size_t));
+
+        // Write data content
+        file.write(&data_buffer_[value_pair.first], data_size);
     }
-
-    // Write data buffer
-    file.write(data_buffer_.data(), data_buffer_.size());
 
     file.close();
     return true;
