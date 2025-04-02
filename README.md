@@ -1,52 +1,85 @@
-# 2D Game Engine
+# Custom 2D Game Engine
 
-A custom 2D game engine built in C++ with SDL, developed as part of JHU 605.668: Computer Gaming Engines.
+A modular 2D game engine written in modern C++ with SDL. Designed with real-time performance and clean architecture in mind, it features a scene graph with hierarchical transforms, input abstraction, sprite animation, 3D audio spatialization, and an early-stage physics/collision system.
 
-## Features
+---
 
-### Transformation System
-- Complete transformation pipeline with local, world, and screen coordinate spaces
-- Matrix stack implementation for hierarchical transformations
-- Support for translation, rotation, and scaling operations
+## 🔧 Architecture Overview
 
-### Camera System
-- Flexible camera implementation with controllable viewport
-- World-to-screen space transformation
-- Camera movement and zoom functionality
-- Integration with the scene graph through CameraNode
+- **Scene Graph**: Tree-based node system supporting composition of transforms, sprites, cameras, and UI elements.
+- **Scene Manager**: Stack-based system enabling runtime push/pop/replace of active scenes (pause menus, game levels, etc.).
+- **Input System**: Multi-layered handling of raw input, mapped game actions, and contextual behavior per scene or entity.
+- **Update Pipeline**: Consistent frame timing and per-node updates across all active scene graph elements.
 
-### Scene Graph
-- Hierarchical node structure
-- Parent-child relationships with transformation inheritance
-- Specialized node types (GeometryNode, CameraNode, etc.)
+---
 
-### Input Handling
-- Three-layer input architecture for maximum flexibility:
-  1. Raw device event capture through SDL
-  2. Device-agnostic game action translation
-  3. Centralized IO handler for the input pipeline
-- Decoupled input system allowing for easy remapping and device independence
+## 🧩 Core Systems
 
-### Rendering
-- Texture management through TextureNode
-- Geometry rendering with proper world-to-screen transformation
-- Affine texture rendering using SDL
+### 🖼️ Animation
+- Frame-based sprite animation with shared texture grids
+- Looping, one-shot, and dynamic switching (e.g. run → idle)
+- Modular animation binding for any transform node
 
-## Architecture
+### 🔊 Audio
+- FMOD-based engine with positional 3D audio
+- Per-entity audio components with spatial delay, echo, and channel control
+- Background music and interactive SFX support
 
-The engine employs a scene graph architecture where each node can have a transformation and children. The matrix stack accumulates transformations as it traverses the scene hierarchy, properly handling parent-child relationships. The camera system converts world coordinates to screen coordinates for rendering.
+### 🧱 Collision
+- Modular collision system with AABB and circle colliders
+- Dynamic component registration and per-frame collision state tracking
+- Integrated sound triggers and behavior changes on collision events
 
-The input system decouples raw device events from game logic, allowing for flexible control schemes and future input device support.
+### 🎥 Camera
+- World-to-screen projection with smooth following
+- Click-based world coordinate inspection (debug/testing)
+- Designed to encapsulate all visual elements for clean viewport control
 
-## Roadmap
+---
 
-- Animation System (Completed 3/6/25): Implementation of sprite-based animation and animation state management
-- **Physics System** (In Development): Basic collision detection and response
-- Particle System: Support for particle effects
-- Audio System: Sound effect and music playback
-- UI Framework: In-game user interface components
+## 🗺️ Example Scene
 
-## License
+The provided `MainScene` demonstrates:
 
-This is free and unencumbered software released into the public domain.
-For more information, please refer to <https://unlicense.org>
+- Dynamic character animation (Golem + Witch)
+- Sound playback on input and collisions
+- NPC clap behavior with timers
+- Collision boundaries and NPC/player interactions
+- Scene-rooted camera with entity follow targeting
+
+---
+
+## 🛠️ Usage
+
+This project is designed to be built and run directly in **Visual Studio (Windows)**:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/nicolasnotcage/GameEngine.git
+   ```
+2. Open the `.sln` file in Visual Studio 2022 (or later).
+3. Set the build configuration to Release or Debug, and ensure the target platform is set to `x64`.
+4. Ensure DLLs for FMOD and SDL2 are located in the `build` directory.
+5. Build and run using Ctrl+F5 or the green Start button.
+## 🚀 Roadmap
+
+- ✅ Sprite Animation
+- ✅ Audio Engine
+- ✅ Collision System
+- ✅ Dynamic Scene Stack
+- 🟡 Serialization
+- 🟡 UI Layer & Menus
+  
+---
+
+## 📂 Structure
+
+```plaintext
+graph/          → Node types: TransformNode, SpriteNode, CameraNode, etc.
+platform/       → Core engine modules (input, audio, collisions, config)
+examples/       → MainScene demo setup with animated sprites and interactions
+system/         → File path management, configuration, and utilities
+```
+
+## 🧾 License
+This project is released into the public domain under [The Unlicense](https://unlicense.org/).
