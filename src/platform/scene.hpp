@@ -10,12 +10,13 @@ For more information, please refer to <https://unlicense.org>
 
 #include "platform/io_handler.hpp"
 #include "platform/core.hpp"
+#include "system/serializable.hpp"
 
 namespace cge
 {
 
-// Base class for all scenes
-class Scene
+// Base class for all scenes. Scenes are serializable. 
+class Scene : public Serializable
 {
 public:
     Scene() = default;
@@ -37,6 +38,10 @@ public:
 
     // Called when scene is resumed (uncovered)
     virtual void on_resume() {}
+
+    // Serializable overrides
+    virtual void serialize(Serializer& serializer) const override = 0;
+    virtual void deserialize(Serializer& serializer) override = 0;
 };
 
 } // namespace cge

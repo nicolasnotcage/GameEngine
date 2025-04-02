@@ -59,12 +59,14 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <MinimalRebuild></MinimalRebuild>
+      <MinimalRebuild>
+      </MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <SupportJustMyCode></SupportJustMyCode>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;BUILD_WINDOWS;SRC_DIR="$(ProjectDir)..";RESOURCE_DIR="$(ProjectDir)..\resources";CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
@@ -94,12 +96,14 @@
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <MinimalRebuild></MinimalRebuild>
+      <MinimalRebuild>
+      </MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <SupportJustMyCode></SupportJustMyCode>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;BUILD_WINDOWS;SRC_DIR="$(ProjectDir)..";RESOURCE_DIR="$(ProjectDir)..\resources";CMAKE_INTDIR="Release"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
@@ -125,8 +129,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="$(ProjectDir)..\src\system\file_locator.cpp" />
+    <ClCompile Include="..\src\system\config_manager.cpp" />
+    <ClCompile Include="..\src\system\save_manager.cpp" />
+    <ClCompile Include="..\src\system\serializable.cpp" />
+    <ClCompile Include="..\src\system\serializer.cpp" />
     <ClInclude Include="$(ProjectDir)..\src\system\file_locator.hpp" />
     <ClInclude Include="$(ProjectDir)..\src\system\preprocessor.h" />
+    <ClInclude Include="..\src\system\config_manager.hpp" />
+    <ClInclude Include="..\src\system\save_manager.hpp" />
+    <ClInclude Include="..\src\system\serializable.hpp" />
+    <ClInclude Include="..\src\system\serializer.hpp" />
+    <ClInclude Include="..\src\system\string_utils.hpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

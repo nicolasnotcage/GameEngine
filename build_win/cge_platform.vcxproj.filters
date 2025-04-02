@@ -72,9 +72,6 @@
     <ClInclude Include="..\src\platform\camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\platform\config.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\platform\game_action.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -106,6 +103,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\platform\scene_manager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\serialization\configuration_manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

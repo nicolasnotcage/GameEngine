@@ -5,8 +5,10 @@
 #include "graph/node_t.hpp"
 #include "platform/math.hpp"
 #include "platform/path.hpp"
+#include "system/serializable.hpp"
 
 #include <memory>
+#include <iostream>
 
 namespace cge
 {
@@ -20,7 +22,7 @@ class CircleCollisionComponent;
 class AABBCollisionComponent;
 class AudioComponent;
 
-class TransformNode : public Node
+class TransformNode : public Node, public Serializable  // Are Serializable
 {
   public:
     TransformNode() = default;
@@ -93,6 +95,12 @@ class TransformNode : public Node
     // ------------------------------------
     AudioComponent *add_audio_component();
     AudioComponent *get_audio_component() const { return audio_component_; }
+
+    //----------------------------------
+    //        Serialization Code
+    //----------------------------------
+    void serialize(Serializer& serializer) const override;
+    void deserialize(Serializer& serializer) override;
 
 private:
     Matrix3 transform_;

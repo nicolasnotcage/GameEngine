@@ -44,6 +44,10 @@ class MainScene : public Scene
     // Register collision components with the stored collision system. 
     void register_collision_component(CollisionComponent *component);
 
+    // Serializable overrides
+    void serialize(Serializer& serializer) const override;
+    void deserialize(Serializer& serializer) override;
+
   private:
     SDLInfo                 *sdl_info_;
     RootNodeT<AnimatedScene> root_;

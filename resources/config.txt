@@ -1,0 +1,6 @@
+# Configuration File
+# Generated on: Apr  2 2025 12:04:29
+
+screen_width = 1920
+screen_height = 1080
+target_frame_rate = 60
