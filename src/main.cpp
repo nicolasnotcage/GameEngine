@@ -36,22 +36,18 @@ int main(int argc, char *argv[])
     cge::init_sdl();
 
     // Initialize config manager first to get screen size and other settings
-    cge::ConfigManager* config_manager = cge::ConfigManager::get_instance();
-    if (config_manager->init("config.txt")) 
+    cge::ConfigManager& config_manager = cge::ConfigManager::get_instance();
+    if (config_manager.init("config.txt")) 
     {
-        std::cout << "Config loaded successfully" << std::endl;
-        std::cout << "Target frame rate: " << config_manager->get_target_frame_rate() << std::endl;
-        std::cout << "Screen size: " << config_manager->get_screen_width() << "x" 
-                  << config_manager->get_screen_height() << std::endl;
-    }
+        std::cout << "Config loaded successfully\n";    }
 
     // Generate default SDLInfo struct (contains pointers to an SDL renderer and SDL window) 
     cge::SDLInfo sdl_info;
 
     // Create and configure components of SDL instance using config values
     cge::create_sdl_components(sdl_info, 
-                              config_manager->get_screen_width(), 
-                              config_manager->get_screen_height(), 
+                              config_manager.get_screen_width(), 
+                              config_manager.get_screen_height(), 
                               "Class 605.688");
 
     // Create io and time handler instances
@@ -63,31 +59,26 @@ int main(int argc, char *argv[])
     scene_manager->init(&sdl_info, &io_handler);
 
     // Initialize save manager
-    cge::SaveManager* save_manager = cge::SaveManager::get_instance();
-    if (save_manager->init("save.dat")) 
+    cge::SaveManager &save_manager = cge::SaveManager::get_instance();
+    if (save_manager.init("save.dat")) 
     {
-        std::cout << "Save manager initialized" << std::endl;
+        std::cout << "Save manager initialized\n";
     }
 
     // Create the main scene
     cge::MainScene *main_scene = new cge::MainScene();
     
     // Load any saved data before initializing the scene
-    if (save_manager->save_exists())
+    if (save_manager.save_exists())
     {
-        std::cout << "Loading saved game data..." << std::endl;
-        save_manager->load_game(main_scene);
-        
-        // Access the config manager to display loaded values
-        std::cout << "Loaded config values:\n";
-        std::cout << "  Target frame rate: " << config_manager->get_target_frame_rate() << "\n";
+        save_manager.load_game(main_scene);
     }
     else
     {
         std::cout << "No save file found. Starting with default values.\n";
     }
     
-    // Now push the scene to the manager
+    // Push the scene to the manager
     scene_manager->push_scene(main_scene);
 
     // Get instance of game manager class
@@ -105,7 +96,8 @@ int main(int argc, char *argv[])
     }
 
     // Save game state after loop ends
-    save_manager->save_game(main_scene);
+    // TODO: Need to modify this to use the scene stack. Or should we only be concerned with the active scene?
+    save_manager.save_game(main_scene);
     
     // Cleanup after game loop
     scene_manager->clear_all_scenes();

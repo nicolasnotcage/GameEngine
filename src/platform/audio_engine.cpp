@@ -6,6 +6,7 @@ For more information, please refer to <https://unlicense.org>
 */
 
 #include "platform/audio_engine.hpp"
+#include "system/config_manager.hpp"
 #include <iostream>
 
 namespace cge
@@ -34,10 +35,10 @@ bool AudioEngine::init(int max_channels, bool use_3d)
     // Get version
     unsigned int version;
     fmod_system_->getVersion(&version);
-    std::cout << "FMOD Version: " 
+    /*std::cout << "FMOD Version: " 
               << ((version >> 16) & 0xFF) << "." 
               << ((version >> 8) & 0xFF)  << "." 
-              << (version & 0xFF) << "\n";
+              << (version & 0xFF) << "\n";*/
 
     // Setup
     num_channels_ = max_channels;
@@ -156,10 +157,6 @@ int AudioEngine::play_sound(const std::string &key, float volume, bool pause)
     // Stop any sound playing on this channel
     if(channels_[channel_id]) channels_[channel_id]->stop();
 
-    // For debugging
-    std::cout << "Total Number of Channels: " << num_channels_ << "\n";
-    std::cout << "Channel ID Assigned: " << channel_id << "\n";
-
     // Configure sound
     FMOD_RESULT result = fmod_system_->playSound(sound, nullptr, pause, &channels_[channel_id]);
     if(result != FMOD_OK) return -1;
@@ -260,6 +257,19 @@ void AudioEngine::set_3d_listener_position(const Vector2& position)
 
     // Update listener position
     fmod_system_->set3DListenerAttributes(0, &pos, &velocity, &forward, &up);
+}
+
+// For user configuration
+void AudioEngine::toggle_music()
+{
+    bool music_enabled = ConfigManager::get_instance().get_music_enabled();
+
+    // Toggle the music enabled flag in config
+    ConfigManager::get_instance().set_music_enabled(!music_enabled);
+
+    // Mute unmute dedicated music channel
+    FMOD::Channel* music_channel = get_channel(3);
+    if (music_channel) music_channel->setMute(music_enabled);
 }
 
 } // namespace cge

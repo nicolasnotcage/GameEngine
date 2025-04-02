@@ -43,6 +43,9 @@ GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
             // For player clapping
             case EventType::KEY_DOWN_SPACE: action = GameAction::PLAYER_CLAP; break;
 
+            // For toggling audio
+            case EventType::KEY_DOWN_T: action = GameAction::TOGGLE_MUSIC; break;
+
             // Skip over unbound events
             default: continue;
         }

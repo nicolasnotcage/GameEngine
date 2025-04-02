@@ -52,6 +52,9 @@ public:
     FMOD::Channel *get_channel(int channel_id);
     FMOD::System  *get_system() { return fmod_system_; }
 
+    // For user configuration
+    void toggle_music();
+
 private:
     AudioEngine();
     ~AudioEngine();

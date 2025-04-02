@@ -13,7 +13,7 @@ class Scene;
 class SaveManager
 {
 public:
-    static SaveManager* get_instance();
+    static SaveManager& get_instance();
 
     // Initialize with path to save file
     bool init(const std::string& save_filepath);
@@ -31,7 +31,6 @@ private:
     SaveManager() = default;
     ~SaveManager();
 
-    static SaveManager* instance_;
     BinarySerializer serializer_;
     std::string save_filepath_;
     bool is_loaded_ = false;

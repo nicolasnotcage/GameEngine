@@ -49,13 +49,13 @@ SDLEventInfo get_current_events()
                     // Given actions
                     case SDLK_ESCAPE: event_info.events[num_events++] = EventType::QUIT; break;
                     case SDLK_SPACE: event_info.events[num_events++] = EventType::KEY_DOWN_SPACE; break;
-                    case SDLK_M: event_info.events[num_events++] = EventType::TOGGLE_MUSIC; break;
 
                     // Other keys
                     case SDLK_W: event_info.events[num_events++] = EventType::KEY_DOWN_W; break;
                     case SDLK_A: event_info.events[num_events++] = EventType::KEY_DOWN_A; break;
                     case SDLK_S: event_info.events[num_events++] = EventType::KEY_DOWN_S; break;
                     case SDLK_D: event_info.events[num_events++] = EventType::KEY_DOWN_D; break;
+                    case SDLK_T: event_info.events[num_events++] = EventType::KEY_DOWN_T; break;
                     case SDLK_PLUS:
                     case SDLK_EQUALS:
                         event_info.events[num_events++] = EventType::KEY_DOWN_PLUS;

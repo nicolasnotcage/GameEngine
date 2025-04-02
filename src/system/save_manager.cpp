@@ -15,15 +15,10 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-SaveManager* SaveManager::instance_ = nullptr;
-
-SaveManager* SaveManager::get_instance()
+SaveManager& SaveManager::get_instance()
 {
-    if (instance_ == nullptr)
-    {
-        instance_ = new SaveManager();
-    }
-    return instance_;
+    static SaveManager instance;
+    return instance;
 }
 
 SaveManager::~SaveManager()
@@ -37,13 +32,12 @@ SaveManager::~SaveManager()
 
 bool SaveManager::init(const std::string& save_filepath)
 {
-    // First check if the file exists using file_locator
+    // Check if the file exists
     auto file_info = locate_path_for_filename(save_filepath);
     if (file_info.found)
     {
-        // Use the full path from file_locator
+        // Use the full path
         save_filepath_ = file_info.path;
-        std::cout << "Found existing save file at: " << save_filepath_ << std::endl;
     }
     else
     {
@@ -51,17 +45,14 @@ bool SaveManager::init(const std::string& save_filepath)
         save_filepath_ = "../resources/" + save_filepath;
         std::cout << "Will create new save file at: " << save_filepath_ << std::endl;
     }
-    
+
     is_loaded_ = true;
     return true;
 }
 
 bool SaveManager::save_game(const Scene* scene)
 {
-    if (!scene || !is_loaded_)
-    {
-        return false;
-    }
+    if (!scene || !is_loaded_) return false;
 
     if (!serializer_.open(save_filepath_, true))
     {
@@ -71,23 +62,17 @@ bool SaveManager::save_game(const Scene* scene)
 
     // Save game state by delegating to the Scene
     scene->serialize(serializer_);
-    
-    // Add a timestamp to the save file
-    serializer_.write("save_timestamp", static_cast<int>(time(nullptr)));
 
+    // Save and close serializer
     bool result = serializer_.save();
     serializer_.close();
     
-    std::cout << "Game saved successfully to: " << save_filepath_ << std::endl;
     return result;
 }
 
 bool SaveManager::load_game(const Scene* scene)
 {
-    if (!scene || !is_loaded_)
-    {
-        return false;
-    }
+    if (!scene || !is_loaded_) return false;
 
     if (!save_exists())
     {
@@ -102,19 +87,9 @@ bool SaveManager::load_game(const Scene* scene)
     }
 
     // Load game state by delegating to the Scene
-    // We need to const_cast because deserialize is non-const
-    const_cast<Scene*>(scene)->deserialize(serializer_);
-    
-    // Read the timestamp for logging
-    int timestamp;
-    if (serializer_.read("save_timestamp", timestamp))
-    {
-        std::cout << "Loaded game state from: " << timestamp << std::endl;
-    }
-
+    const_cast<Scene*>(scene)->deserialize(serializer_);    
     serializer_.close();
     
-    std::cout << "Game loaded successfully from: " << save_filepath_ << std::endl;
     return true;
 }
 

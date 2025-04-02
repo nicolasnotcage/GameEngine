@@ -124,6 +124,46 @@ namespace cge
             std::memcpy(&out, buffer, sizeof(T));
             return out;
         }
+
+        // Template methods for reading/writing binary data
+        template <typename T>
+        void write_data(const T& data, size_t& offset) 
+        {
+            if (is_little_endian_ != system_is_little_endian()) 
+            {
+                T t_data = reverse_byte_order<T>(data);
+                const char* bytes = reinterpret_cast<const char*>(&t_data);
+                data_buffer_.insert(data_buffer_.end(), bytes, bytes + sizeof(T));
+            }
+            else 
+            {
+                const char* bytes = reinterpret_cast<const char*>(&data);
+                data_buffer_.insert(data_buffer_.end(), bytes, bytes + sizeof(T));
+            }
+            offset += sizeof(T);
+        }
+
+        template <typename T>
+        bool read_data(T& data, size_t offset, size_t size) 
+        {
+            if (size != sizeof(T)) 
+            {
+                std::cout << "Size mismatch: expected " << sizeof(T) << ", got " << size << std::endl;
+                return false;
+            }
+
+            if (is_little_endian_ != system_is_little_endian()) 
+            {
+                T t_data;
+                std::memcpy(&t_data, &data_buffer_[offset], sizeof(T));
+                data = reverse_byte_order<T>(t_data);
+            }
+            else 
+            {
+                std::memcpy(&data, &data_buffer_[offset], sizeof(T));
+            }
+            return true;
+        }
     };
 
 } // namespace cge

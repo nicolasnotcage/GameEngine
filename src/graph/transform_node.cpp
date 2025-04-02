@@ -3,7 +3,6 @@
 #include "platform/movement_controller.hpp"
 #include "platform/collision_component.hpp"
 #include "platform/audio_component.hpp"
-#include "system/serializer.hpp"
 
 namespace cge
 {
@@ -142,35 +141,6 @@ AudioComponent *TransformNode::add_audio_component()
 { 
     audio_component_ = new AudioComponent(this);
     return audio_component_;
-}
-
-//------------------------------
-// Serialization Implementation
-//------------------------------
-void TransformNode::serialize(Serializer& serializer) const
-{
-    // Serialize position
-    serializer.write("position_x", get_position_x());
-    serializer.write("position_y", get_position_y());
-}
-
-void TransformNode::deserialize(Serializer& serializer)
-{
-    // Deserialize position
-    float x = 0.0f, y = 0.0f;
-    if (serializer.read("position_x", x) && serializer.read("position_y", y)) 
-    {
-        std::cout << "TransformNode::deserialize - Setting position to: " << x << ", " << y << std::endl;
-        set_position(x, y);
-        
-        // Double-check that the position was set correctly
-        std::cout << "TransformNode::deserialize - Position after set: " 
-                  << get_position_x() << ", " << get_position_y() << std::endl;
-    }
-    else
-    {
-        std::cout << "TransformNode::deserialize - Failed to read position from serializer" << std::endl;
-    }
 }
 
 } // namespace cge

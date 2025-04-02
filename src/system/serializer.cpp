@@ -41,6 +41,9 @@ bool TextSerializer::open(const std::string& filepath, bool write_mode)
                 std::string key = cge::utility::trim(parts[0]);
                 std::string value = cge::utility::trim(parts[1]);
                 data_[key] = value;
+
+                std::cout << "TextSerializer - Read key: " << key
+                    << ", value: " << value << std::endl;
             }
         }
     }
@@ -69,6 +72,10 @@ bool TextSerializer::save()
     // Write data
     for (const auto& [key, value] : data_)
     {
+        
+        std::cout << "TextSerializer::save - Key: " << key << ", Value: " << value
+            << std::endl;
+
         file << key << " = " << value << std::endl;
     }
 
@@ -169,10 +176,6 @@ bool BinarySerializer::open(const std::string& filepath, bool write_mode)
     filepath_ = filepath;
     is_write_mode_ = write_mode;
 
-    // Debug output
-    std::cout << "BinarySerializer::open - " << (write_mode ? "Writing to" : "Reading from") 
-              << " file: " << filepath_ << std::endl;
-
     // Clear existing data
     data_buffer_.clear();
     data_map_.clear();
@@ -181,25 +184,18 @@ bool BinarySerializer::open(const std::string& filepath, bool write_mode)
     {
         // Load file contents into buffer
         std::ifstream file(filepath_, std::ios::binary);
-        if (!file.is_open()) {
-            std::cout << "BinarySerializer::open - Failed to open file for reading" << std::endl;
-            return false;
-        }
+        if (!file.is_open()) return false;
 
         // Get file size
         file.seekg(0, std::ios::end);
         std::streampos fileSize = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        std::cout << "BinarySerializer::open - File size: " << fileSize << " bytes" << std::endl;
-
         if (fileSize > 0) {
-            // First read the number of entries in the index table
+            // Read the number of entries in the index table
             int num_entries;
             file.read(reinterpret_cast<char*>(&num_entries), sizeof(int));
-            
-            std::cout << "BinarySerializer::open - Number of entries in index table: " << num_entries << std::endl;
-            
+                        
             // Read the index table
             size_t index_table_size = 0;
             for (int i = 0; i < num_entries; ++i) {
@@ -218,9 +214,9 @@ bool BinarySerializer::open(const std::string& filepath, bool write_mode)
                 
                 // Store in map
                 data_map_[key] = { offset, size };
-                
-                std::cout << "BinarySerializer::open - Read key: " << key 
-                          << ", offset: " << offset << ", size: " << size << std::endl;
+
+                std::cout << "BinarySerializer::open - Read key: " << key
+                    << ", offset: " << offset << ", size: " << size << std::endl;
                 
                 // Calculate the size of the index table entry
                 index_table_size += sizeof(int) + key_size + sizeof(size_t) * 2;
@@ -235,16 +231,12 @@ bool BinarySerializer::open(const std::string& filepath, bool write_mode)
             // Read the data buffer
             data_buffer_.resize(data_buffer_size);
             file.read(data_buffer_.data(), data_buffer_size);
-            
-            std::cout << "BinarySerializer::open - Read data buffer of size: " << data_buffer_size << " bytes" << std::endl;
-        } else {
-            std::cout << "BinarySerializer::open - Empty file" << std::endl;
-        }
+        } 
+      
         file.close();
     }
 
     is_open_ = true;
-    std::cout << "BinarySerializer::open - Successfully opened file" << std::endl;
     return true;
 }
 
@@ -259,13 +251,10 @@ bool BinarySerializer::save()
 
     std::ofstream file(filepath_, std::ios::binary | std::ios::trunc);
     if (!file.is_open()) return false;
-
-    // Debug output
-    std::cout << "BinarySerializer::save - Saving to " << filepath_ << std::endl;
-    std::cout << "BinarySerializer::save - Number of entries: " << data_map_.size() << std::endl;
     
     // Print all keys being saved
-    for (const auto& [key, value] : data_map_) {
+    for (const auto& [key, value] : data_map_) 
+    {
         std::cout << "BinarySerializer::save - Key: " << key << ", Offset: " << value.first 
                   << ", Size: " << value.second << std::endl;
     }
@@ -293,7 +282,6 @@ bool BinarySerializer::save()
     file.write(data_buffer_.data(), data_buffer_.size());
 
     file.close();
-    std::cout << "BinarySerializer::save - Save completed successfully" << std::endl;
     return true;
 }
 
@@ -302,224 +290,99 @@ void BinarySerializer::write(const std::string& key, const std::string& value)
     // Record the current position
     size_t offset = data_buffer_.size();
 
-    // First write the string length
+    // Write the string length first
     int length = value.size();
-    const char* length_bytes = reinterpret_cast<const char*>(&length);
-    data_buffer_.insert(data_buffer_.end(), length_bytes, length_bytes + sizeof(int));
+    write_data<int>(length, offset);
 
     // Then write the string data
     data_buffer_.insert(data_buffer_.end(), value.begin(), value.end());
 
-    // Store metadata - offset is relative to the beginning of the data buffer
-    data_map_[key] = { offset, sizeof(int) + value.size() };
-    
-    std::cout << "BinarySerializer::write - Added string key: " << key 
-              << ", value: " << value << ", offset: " << offset 
-              << ", size: " << (sizeof(int) + value.size()) << std::endl;
+    // Store metadata - offset is at the beginning of our write
+    data_map_[key] = { offset - sizeof(int), sizeof(int) + value.size() };
 }
 
 void BinarySerializer::write(const std::string& key, int value)
 {
-    // Record the current position
     size_t offset = data_buffer_.size();
-
-    // Convert to bytes (handle endianness if needed)
-    int to_write = value;
-    if (is_little_endian_ != system_is_little_endian()) {
-        to_write = reverse_byte_order(value);
-    }
-
-    // Append to buffer
-    const char* bytes = reinterpret_cast<const char*>(&to_write);
-    data_buffer_.insert(data_buffer_.end(), bytes, bytes + sizeof(int));
-
-    // Store metadata - offset is relative to the beginning of the data buffer
-    data_map_[key] = { offset, sizeof(int) };
-    
-    std::cout << "BinarySerializer::write - Added int key: " << key 
-              << ", value: " << value << ", offset: " << offset 
-              << ", size: " << sizeof(int) << std::endl;
+    write_data<int>(value, offset);
+    data_map_[key] = { offset - sizeof(int), sizeof(int) };
 }
 
 void BinarySerializer::write(const std::string& key, float value)
 {
-    // Record the current position
     size_t offset = data_buffer_.size();
-
-    // Convert to bytes (handle endianness if needed)
-    float to_write = value;
-    if (is_little_endian_ != system_is_little_endian()) {
-        to_write = reverse_byte_order(value);
-    }
-
-    // Append to buffer
-    const char* bytes = reinterpret_cast<const char*>(&to_write);
-    data_buffer_.insert(data_buffer_.end(), bytes, bytes + sizeof(float));
-
-    // Store metadata - offset is relative to the beginning of the data buffer
-    data_map_[key] = { offset, sizeof(float) };
-    
-    std::cout << "BinarySerializer::write - Added float key: " << key 
-              << ", value: " << value << ", offset: " << offset 
-              << ", size: " << sizeof(float) << std::endl;
+    write_data<float>(value, offset);
+    data_map_[key] = { offset - sizeof(float), sizeof(float) };
 }
 
 void BinarySerializer::write(const std::string& key, bool value)
 {
-    // Record the current position
     size_t offset = data_buffer_.size();
-
-    // Convert to bytes
     char byte = value ? 1 : 0;
-
-    // Append to buffer
     data_buffer_.push_back(byte);
-
-    // Store metadata - offset is relative to the beginning of the data buffer
     data_map_[key] = { offset, sizeof(char) };
-    
-    std::cout << "BinarySerializer::write - Added bool key: " << key 
-              << ", value: " << (value ? "true" : "false") << ", offset: " << offset 
-              << ", size: " << sizeof(char) << std::endl;
 }
 
 bool BinarySerializer::read(const std::string& key, std::string& value)
 {
-    std::cout << "BinarySerializer::read - Attempting to read string key: " << key << std::endl;
-    
     auto it = data_map_.find(key);
-    if (it == data_map_.end()) {
-        std::cout << "BinarySerializer::read - Key not found in data_map_" << std::endl;
-        return false;
-    }
-    
-    if (it->second.first + sizeof(int) > data_buffer_.size()) {
-        std::cout << "BinarySerializer::read - Offset + size exceeds buffer size" << std::endl;
-        return false;
-    }
+    if (it == data_map_.end()) return false;
 
-    // Read string length
     size_t offset = it->second.first;
-    int length;
-    std::memcpy(&length, &data_buffer_[offset], sizeof(int));
 
-    if (offset + sizeof(int) + length > data_buffer_.size()) {
-        std::cout << "BinarySerializer::read - String length exceeds buffer size" << std::endl;
+    // Read string length first
+    int length;
+    if (!read_data<int>(length, offset, sizeof(int))) 
+    {
         return false;
     }
+
+    // Verify that the rest of the data is available
+    if (offset + sizeof(int) + length > data_buffer_.size()) return false;
 
     // Read string data
     value.assign(data_buffer_.data() + offset + sizeof(int), length);
-    
-    std::cout << "BinarySerializer::read - Successfully read string value: " << value << std::endl;
+
     return true;
 }
 
 bool BinarySerializer::read(const std::string& key, int& value)
 {
-    std::cout << "BinarySerializer::read - Attempting to read int key: " << key << std::endl;
-    
     auto it = data_map_.find(key);
-    if (it == data_map_.end()) {
-        std::cout << "BinarySerializer::read - Key not found in data_map_" << std::endl;
-        return false;
-    }
-    
-    if (it->second.first + it->second.second > data_buffer_.size()) {
-        std::cout << "BinarySerializer::read - Offset + size exceeds buffer size" << std::endl;
-        return false;
-    }
+    if (it == data_map_.end()) return false;
 
-    // Read bytes from buffer
     size_t offset = it->second.first;
     size_t size = it->second.second;
 
-    if (size != sizeof(int)) {
-        std::cout << "BinarySerializer::read - Size mismatch: expected " << sizeof(int) 
-                  << ", got " << size << std::endl;
-        return false;
-    }
-
-    // Copy bytes to value
-    std::memcpy(&value, &data_buffer_[offset], size);
-
-    // Handle endianness if needed
-    if (is_little_endian_ != system_is_little_endian()) {
-        value = reverse_byte_order(value);
-    }
-
-    std::cout << "BinarySerializer::read - Successfully read int value: " << value << std::endl;
-    return true;
+    return read_data<int>(value, offset, size);
 }
 
 bool BinarySerializer::read(const std::string& key, float& value)
 {
-    std::cout << "BinarySerializer::read - Attempting to read float key: " << key << std::endl;
-    
     auto it = data_map_.find(key);
-    if (it == data_map_.end()) {
-        std::cout << "BinarySerializer::read - Key not found in data_map_" << std::endl;
-        return false;
-    }
-    
-    if (it->second.first + it->second.second > data_buffer_.size()) {
-        std::cout << "BinarySerializer::read - Offset + size exceeds buffer size" << std::endl;
-        return false;
-    }
+    if (it == data_map_.end()) return false;
 
-    // Read bytes from buffer
     size_t offset = it->second.first;
     size_t size = it->second.second;
 
-    if (size != sizeof(float)) {
-        std::cout << "BinarySerializer::read - Size mismatch: expected " << sizeof(float) 
-                  << ", got " << size << std::endl;
-        return false;
-    }
-
-    // Copy bytes to value
-    std::memcpy(&value, &data_buffer_[offset], size);
-
-    // Handle endianness if needed
-    if (is_little_endian_ != system_is_little_endian()) {
-        value = reverse_byte_order(value);
-    }
-
-    std::cout << "BinarySerializer::read - Successfully read float value: " << value << std::endl;
-    return true;
+    return read_data<float>(value, offset, size);
 }
 
 bool BinarySerializer::read(const std::string& key, bool& value)
 {
-    std::cout << "BinarySerializer::read - Attempting to read bool key: " << key << std::endl;
-    
     auto it = data_map_.find(key);
-    if (it == data_map_.end()) {
-        std::cout << "BinarySerializer::read - Key not found in data_map_" << std::endl;
-        return false;
-    }
-    
-    if (it->second.first + it->second.second > data_buffer_.size()) {
-        std::cout << "BinarySerializer::read - Offset + size exceeds buffer size" << std::endl;
-        return false;
-    }
+    if (it == data_map_.end()) return false;
 
-    // Read bytes from buffer
     size_t offset = it->second.first;
     size_t size = it->second.second;
 
-    if (size != sizeof(char)) {
-        std::cout << "BinarySerializer::read - Size mismatch: expected " << sizeof(char) 
-                  << ", got " << size << std::endl;
-        return false;
-    }
+    if (size != sizeof(char)) return false;
 
-    // Read bool value
+    // Boolean values are stored as a single byte
     char byte;
     std::memcpy(&byte, &data_buffer_[offset], size);
     value = byte != 0;
 
-    std::cout << "BinarySerializer::read - Successfully read bool value: " << (value ? "true" : "false") << std::endl;
     return true;
 }
 

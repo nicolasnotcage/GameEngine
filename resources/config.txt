@@ -1,6 +1,6 @@
 # Configuration File
-# Generated on: Apr  2 2025 12:04:29
+# Generated on: Apr  2 2025 15:53:32
 
-screen_width = 1920
-screen_height = 1080
-target_frame_rate = 60
+screen_width = 800
+screen_height = 600
+music_enabled = true

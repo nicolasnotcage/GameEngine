@@ -12,42 +12,36 @@ For more information, please refer to <https://unlicense.org>
 
 namespace cge
 {
+ConfigManager& ConfigManager::get_instance()
+{
+    static ConfigManager instance;
+    return instance;
+}
 
-    ConfigManager* ConfigManager::instance_ = nullptr;
-
-    ConfigManager* ConfigManager::get_instance()
+ConfigManager::~ConfigManager()
+{
+    // Save config when destroyed
+    if (is_loaded_)
     {
-        if (instance_ == nullptr)
-        {
-            instance_ = new ConfigManager();
-        }
-        return instance_;
+        save();
     }
-
-    ConfigManager::~ConfigManager()
-    {
-        // Save config when destroyed
-        if (is_loaded_)
-        {
-            save();
-        }
-    }
+}
 
 bool ConfigManager::init(const std::string& config_filepath)
 {
-    // First check if the file exists using file_locator
+    // Check if file exists
     auto file_info = locate_path_for_filename(config_filepath);
-    if (file_info.found)
+
+    if (file_info.found) 
     {
-        // Use the full path from file_locator
+        // Use file path if found
         config_filepath_ = file_info.path;
-        std::cout << "Found existing config file at: " << config_filepath_ << std::endl;
     }
     else
     {
         // Use the resources directory for the config file
+        // TODO: Write to a more appropriate directory
         config_filepath_ = "../resources/" + config_filepath;
-        std::cout << "Will create new config file at: " << config_filepath_ << std::endl;
     }
 
     // Check if file exists
@@ -65,86 +59,86 @@ bool ConfigManager::init(const std::string& config_filepath)
     return load();
 }
 
-    bool ConfigManager::save()
+bool ConfigManager::save()
+{
+    if (!serializer_.open(config_filepath_, true))
     {
-        if (!serializer_.open(config_filepath_, true))
-        {
-            std::cerr << "Failed to open config file for writing: " << config_filepath_ << std::endl;
-            return false;
-        }
-
-        // Write all config values
-        serializer_.write("target_frame_rate", target_frame_rate_);
-        serializer_.write("screen_width", screen_width_);
-        serializer_.write("screen_height", screen_height_);
-
-        bool result = serializer_.save();
-        serializer_.close();
-
-        return result;
+        std::cerr << "Failed to open config file for writing: " << config_filepath_ << std::endl;
+        return false;
     }
 
-    bool ConfigManager::load()
+    // Write all config values
+    serializer_.write("screen_width", screen_width_);
+    serializer_.write("screen_height", screen_height_);
+    serializer_.write("music_enabled", music_enabled_);
+
+    bool result = serializer_.save();
+    serializer_.close();
+
+    return result;
+}
+
+bool ConfigManager::load()
+{
+    if (!serializer_.open(config_filepath_, false))
     {
-        if (!serializer_.open(config_filepath_, false))
-        {
-            std::cerr << "Failed to open config file for reading: " << config_filepath_ << std::endl;
-            return false;
-        }
-
-        // Read all config values, keep default if not found
-        serializer_.read("target_frame_rate", target_frame_rate_);
-        serializer_.read("screen_width", screen_width_);
-        serializer_.read("screen_height", screen_height_);
-
-        serializer_.close();
-        is_loaded_ = true;
-
-        return true;
+        std::cerr << "Failed to open config file for reading: " << config_filepath_ << std::endl;
+        return false;
     }
 
-    bool ConfigManager::create_default_config()
-    {
-        // Reset to default values
-        target_frame_rate_ = 60;
-        screen_width_ = 800;
-        screen_height_ = 600;
+    // Read all config values, keep default if not found
+    serializer_.read("screen_width", screen_width_);
+    serializer_.read("screen_height", screen_height_);
+    serializer_.read("music_enabled", music_enabled_);
 
-        // Save the defaults
-        bool result = save();
-        is_loaded_ = result;
+    serializer_.close();
+    is_loaded_ = true;
 
-        return result;
-    }
+    return true;
+}
 
-    int ConfigManager::get_target_frame_rate() const
-    {
-        return target_frame_rate_;
-    }
+bool ConfigManager::create_default_config()
+{
+    // Reset to default values
+    screen_width_ = 800;
+    screen_height_ = 600;
+    music_enabled_ = true;
 
-    void ConfigManager::set_target_frame_rate(int fps)
-    {
-        target_frame_rate_ = fps;
-    }
+    // Save the defaults
+    bool result = save();
+    is_loaded_ = result;
+
+    return result;
+}
     
-    int ConfigManager::get_screen_width() const
-    {
-        return screen_width_;
-    }
+int ConfigManager::get_screen_width() const
+{
+    return screen_width_;
+}
     
-    void ConfigManager::set_screen_width(int width)
-    {
-        screen_width_ = width;
-    }
+void ConfigManager::set_screen_width(int width)
+{
+    screen_width_ = width;
+}
     
-    int ConfigManager::get_screen_height() const
-    {
-        return screen_height_;
-    }
+int ConfigManager::get_screen_height() const
+{
+    return screen_height_;
+}
     
-    void ConfigManager::set_screen_height(int height)
-    {
-        screen_height_ = height;
-    }
+void ConfigManager::set_screen_height(int height)
+{
+    screen_height_ = height;
+}
+
+bool ConfigManager::get_music_enabled() const
+{
+    return music_enabled_;
+}
+
+void ConfigManager::set_music_enabled(bool enabled)
+{
+    music_enabled_ = enabled;
+}
 
 } // namespace cge

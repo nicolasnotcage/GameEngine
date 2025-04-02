@@ -14,6 +14,7 @@ For more information, please refer to <https://unlicense.org>
 #include "system/file_locator.hpp"
 #include "system/serializer.hpp"
 #include "system/save_manager.hpp"
+#include "system/config_manager.hpp"
 
 #include <iostream>
 
@@ -103,21 +104,15 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     auto *golem_audio = golem_transform.add_audio_component();
     golem_audio->set_sound("npc_clap");
 
-    // Only set default position if no save file exists
-    // If a save file exists, the position will be loaded in deserialize()
-    if (!SaveManager::get_instance()->save_exists()) {
-        // Use default position
-        witch_transform.right_translate(1.0f, 0.0f);
-        std::cout << "Using default player position: 1.0, 0.0" << std::endl;
-    }
-    
-    // Always apply scaling
+    // Set witch transform if no save file exists
+    if (!SaveManager::get_instance().save_exists()) witch_transform.right_translate(1.0f, 0.0f);
+
+    // Scale witch
     witch_transform.right_scale(3.0f, 3.0f);
 
-    // Add audio to witch with delay
+    // Add audio to witch
     auto *witch_audio = witch_transform.add_audio_component();
     witch_audio->set_sound("player_clap");
-    witch_audio->set_echo(true, 160.0f, 75.0f); // Use 350ms delay time for a nice single clap repeat
 
     // Set camera to follow player (witch)
     camera.set_target(&witch_transform, true);
@@ -135,22 +130,12 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     // Begin theme music at low volume
     AudioEngine::get_instance()->play_sound("theme_music", 0.2f);
 
+    // Mute theme music if configuration set
+    bool music_enabled = ConfigManager::get_instance().get_music_enabled();
+    if (!music_enabled) AudioEngine::get_instance()->get_channel(3)->setMute(true);
+ 
     // Initialize root node
     root_.init(scene_state_);
-    
-    // Note: If this scene was loaded from a save file before initialization,
-    // the deserialize method has already been called, but the positions haven't been applied
-    // because the nodes weren't initialized yet. We need to manually apply the positions.
-    if (SaveManager::get_instance()->save_exists())
-    {
-        // Get the witch transform node
-        auto &camera = root_.get_child<0>();
-        auto &witch_transform = camera.get_child<2>();
-        
-        // Print the loaded position
-        std::cout << "Applying saved player position: " << witch_transform.get_position_x() 
-                  << ", " << witch_transform.get_position_y() << std::endl;
-    }
 }
 
 void MainScene::setup_golem_animations()
@@ -414,6 +399,13 @@ void MainScene::register_collision_component(CollisionComponent *component)
             }
             break;
         }
+        
+        else if (actions.actions[i] == GameAction::TOGGLE_MUSIC) 
+        {
+            // Toggle music
+            AudioEngine::get_instance()->toggle_music();
+            break;
+        }
     }
     
     // Update FMOD system once per tick; per FMOD Core documentation
@@ -423,77 +415,27 @@ void MainScene::register_collision_component(CollisionComponent *component)
 // Serialization overrides
 void MainScene::serialize(Serializer& serializer) const
 {
-    // Serialize camera position
-    auto &camera = root_.get_child<0>();
-    
     // Serialize player (witch) position
+    auto &camera = root_.get_child<0>();
     auto &witch_transform = camera.get_child<2>();
+
     // Directly write position to make sure it's saved with consistent keys
     float player_x = witch_transform.get_position_x();
     float player_y = witch_transform.get_position_y();
     serializer.write("player_x", player_x);
     serializer.write("player_y", player_y);
-    
-    std::cout << "MainScene::serialize - Saving player position: " 
-              << player_x << ", " << player_y << std::endl;
-    
-    // Serialize audio timers
-    serializer.write("npc_audio_timer", npc_audio_timer_);
-    serializer.write("time_to_laugh", time_to_laugh_);
-    serializer.write("has_laughed", has_laughed_);
 }
 
 void MainScene::deserialize(Serializer& serializer)
-{
-    std::cout << "MainScene::deserialize - Starting deserialization" << std::endl;
-    
-    // Deserialize camera position
-    auto &camera = root_.get_child<0>();
-    
+{    
     // Deserialize player (witch) position
+    auto &camera = root_.get_child<0>();
     auto &witch_transform = camera.get_child<2>();
-    
-    // Read position directly from serializer using the same keys as in serialize
     float player_x = 0.0f, player_y = 0.0f;
     if (serializer.read("player_x", player_x) && serializer.read("player_y", player_y)) 
-    {
-        std::cout << "MainScene::deserialize - Read player position from serializer: " 
-                  << player_x << ", " << player_y << std::endl;
-                  
-        // Apply position directly
+    {          
         witch_transform.set_position(player_x, player_y);
-        
-        // Verify position was set
-        std::cout << "MainScene::deserialize - Player position after set: " 
-                  << witch_transform.get_position_x() << ", " 
-                  << witch_transform.get_position_y() << std::endl;
     }
-    else
-    {
-        std::cout << "MainScene::deserialize - Failed to read player position from serializer" << std::endl;
-        
-        // Try the old keys for backward compatibility
-        if (serializer.read("position_x", player_x) && serializer.read("position_y", player_y)) 
-        {
-            std::cout << "MainScene::deserialize - Read player position using old keys: " 
-                      << player_x << ", " << player_y << std::endl;
-            witch_transform.set_position(player_x, player_y);
-        }
-        else
-        {
-            // Also try the standard deserialization
-            witch_transform.deserialize(serializer);
-        }
-    }
-    
-    // Deserialize audio timers
-    serializer.read("npc_audio_timer", npc_audio_timer_);
-    serializer.read("time_to_laugh", time_to_laugh_);
-    serializer.read("has_laughed", has_laughed_);
-    
-    std::cout << "Scene deserialized successfully!" << std::endl;
-    std::cout << "Player position: " << witch_transform.get_position_x() << ", " 
-              << witch_transform.get_position_y() << std::endl;
 }
 
 } // namespace cge
