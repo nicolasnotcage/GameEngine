@@ -23,6 +23,8 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/path.hpp"
 #include "platform/scene.hpp"
 
+#include <string>
+
 namespace cge
 {
 
@@ -81,6 +83,12 @@ class MainScene : public Scene
     float time_to_laugh_{0.0f};
     bool  has_laughed_{false};
     int   laugh_channel_id{-1};
+
+    // Serializer tests
+    float test_float_{0.0};
+    int test_int_{0};
+    bool test_bool_{true};
+    std::string test_string_{"test"};
 };
 
 } // namespace cge

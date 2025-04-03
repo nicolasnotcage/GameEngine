@@ -98,6 +98,9 @@ int main(int argc, char *argv[])
     // Save game state after loop ends
     // TODO: Need to modify this to use the scene stack. Or should we only be concerned with the active scene?
     save_manager.save_game(main_scene);
+
+    // Increment config test files
+    config_manager.increment_test_values();
     
     // Cleanup after game loop
     scene_manager->clear_all_scenes();

@@ -15,6 +15,7 @@ For more information, please refer to <https://unlicense.org>
 #include "system/serializer.hpp"
 #include "system/save_manager.hpp"
 #include "system/config_manager.hpp"
+#include "system/string_utils.hpp"
 
 #include <iostream>
 
@@ -133,7 +134,15 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     // Mute theme music if configuration set
     bool music_enabled = ConfigManager::get_instance().get_music_enabled();
     if (!music_enabled) AudioEngine::get_instance()->get_channel(3)->setMute(true);
- 
+
+    // Modify test serializer values
+    test_float_ += 0.1;
+    test_int_ += 1;
+    test_bool_ = !test_bool_;
+
+    if (test_bool_) test_string_ = cge::utility::to_lower(test_string_);
+    else test_string_ = cge::utility::to_upper(test_string_);
+
     // Initialize root node
     root_.init(scene_state_);
 }
@@ -424,6 +433,17 @@ void MainScene::serialize(Serializer& serializer) const
     float player_y = witch_transform.get_position_y();
     serializer.write("player_x", player_x);
     serializer.write("player_y", player_y);
+
+    // Serialize test values
+    serializer.write("test_float", test_float_);
+    serializer.write("test_int", test_int_);
+    serializer.write("test_bool", test_bool_);
+    serializer.write("test_string", test_string_);
+
+    std::cout << "Serialized Test Values\nTest Float: " << test_float_
+              << "\nTest Int: " << test_int_ 
+              << "\nTest Bool: " << test_bool_
+              << "\nTest String: " << test_string_ << "\n";
 }
 
 void MainScene::deserialize(Serializer& serializer)
@@ -436,6 +456,17 @@ void MainScene::deserialize(Serializer& serializer)
     {          
         witch_transform.set_position(player_x, player_y);
     }
+
+    // Serialize test values
+    serializer.read("test_float", test_float_);
+    serializer.read("test_int", test_int_);
+    serializer.read("test_bool", test_bool_);
+    serializer.read("test_string", test_string_);
+
+    std::cout << "Deserialized Test Values\nTest Float: " << test_float_
+              << "\nTest Int: " << test_int_ 
+              << "\nTest Bool: " << test_bool_
+              << "\nTest String: " << test_string_ << "\n";
 }
 
 } // namespace cge

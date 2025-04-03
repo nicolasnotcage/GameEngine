@@ -14,7 +14,7 @@ namespace utility
 {
 
 // Helper methods from lecture notes
-std::vector<std::string> lines_from_file(const std::string& path)
+inline std::vector<std::string> lines_from_file(const std::string& path)
 {
     std::vector<std::string> lines;
     std::ifstream file(path);
@@ -30,7 +30,7 @@ std::vector<std::string> lines_from_file(const std::string& path)
     return lines;
 }
 
-std::vector<std::string> split(const std::string& str, const std::string& delimiter)
+inline std::vector<std::string> split(const std::string& str, const std::string& delimiter)
 {
     std::vector<std::string> tokens;
     size_t start = 0;
@@ -45,7 +45,7 @@ std::vector<std::string> split(const std::string& str, const std::string& delimi
     return tokens;
 }
 
-std::string trim(const std::string& s)
+inline std::string trim(const std::string& s)
 {
     const char* whitespace = " \t\n\r\f\v";
     size_t start = s.find_first_not_of(whitespace);
@@ -54,7 +54,7 @@ std::string trim(const std::string& s)
     return s.substr(start, end - start + 1);
 }
 
-std::string to_upper(const std::string& s)
+inline std::string to_upper(const std::string& s)
 {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(),
@@ -62,7 +62,7 @@ std::string to_upper(const std::string& s)
     return result;
 }
 
-std::string to_lower(const std::string& s)
+inline std::string to_lower(const std::string& s)
 {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(),
