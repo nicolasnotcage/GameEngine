@@ -18,6 +18,7 @@ ConfigManager& ConfigManager::get_instance()
     return instance;
 }
 
+// TODO: Add a destroy() method to handle this behavior
 ConfigManager::~ConfigManager()
 {
     // Save config when destroyed

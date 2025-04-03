@@ -72,7 +72,6 @@ bool TextSerializer::save()
     // Write data
     for (const auto& [key, value] : data_)
     {
-        
         std::cout << "TextSerializer::save - Key: " << key << ", Value: " << value
             << std::endl;
 
@@ -191,14 +190,16 @@ bool BinarySerializer::open(const std::string& filepath, bool write_mode)
         file.read(reinterpret_cast<char*>(&num_entries), sizeof(int));
 
         // Read each key-value pair
-        for (int i = 0; i < num_entries; i++) {
+        for (int i = 0; i < num_entries; i++) 
+        {
             // Read key length
             int key_length;
             file.read(reinterpret_cast<char*>(&key_length), sizeof(int));
 
-            // Read key
-            std::string key(key_length, '\0');
-            file.read(&key[0], key_length);
+            // Preallocate string size and read key
+            std::string key;
+            key.resize(key_length);
+            file.read(key.data(), key_length);
 
             // Read data size
             size_t data_size;
@@ -215,6 +216,8 @@ bool BinarySerializer::open(const std::string& filepath, bool write_mode)
 
             // Store in map
             data_map_[key] = { offset, data_size };
+
+            std::cout << "BinarySerializer - Read key: " << key << "\n";
         }
 
         file.close();
@@ -241,7 +244,8 @@ bool BinarySerializer::save()
     file.write(reinterpret_cast<const char*>(&num_entries), sizeof(int));
 
     // Write each key-value pair sequentially
-    for (const auto& [key, value_pair] : data_map_) {
+    for (const auto& [key, value_pair] : data_map_) 
+    {
         // Write key length
         int key_length = key.size();
         file.write(reinterpret_cast<const char*>(&key_length), sizeof(int));
@@ -255,6 +259,8 @@ bool BinarySerializer::save()
 
         // Write data content
         file.write(&data_buffer_[value_pair.first], data_size);
+
+        std::cout << "BinarySerializer - Save key: " << key << "\n";
     }
 
     file.close();
@@ -263,18 +269,22 @@ bool BinarySerializer::save()
 
 void BinarySerializer::write(const std::string& key, const std::string& value)
 {
-    // Record the current position
-    size_t offset = data_buffer_.size();
+    // Get offset
+    size_t start_offset = data_buffer_.size();
 
-    // Write the string length first
-    int length = value.size();
-    write_data<int>(length, offset);
+    // Get and write size of string
+    size_t current_offset = start_offset;
+    uint32_t length = value.size();
+    write_data<uint32_t>(length, current_offset);
 
-    // Then write the string data
+    // Write string data
     data_buffer_.insert(data_buffer_.end(), value.begin(), value.end());
 
-    // Store metadata - offset is at the beginning of our write
-    data_map_[key] = { offset - sizeof(int), sizeof(int) + value.size() };
+    // Store total size
+    size_t total_size = sizeof(uint32_t) + value.size();
+
+    // Store data using the starting offset
+    data_map_[key] = { start_offset, total_size };
 }
 
 void BinarySerializer::write(const std::string& key, int value)
@@ -307,17 +317,14 @@ bool BinarySerializer::read(const std::string& key, std::string& value)
     size_t offset = it->second.first;
 
     // Read string length first
-    int length;
-    if (!read_data<int>(length, offset, sizeof(int))) 
-    {
-        return false;
-    }
-
+    uint32_t length;
+    if (!read_data<uint32_t>(length, offset, sizeof(uint32_t))) return false;
+   
     // Verify that the rest of the data is available
-    if (offset + sizeof(int) + length > data_buffer_.size()) return false;
+    if (offset + sizeof(uint32_t) + length > data_buffer_.size()) return false;
 
     // Read string data
-    value.assign(data_buffer_.data() + offset + sizeof(int), length);
+    value = std::string(data_buffer_.data() + offset + sizeof(uint32_t), length);
 
     return true;
 }

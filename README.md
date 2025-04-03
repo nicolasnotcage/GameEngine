@@ -15,6 +15,13 @@ A modular 2D game engine written in modern C++ with SDL. Designed with real-time
 
 ## 🧩 Core Systems
 
+### 💾 Serialization
+- Flexible serialization framework with text and binary formats
+- Serializable interface for game objects with consistent save/load behavior
+- SaveManager for centralized game state persistence
+- Automatic endianness handling for cross-platform binary compatibility
+- Key-value based storage with strong type safety
+
 ### 🖼️ Animation
 - Frame-based sprite animation with shared texture grids
 - Looping, one-shot, and dynamic switching (e.g. run → idle)
@@ -46,6 +53,7 @@ The provided `MainScene` demonstrates:
 - NPC clap behavior with timers
 - Collision boundaries and NPC/player interactions
 - Scene-rooted camera with entity follow targeting
+- Serialization of player position between game sessions
 
 ---
 
@@ -67,7 +75,7 @@ This project is designed to be built and run directly in **Visual Studio (Window
 - ✅ Audio Engine
 - ✅ Collision System
 - ✅ Dynamic Scene Stack
-- 🟡 Serialization
+- ✅ Serialization
 - 🟡 UI Layer & Menus
   
 ---
@@ -78,7 +86,7 @@ This project is designed to be built and run directly in **Visual Studio (Window
 graph/          → Node types: TransformNode, SpriteNode, CameraNode, etc.
 platform/       → Core engine modules (input, audio, collisions, config)
 examples/       → MainScene demo setup with animated sprites and interactions
-system/         → File path management, configuration, and utilities
+system/         → File path management, serialization, configuration, and utilities
 ```
 
 ## 🧾 License

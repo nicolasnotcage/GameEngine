@@ -1,18 +1,27 @@
-Last Update: 3/26/25
-New Classes: AudioEngine, AudioComponent, MainScene
-Updated Classes: TransformNode, Event, GameAction, InputInterpreter
+Last Update: 4/2/25
+New Classes: Serializer, TextSerializer, BinarySerializer, Serializable, SaveManager, ConfigManager, string_utils.hpp
+Updated Classes: MainScene, main
 
 Usage
-The game's theme music plays upon program initialization. The Golem NPC plays a clapping sound once every three seconds. The player character can press Space to play a different clapping sound with an echo effect. If the player walks through the Golem, another sound effect will play. All audio sourced from Splice, which I have an active subscription for. 
  
 Implementation Notes
-1) New AudioEngine and AudioComponent classes were added. The AudioEngine is a singleton that handles the FMOD system and individual sound clips and playback. AudioComponents represent singular audio objects to be attached to game objects. TransformNodes can be configured with audio components. The echo effect is present and configurable. I'd like to add some more effects in later updates, maybe generalizing the DSP interface a bit so I can build and add effects on the fly. 
+1) The Serializer, TextSerializer, and BinarySerializer took me quite a bit of time this week. My instinct was to use an abstract Serializer class with derived Text and Binary serialization classes, and this is how I ended up approaching the problem. In addition to the actual serialization classes, I define an abstract Serializable class (described below) and singleton SaveManager (for saving/loading binary game state data) and ConfigManager (for saving/loading user preferences in plaintext). 
 
-2) Channel management proved to be a bit of a pain point. While dry sounds were correctly being loaded into separate channels, they would sometimes cut each other off despite being assigned to separate channels. After assigning individual sounds to reserved channels, the problem was resolved. 
+2) The TextSerializer was actually pretty straightforward. I defined the recommended string utiltiies in the string_utils.hpp file, creating a new cge::utility namespace. Serialization for text files simply parses input documents and formats output documents with user-defined preferences. Currently, the ConfigManager handles screen resolution and game music but can be extended to support more configuration values. Note that if you modify the screen resolution, it works, but there's a glitch with the camera (it doesn't center on the player). I'll figure that one out as I push towards the final project deliverable.
 
-3) I tried adding support for spatial audio, but I wasn't quite able to get it to work on this attempt. Ideally, the golem's clapping should be positioned relative to the player position. This is something that I'll flesh out as I work towards the final project. 
+3) The BinarySerializer is where I spent a majority of my time. In the end, I utilized the given templated functions as a starting point, which simplified things a bit. My BinarySerializer utilizes two primary data members: a vector representing a character buffer of raw data and a map of string keys to {offset, data_size} pairs. Raw binary data is stored within the character buffer, and the map can be used to get data from that buffer by providing an offset into the buffer and the size of the data stored at the offset. The binary save data always begins with an integer value representing the number of items within the file and is then composed of blocks of [key size, key value, data size, data value]. It looks something like:
 
-4) I made a more "square" game map that will be used for my final project. I also made the golem an NPC and the witch player-controlled. The player now has a "clap" action that they can use by pressing the spacebar. This will eventually change to a "whistle", and invisible NPCs in range will respond with a "clap", which the player will use to find them.
+    [Number of entries: int]
+    [Key length: int]
+    [Key string: char array]
+    [Data size: size_t]
+    [Data value: bytes]
+    [Next entry...]
 
-Question
-Like I mentioned in my email, I'm very interested in audio programming and synthesis (I have a lot of hardware, modular, and software synthesizers and some limited experience in embedded music software and general audio plug-in development). Spatial audio for games is new to me, but I'm very interested in it. Do you have any suggested research focuses for my component survey?
+Endianness is handled by the given template functions. Currently, the game is loaded at the start of the program and saved at the end. I hope to soon add a menu where the user can save the game and also a key combination (CTRL+S) that the user can use to save in-game. 
+
+4) To handle text and binary serialization, I define the ConfigManager and SaveManager classes. Configurations are plaintext user preference files and hold a TextSerializer object, and Saves represent game state and hold a BinarySerializer object. These classes are used to manage the overall configuration/save processes and are initialized in main. 
+
+5) For serializing data within the program, I toyed around with the idea of using the visitor pattern, but I couldn't quite figure out how to make it work. In the end, I settled on a dedicated abstract Serializable class that classes can implement, which provides functions for serialization/deserialization. Admittedly, this complicates things a bit by adding a more complex inheritance structure, especially for nodes that then inherit from both the Node class and the Serializable class. Originally, I had TransformNodes inherit from Serializable, but I ended up just implementing it for my scene directly, which serializes node-specific data as needed.
+
+6) Regarding the file system, I opted to use the resources directory for this project for simplicity but will try to find time to change this so that the solution is more consistent with normal standards.

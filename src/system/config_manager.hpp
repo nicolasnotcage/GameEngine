@@ -11,6 +11,7 @@ namespace cge
 
 class TextSerializer;
 
+// A singleton class for managing game configuration. 
 class ConfigManager
 {
 public:

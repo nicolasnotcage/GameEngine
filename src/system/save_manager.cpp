@@ -21,9 +21,9 @@ SaveManager& SaveManager::get_instance()
     return instance;
 }
 
+// TODO: Add a destroy() method to handle this behavior.
 SaveManager::~SaveManager()
 {
-    // Ensure any pending saves are completed
     if (is_loaded_)
     {
         serializer_.close();
