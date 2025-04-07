@@ -70,7 +70,7 @@ bool SaveManager::save_game(const Scene* scene)
     return result;
 }
 
-bool SaveManager::load_game(const Scene* scene)
+bool SaveManager::load_game(Scene* scene)
 {
     if (!scene || !is_loaded_) return false;
 
@@ -87,7 +87,64 @@ bool SaveManager::load_game(const Scene* scene)
     }
 
     // Load game state by delegating to the Scene
-    const_cast<Scene*>(scene)->deserialize(serializer_);    
+    scene->deserialize(serializer_);    
+    serializer_.close();
+    
+    return true;
+}
+
+bool SaveManager::save_game_state(const std::vector<Scene*>& scenes)
+{
+    if (scenes.empty() || !is_loaded_) return false;
+
+    if (!serializer_.open(save_filepath_, true))
+    {
+        std::cerr << "Failed to open save file for writing: " << save_filepath_ << std::endl;
+        return false;
+    }
+
+    // Save each scene
+    size_t num_scenes = scenes.size();
+    for (size_t i = 0; i < num_scenes; ++i)
+    {
+        // Save scene state
+        if (scenes[i]) scenes[i]->serialize(serializer_);
+    }
+
+    // Save and close serializer
+    bool result = serializer_.save();
+    serializer_.close();
+    
+    return result;
+}
+
+bool SaveManager::load_game_state(std::vector<Scene*>& scenes)
+{
+    if (scenes.empty() || !is_loaded_) return false;
+
+    if (!save_exists())
+    {
+        std::cerr << "No save file found at: " << save_filepath_ << std::endl;
+        return false;
+    }
+
+    if (!serializer_.open(save_filepath_, false))
+    {
+        std::cerr << "Failed to open save file for reading: " << save_filepath_ << std::endl;
+        return false;
+    }
+
+    // Deserialize each scene
+    size_t num_scenes = scenes.size();
+    for (size_t i = 0; i < num_scenes; ++i)
+    {
+        if (scenes[i])
+        {
+            // Load scene state
+            scenes[i]->deserialize(serializer_);
+        }
+    }
+
     serializer_.close();
     
     return true;
