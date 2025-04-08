@@ -1,10 +1,10 @@
 # Configuration File
-# Generated on: Apr  2 2025 21:32:45
+# Generated on: Apr  7 2025 17:37:43
 
 screen_width = 800
 screen_height = 600
 test string = test
 test_bool = true
 music_enabled = false
-test_int = 2
-test_float = 0.300000
+test_int = 38
+test_float = 3.900000

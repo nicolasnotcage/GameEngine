@@ -55,9 +55,25 @@ void TransformNode::update(SceneState &scene_state)
 
 void TransformNode::set_identity() { transform_.set_identity(); }
 
-void TransformNode::left_scale(float x, float y) { transform_.left_scale(x, y); }
+void TransformNode::left_scale(float x, float y) 
+{ 
+    // Update scale values
+    scale_x_ += x;
+    scale_y_ += y;
 
-void TransformNode::right_scale(float x, float y) { transform_.right_scale(x, y); }
+    // Perform scale
+    transform_.left_scale(x, y); 
+}
+
+void TransformNode::right_scale(float x, float y) 
+{
+    // Update scale values
+    scale_x_ += x;
+    scale_y_ += y;
+
+    // Perform scale
+    transform_.right_scale(x, y); 
+}
 
 // Convert degrees to radians and perform rotation
 void TransformNode::left_rotate_degrees(float angle_deg)
@@ -97,7 +113,7 @@ bool TransformNode::is_moving() const
     return movement_controller_ && movement_controller_->is_moving();
 }
 
-// Returns the movement direction of the stored movement controller. 
+// Returns the movement direction of the stored movement controller.
 MoveDirection TransformNode::get_move_direction() const
 {
     return movement_controller_ ? movement_controller_->get_direction() : MoveDirection::NONE;

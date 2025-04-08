@@ -11,6 +11,7 @@ For more information, please refer to <https://unlicense.org>
 #include "system/preprocessor.h"
 
 #include "examples/main_scene.hpp"
+#include "examples/main_menu.hpp"
 
 #include "platform/game_manager.hpp"
 #include "platform/io_handler.hpp"
@@ -65,21 +66,26 @@ int main(int argc, char *argv[])
         std::cout << "Save manager initialized\n";
     }
 
+    // Create main menu scene
+    cge::MainMenuScene *main_menu_scene = new cge::MainMenuScene;
+    
     // Create the main scene
     cge::MainScene *main_scene = new cge::MainScene();
+
     
     // Load any saved data before initializing the scene
-    if (save_manager.save_exists())
+    /*if (save_manager.save_exists())
     {
         save_manager.load_game(main_scene);
     }
     else
     {
         std::cout << "No save file found. Starting with default values.\n";
-    }
+    }*/
     
     // Push the scene to the manager
-    scene_manager->push_scene(main_scene);
+    //scene_manager->push_scene(main_scene);
+    scene_manager->push_scene(main_menu_scene);
 
     // Get instance of game manager class
     auto game_manager = cge::GameManager::get_instance();
@@ -97,7 +103,7 @@ int main(int argc, char *argv[])
 
     // Save game state after loop ends
     // TODO: Need to modify this to use the scene stack. Or should we only be concerned with the active scene?
-    save_manager.save_game(main_scene);
+    //save_manager.save_game(main_scene);
 
     // Increment config test files
     config_manager.increment_test_values();

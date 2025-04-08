@@ -50,21 +50,27 @@ void SpriteNode::draw(SceneState &scene_state)
     scene_state.in_sprite_context = true;
 
     // Set frame information
-    auto &frames = current_texture_->get_frames();
-    auto frame_it = frames.find(current_frame_id_);
-    if(frame_it != frames.end())
+    bool using_sprite_sheet = false;
+    if (current_texture_->is_spritesheet())
     {
-        scene_state.using_sprite_sheet = true;
-        const Frame &frame = frame_it->second;
-        scene_state.current_frame_rect.x = frame.x;
-        scene_state.current_frame_rect.y = frame.y;
-        scene_state.current_frame_rect.w = frame.width;
-        scene_state.current_frame_rect.h = frame.height;
+        auto& frames = current_texture_->get_frames();
+        auto frame_it = frames.find(current_frame_id_);
+        if (frame_it != frames.end())
+        {
+            scene_state.using_sprite_sheet = true;
+            const Frame& frame = frame_it->second;
+            scene_state.current_frame_rect.x = frame.x;
+            scene_state.current_frame_rect.y = frame.y;
+            scene_state.current_frame_rect.w = frame.width;
+            scene_state.current_frame_rect.h = frame.height;
+
+            using_sprite_sheet = true;
+        }
     }
-    else 
-    { 
-        scene_state.using_sprite_sheet = false; 
-    }
+    
+    // Assign sprite sheet bool based on results of the above
+    scene_state.using_sprite_sheet = using_sprite_sheet;
+
 
     // Draw children (which will use our updated scene state)
     draw_children(scene_state);

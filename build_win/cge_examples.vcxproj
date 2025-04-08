@@ -132,12 +132,10 @@
     <ClCompile Include="..\src\examples\main_scene.cpp" />
     <ClCompile Include="..\src\examples\old_static_scene.cpp" />
     <ClCompile Include="..\src\examples\pause_menu.cpp" />
-    <ClCompile Include="..\src\examples\ui_scene.cpp" />
     <ClInclude Include="..\src\examples\main_menu.hpp" />
     <ClInclude Include="..\src\examples\main_scene.hpp" />
     <ClInclude Include="..\src\examples\old_static_scene.hpp" />
     <ClInclude Include="..\src\examples\pause_menu.hpp" />
-    <ClInclude Include="..\src\examples\ui_scene.hpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

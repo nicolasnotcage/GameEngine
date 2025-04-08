@@ -58,6 +58,9 @@ class TextureNode : public Node
     // Return current sprite sheet frame ID
     uint32_t get_current_frame_id() const;
 
+    // Return if texture node is a spritesheet
+    bool is_spritesheet() const { return is_sprite_sheet_; }
+
   protected:
     SDL_Texture *texture_;
     int          width_;
@@ -73,7 +76,7 @@ class TextureNode : public Node
     // Sprite sheet members
     std::unordered_map<uint32_t, Frame> frames_;
     uint32_t                            current_frame_id_;
-    bool                                is_sprite_sheet_;
+    bool                                is_sprite_sheet_{false};
 };
 
 template <typename... ChildrenTs>

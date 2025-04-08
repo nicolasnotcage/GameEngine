@@ -44,6 +44,9 @@ class TransformNode : public Node
     void left_translate(float x, float y);
     void right_translate(float x, float y);
 
+    // Getters for transformation data
+    float get_scale_x() const { return scale_x_; }
+    float get_scale_y() const { return scale_y_; }
     Matrix3 &get_transform() { return transform_; }
 
     // Movement controller methods
@@ -106,6 +109,10 @@ private:
 
     // Audio Component
     AudioComponent *audio_component_;
+
+    // Transform information
+    float scale_x_{1.0};
+    float scale_y_{1.0};
 };
 
 template <typename... ChildrenTs>
