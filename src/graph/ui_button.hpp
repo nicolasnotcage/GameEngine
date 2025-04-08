@@ -20,6 +20,9 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Forward declarations
+class CameraNode;
+
 // A UI button component that can be clicked
 class UIButton : public Node
 {
@@ -40,6 +43,11 @@ public:
     void set_hover_sprite(const std::string& filepath);
     void set_pressed_sprite(const std::string& filepath);
     void set_callback(std::function<void()> callback);
+    
+    // Set associated nodes
+    void set_transform_node(TransformNode* transform);
+    void set_sprite_node(SpriteNode* sprite);
+    void set_camera_node(CameraNode* camera);
     
     // Check if a point is inside the button
     bool contains_point(float x, float y) const;
@@ -69,12 +77,16 @@ private:
     // Current active texture
     TextureNode* current_texture_;
     
-    // Transform node for positioning
-    TransformNode transform_;
-    
-    // Sprite node for rendering
-    SpriteNode sprite_;
+    // References to nodes in the graph
+    TransformNode* transform_node_;
+    SpriteNode* sprite_node_;
+    CameraNode* camera_node_;
+
+    void display_init_error();
 };
+
+template <typename... ChildrenTs>
+using UIButtonT = NodeT<UIButton, ChildrenTs...>;
 
 } // namespace cge
 

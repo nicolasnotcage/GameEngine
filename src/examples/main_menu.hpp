@@ -14,6 +14,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/transform_node.hpp"
 #include "graph/texture_node.hpp"
 #include "graph/geometry_node.hpp"
+#include "graph/ui_button.hpp"
 
 #include "platform/audio_component.hpp"
 #include "platform/io_handler.hpp"
@@ -46,7 +47,7 @@ public:
 private:
     // Configure graph
     using MenuBackground = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
-    using MenuButton = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
+    using MenuButton = UIButtonT<TransformNodeT<SpriteNodeT<GeometryNodeT<>>>>;
     using MenuTitle = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
     using MenuGraph = CameraNodeT<MenuBackground, MenuTitle, MenuButton, MenuButton, MenuButton, MenuButton>;
     using UIRoot = RootNodeT<MenuGraph>;
@@ -61,49 +62,9 @@ private:
     // Setup functions
     void initialize_textures();
 
-    // Utility functions
-    void update_button_stats();
-    void update_hovering(Vector2 mouse_position);
-
     // Textures
     TextureNode background_texture_;
     TextureNode title_texture_;
-    
-    // New Game button textures
-    TextureNode new_game_texture_;
-    TextureNode new_game_hover_texture_;
-    TextureNode new_game_clicked_texture_;
-    
-    // Load Game button textures
-    TextureNode load_game_texture_;
-    TextureNode load_game_hover_texture_;
-    TextureNode load_game_clicked_texture_;
-    
-    // Settings button textures
-    TextureNode settings_texture_;
-    TextureNode settings_hover_texture_;
-    TextureNode settings_clicked_texture_;
-    
-    // Exit button textures
-    TextureNode exit_texture_;
-    TextureNode exit_hover_texture_;
-    TextureNode exit_clicked_texture_;
-
-    // Button state tracking
-    bool is_new_game_hovered_ = false;
-    bool is_load_game_hovered_ = false;
-    bool is_settings_hovered_ = false;
-    bool is_exit_hovered_ = false;
-
-    // Button info
-    std::array<float, 2> new_game_button_position;
-    std::array<float, 2> new_game_button_scale;
-    std::array<float, 2> load_game_button_position;
-    std::array<float, 2> load_game_button_scale;
-    std::array<float, 2> settings_button_position;
-    std::array<float, 2> settings_button_scale;
-    std::array<float, 2> exit_button_position;
-    std::array<float, 2> exit_button_scale;
 };
 
 } // namespace cge

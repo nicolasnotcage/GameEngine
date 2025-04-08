@@ -61,11 +61,14 @@ class TextureNode : public Node
     // Return if texture node is a spritesheet
     bool is_spritesheet() const { return is_sprite_sheet_; }
 
+    // Return filepath
+    std::string get_filepath() const { return filepath_; }
+
   protected:
     SDL_Texture *texture_;
     int          width_;
     int          height_;
-    std::string  filepath_;
+    std::string  filepath_{};
 
     bool    apply_color_mod_;
     uint8_t color_mods_[3];
