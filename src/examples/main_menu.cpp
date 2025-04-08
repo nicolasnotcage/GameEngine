@@ -74,7 +74,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	new_game_button.set_camera_node(&camera);
 	
 	// Configure the button
-	new_game_button.set_position(0.0f, -1.2f);
+	new_game_button.set_position(0.0f, -2.0f);
 	new_game_button.set_size(6.0f, 2.0f);
 	new_game_button.set_normal_sprite("images/ui/buttons/new_game/new_game_base_button.png");
 	new_game_button.set_hover_sprite("images/ui/buttons/new_game/new_game_button_on_hover.png");
@@ -95,14 +95,15 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	load_game_button.set_camera_node(&camera);
 	
 	// Configure the button
-	load_game_button.set_position(0.0f, 0.1f);
+	load_game_button.set_position(0.0f, 0.5f);
 	load_game_button.set_size(6.0f, 2.0f);
 	load_game_button.set_normal_sprite("images/ui/buttons/load_game/load_game_base_button.png");
 	load_game_button.set_hover_sprite("images/ui/buttons/load_game/load_game_button_on_hover.png");
 	load_game_button.set_pressed_sprite("images/ui/buttons/load_game/load_game_button_clicked.png");
 	load_game_button.set_callback([this]() {
 		// Check if save exists
-		if (SaveManager::get_instance().save_exists()) {
+		if (SaveManager::get_instance().save_exists()) 
+		{
 			// Create the main scene
 			Scene* main_scene = SceneManager::get_instance()->create_scene_by_key("main_scene");
 			
@@ -111,7 +112,9 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 			
 			// Load the saved game state
 			SaveManager::get_instance().load_game(main_scene);
-		} else {
+		} 
+		else 
+		{
 			// TODO: Show a message that no save file exists
 			std::cout << "No save file found. Cannot load game.\n";
 		}
@@ -127,7 +130,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	settings_button.set_camera_node(&camera);
 	
 	// Configure the button
-	settings_button.set_position(0.0f, 1.4f);
+	settings_button.set_position(0.0f, 3.0f);
 	settings_button.set_size(6.0f, 2.0f);
 	settings_button.set_normal_sprite("images/ui/buttons/settings/settings_base_button.png");
 	settings_button.set_hover_sprite("images/ui/buttons/settings/settings_button_on_hover.png");
@@ -146,7 +149,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	exit_button.set_camera_node(&camera);
 	
 	// Configure the button
-	exit_button.set_position(0.0f, 2.7f);
+	exit_button.set_position(0.0f, 5.5f);
 	exit_button.set_size(6.0f, 2.0f);
 	exit_button.set_normal_sprite("images/ui/buttons/exit/exit_base_button.png");
 	exit_button.set_hover_sprite("images/ui/buttons/exit/exit_button_on_hover.png");
