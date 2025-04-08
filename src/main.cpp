@@ -59,33 +59,19 @@ int main(int argc, char *argv[])
     cge::SceneManager *scene_manager = cge::SceneManager::get_instance();
     scene_manager->init(&sdl_info, &io_handler);
 
+    // Register available scenes
+    scene_manager->register_scene<cge::MainMenuScene>("main_menu");
+    scene_manager->register_scene<cge::MainScene>("main_scene");
+
     // Initialize save manager
     cge::SaveManager &save_manager = cge::SaveManager::get_instance();
     if (save_manager.init("save.dat")) 
     {
         std::cout << "Save manager initialized\n";
     }
-
-    // Create main menu scene
-    cge::MainMenuScene *main_menu_scene = new cge::MainMenuScene;
     
-    // Create the main scene
-    cge::MainScene *main_scene = new cge::MainScene();
-
-    
-    // Load any saved data before initializing the scene
-    /*if (save_manager.save_exists())
-    {
-        save_manager.load_game(main_scene);
-    }
-    else
-    {
-        std::cout << "No save file found. Starting with default values.\n";
-    }*/
-    
-    // Push the scene to the manager
-    //scene_manager->push_scene(main_scene);
-    scene_manager->push_scene(main_menu_scene);
+    // Push the initial scene (main menu)
+    scene_manager->push_scene_by_key("main_menu");
 
     // Get instance of game manager class
     auto game_manager = cge::GameManager::get_instance();
@@ -101,16 +87,18 @@ int main(int argc, char *argv[])
         if(io_handler.quit_requested()) run_game = false;
     }
 
-    // Save game state after loop ends
-    // TODO: Need to modify this to use the scene stack. Or should we only be concerned with the active scene?
-    //save_manager.save_game(main_scene);
+    // Get all scenes from the stack
+    std::vector<cge::Scene*> scenes;
+    scene_manager->get_all_scenes(scenes);
 
-    // Increment config test files
-    config_manager.increment_test_values();
+    // Save all scenes at once
+    if (!scenes.empty()) 
+    {
+        save_manager.save_game_state(scenes);
+    }
     
     // Cleanup after game loop
     scene_manager->clear_all_scenes();
-    delete main_scene;
     cge::destroy_sdl_components(sdl_info);
     return 0;
 }

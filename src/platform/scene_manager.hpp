@@ -15,6 +15,8 @@ For more information, please refer to <https://unlicense.org>
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <unordered_map>
+#include <functional>
 
 namespace cge
 {
@@ -37,6 +39,43 @@ public:
     SceneManager& operator=(const SceneManager&) = delete;
     SceneManager(SceneManager&&) = delete;
     SceneManager& operator=(SceneManager&&) = delete;
+
+    // Register a scene factory function with a key
+    template<typename T>
+    void register_scene(const std::string& key) 
+    {
+        scene_factories_[key] = []() { return new T(); };
+    }
+
+    // Create a scene by key
+    Scene* create_scene_by_key(const std::string& key) 
+    {
+        auto it = scene_factories_.find(key);
+        if (it != scene_factories_.end()) 
+        {
+            return it->second();
+        }
+        return nullptr;
+    }
+
+    // Create and push a scene by key
+    bool push_scene_by_key(const std::string& key) 
+    {
+        Scene* scene = create_scene_by_key(key);
+        if (scene) 
+        {
+            push_scene(scene);
+            return true;
+        }
+
+        return false;
+    }
+
+    // Get all scenes in the stack
+    void get_all_scenes(std::vector<Scene*>& scenes) 
+    {
+        scenes = scene_stack_;
+    }
 
     // Initialize scene manager with SDL Info and IO handler
     void init(SDLInfo* sdl_info, IoHandler* io_handler)
@@ -153,6 +192,7 @@ private:
     std::vector<Scene*> scene_stack_;
     SDLInfo* sdl_info_ = nullptr;
     IoHandler* io_handler_ = nullptr;
+    std::unordered_map<std::string, std::function<Scene*()>> scene_factories_;
 };
 
 } // namespace cge

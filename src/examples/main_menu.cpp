@@ -8,6 +8,8 @@
 
 #include "platform/config.hpp"
 #include "platform/math.hpp"
+#include "platform/scene_manager.hpp"
+#include "system/save_manager.hpp"
 
 namespace cge
 {
@@ -89,8 +91,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	exit_transform.right_scale(6.0f, 2.0f); 
 	exit_transform.right_translate(0.0f, 2.7f);
 	
-	// Initialize button positions and scales
-	// We'll update these in update_button_stats()
+	// TOOD: Add main menu music
 
 	// Initialize root node
 	root_.init(scene_state_);
@@ -216,7 +217,12 @@ void MainMenuScene::update(double delta)
 			{
 				auto& button_sprite = camera.get_child<2>().get_child<0>();
 				button_sprite.set_texture(&new_game_clicked_texture_);
-				// TODO: Add logic to switch to game scene
+				
+				// Create and push the main scene without loading saved state
+				Scene* main_scene = SceneManager::get_instance()->create_scene_by_key("main_scene");
+				
+				// Initialize the scene with default values (no deserialization)
+				SceneManager::get_instance()->push_scene(main_scene);
 			}
 			
 			// Load Game button click
@@ -224,7 +230,24 @@ void MainMenuScene::update(double delta)
 			{
 				auto& button_sprite = camera.get_child<3>().get_child<0>();
 				button_sprite.set_texture(&load_game_clicked_texture_);
-				// TODO: Add logic to load saved game
+				
+				// Check if save exists
+				if (SaveManager::get_instance().save_exists())
+				{
+					// Create the main scene
+					Scene* main_scene = SceneManager::get_instance()->create_scene_by_key("main_scene");
+					
+					// Initialize the scene
+					SceneManager::get_instance()->push_scene(main_scene);
+					
+					// Load the saved game state
+					SaveManager::get_instance().load_game(main_scene);
+				}
+				else
+				{
+					// TODO: Show a message that no save file exists
+					std::cout << "No save file found. Cannot load game.\n";
+				}
 			}
 			
 			// Settings button click
