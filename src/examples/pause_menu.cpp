@@ -102,8 +102,6 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
             SceneManager::get_instance()->pop_scene();
             
             // Pop the main scene to return to the main menu
-            // At this point, the stack should be [main_menu, main_scene]
-            // After popping, it will be just [main_menu]
             SceneManager::get_instance()->pop_scene();
         }
     });

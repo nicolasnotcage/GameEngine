@@ -109,7 +109,6 @@ public:
 
         // Clean up the current scene
         scene_stack_.back()->on_exit();
-        scene_stack_.back()->destroy();
         scene_stack_.pop_back();
 
         // Resume the new top scene if there is one
@@ -132,7 +131,6 @@ public:
 
         // Clean up the current scene
         scene_stack_.back()->on_exit();
-        scene_stack_.back()->destroy();
         scene_stack_.pop_back();
 
         // Initialize and push the new scene

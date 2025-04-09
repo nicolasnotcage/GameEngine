@@ -90,16 +90,16 @@ int main(int argc, char *argv[])
         const cge::GameActionList &actions = io_handler.get_game_actions();
         for (uint8_t i = 0; i < actions.num_actions; i++)
         {
-            // Only quit if the QUIT action is detected (window close button)
-            // TOGGLE_PAUSE is handled by the scenes
-            if (actions.actions[i] == cge::GameAction::QUIT && 
-                actions.actions[i] != cge::GameAction::TOGGLE_PAUSE)
+            // Only quit if the QUIT action is detected
+            if (actions.actions[i] == cge::GameAction::QUIT)
             {
                 run_game = false;
                 break;
             }
         }
     }
+
+    std::cout << "Exited main game loop. Performing cleanup.\n";
 
     // Get all scenes from the stack
     std::vector<cge::Scene*> scenes;
