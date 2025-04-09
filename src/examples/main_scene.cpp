@@ -28,7 +28,7 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     sdl_info_ = sdl_info;
     io_handler_ = io_handler;
 
-    SDL_SetRenderDrawColor(sdl_info->renderer, 28, 40, 51, 0);
+    SDL_SetRenderDrawColor(sdl_info->renderer, 0, 0, 0, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
     // Reset scene state

@@ -18,7 +18,6 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/game_action.hpp"
 #include "platform/io_handler.hpp"
 #include "platform/time_manager.hpp"
-#include "platform/config.hpp"
 #include "platform/scene_manager.hpp"
 
 #include "system/config_manager.hpp"
@@ -49,9 +48,9 @@ int main(int argc, char *argv[])
 
     // Create and configure components of SDL instance using config values
     cge::create_sdl_components(sdl_info, 
-                              config_manager.get_screen_width(), 
-                              config_manager.get_screen_height(), 
-                              "Class 605.688");
+                               config_manager.get_screen_width(),
+                               config_manager.get_screen_height(),
+                               "Ghosts in the Walls");
 
     // Create io and time handler instances
     cge::IoHandler    io_handler = cge::IoHandler();

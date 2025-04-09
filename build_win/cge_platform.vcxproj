@@ -152,6 +152,7 @@
     <ClInclude Include="..\src\platform\camera.hpp" />
     <ClInclude Include="..\src\platform\collision_component.hpp" />
     <ClInclude Include="..\src\platform\collision_system.hpp" />
+    <ClInclude Include="..\src\platform\config.hpp" />
     <ClInclude Include="..\src\platform\game_action.hpp" />
     <ClInclude Include="..\src\platform\game_manager.hpp" />
     <ClInclude Include="..\src\platform\input_interpreter.hpp" />

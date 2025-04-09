@@ -6,9 +6,9 @@
 #include "graph/texture_node.hpp"
 #include "graph/geometry_node.hpp"
 
-#include "platform/config.hpp"
 #include "platform/math.hpp"
 #include "platform/scene_manager.hpp"
+#include "system/config_manager.hpp"
 #include "system/save_manager.hpp"
 
 namespace cge
@@ -19,7 +19,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	sdl_info_ = sdl_info;
 	io_handler_ = io_handler;
 
-	SDL_SetRenderDrawColor(sdl_info->renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(sdl_info->renderer, 0, 0, 0, 0);
 	SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
 	// Reset scene state
@@ -30,12 +30,17 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	// Initialize textures
 	initialize_textures();
 
-	// Configure camera
+	// Configure camera with dimensions adjusted for screen aspect ratio
 	auto &camera = root_.get_child<0>();
-	camera.get_camera().set_dimensions(20.0f, 15.0f);
+	float aspect_ratio = static_cast<float>(cge::ConfigManager::get_instance().get_screen_width()) / 
+                         static_cast<float>(cge::ConfigManager::get_instance().get_screen_height());
+	float camera_height = 15.0f;
+	float camera_width = camera_height * aspect_ratio;
+	camera.get_camera().set_dimensions(camera_width, camera_height);
 	camera.get_camera().set_position(0.0f, 0.0f);
-
-	// TODO: Disable zooming on menus
+	
+	// Disable zooming on menu
+	camera.set_zoom_enabled(false);
 
 	// Get references to components
 	auto &menu_background_transform = camera.get_child<0>();
@@ -56,11 +61,11 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	title_sprite.set_texture(&title_texture_);
 
 	// Scale and position the background to fill the screen
-	menu_background_transform.right_scale(20.0f, 15.0f); // Match camera dimensions
+	menu_background_transform.right_scale(camera_width, camera_height); // Match camera dimensions
 	menu_background_transform.right_translate(0.0f, 0.0f); // Center in the camera view
 	
 	// Scale and position the title
-	title_transform.right_scale(20.0f, 3.0f);
+	title_transform.right_scale(camera_width - 5.0f, 3.0f);
 	title_transform.right_translate(0.0f, -1.8f);
 
 	// Configure buttons
@@ -74,7 +79,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	new_game_button.set_camera_node(&camera);
 	
 	// Configure the button
-	new_game_button.set_position(0.0f, -2.0f);
+	new_game_button.set_position(0.0f, -2.4f);
 	new_game_button.set_size(6.0f, 2.0f);
 	new_game_button.set_normal_sprite("images/ui/buttons/new_game/new_game_base_button.png");
 	new_game_button.set_hover_sprite("images/ui/buttons/new_game/new_game_button_on_hover.png");
@@ -95,8 +100,8 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	load_game_button.set_camera_node(&camera);
 	
 	// Configure the button
-	load_game_button.set_position(0.0f, 0.5f);
-	load_game_button.set_size(6.0f, 2.0f);
+	load_game_button.set_position(0.0f, -0.1f);
+	load_game_button.set_size(6.0f, 1.8f);
 	load_game_button.set_normal_sprite("images/ui/buttons/load_game/load_game_base_button.png");
 	load_game_button.set_hover_sprite("images/ui/buttons/load_game/load_game_button_on_hover.png");
 	load_game_button.set_pressed_sprite("images/ui/buttons/load_game/load_game_button_clicked.png");
@@ -130,7 +135,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	settings_button.set_camera_node(&camera);
 	
 	// Configure the button
-	settings_button.set_position(0.0f, 3.0f);
+	settings_button.set_position(0.0f, 2.2f);
 	settings_button.set_size(6.0f, 2.0f);
 	settings_button.set_normal_sprite("images/ui/buttons/settings/settings_base_button.png");
 	settings_button.set_hover_sprite("images/ui/buttons/settings/settings_button_on_hover.png");
@@ -149,7 +154,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	exit_button.set_camera_node(&camera);
 	
 	// Configure the button
-	exit_button.set_position(0.0f, 5.5f);
+	exit_button.set_position(0.0f, 4.5f);
 	exit_button.set_size(6.0f, 2.0f);
 	exit_button.set_normal_sprite("images/ui/buttons/exit/exit_base_button.png");
 	exit_button.set_hover_sprite("images/ui/buttons/exit/exit_button_on_hover.png");

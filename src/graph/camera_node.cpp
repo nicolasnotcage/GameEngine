@@ -1,8 +1,9 @@
 #include "graph/camera_node.hpp"
 #include "platform/math.hpp"
 #include "platform/io_handler.hpp"
-#include "platform/config.hpp"
 #include "platform/sdl.h"
+
+#include "system/config_manager.hpp"
 
 #include <iostream>
 
@@ -25,7 +26,8 @@ void CameraNode::draw(SceneState &scene_state)
 {
     // Update matrix stack, push transform, and draw children
     scene_state.matrix_stack.push();
-    scene_state.matrix_stack.top() *= camera_.get_world_to_screen_matrix(cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT);
+    scene_state.matrix_stack.top() *= camera_.get_world_to_screen_matrix(cge::ConfigManager::get_instance().get_screen_width(), 
+                                                                         cge::ConfigManager::get_instance().get_screen_height());
     draw_children(scene_state);
 
     // Pop matrix stack and restore previous camera
@@ -70,8 +72,12 @@ void CameraNode::update(SceneState &scene_state)
 
             switch(action_list.actions[i])
             {
-                case GameAction::CAMERA_ZOOM_IN: camera_.zoom(1.0f / zoom_speed); break;
-                case GameAction::CAMERA_ZOOM_OUT: camera_.zoom(zoom_speed); break;
+                case GameAction::CAMERA_ZOOM_IN: 
+                    if (zoom_enabled_) camera_.zoom(1.0f / zoom_speed); 
+                    break;
+                case GameAction::CAMERA_ZOOM_OUT: 
+                    if (zoom_enabled_) camera_.zoom(zoom_speed); 
+                    break;
 
                 // Handle mouse clicks if enabled
                 case GameAction::MOUSE_BUTTON_LEFT:
@@ -84,7 +90,9 @@ void CameraNode::update(SceneState &scene_state)
                         Vector2 screen_position(mouse_x, mouse_y);
 
                         // Convert to world coordinates
-                        Vector2 world_pos = camera_.screen_to_world(screen_position, cge::SCREEN_WIDTH, cge::SCREEN_HEIGHT);
+                        Vector2 world_pos = camera_.screen_to_world(screen_position,
+                                                                    cge::ConfigManager::get_instance().get_screen_width(),
+                                                                    cge::ConfigManager::get_instance().get_screen_height());
 
                         // Print world coordinates
                         std::cout << "Click at screen position (" << mouse_x << ", " << mouse_y
@@ -120,5 +128,9 @@ bool CameraNode::is_following_target() const { return follow_target_ && target_t
 // Print on click functions
 void CameraNode::set_print_on_click(bool enabled) { print_on_click_ = enabled; }
 bool CameraNode::get_print_on_click() const { return print_on_click_; }
+
+// Zoom control functions
+void CameraNode::set_zoom_enabled(bool enabled) { zoom_enabled_ = enabled; }
+bool CameraNode::is_zoom_enabled() const { return zoom_enabled_; }
 
 } // namespace cge

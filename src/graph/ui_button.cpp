@@ -9,6 +9,7 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/math.hpp"
 #include "platform/config.hpp"
 #include "graph/camera_node.hpp"
+#include "system/config_manager.hpp"
 
 namespace cge
 {
@@ -98,9 +99,10 @@ void UIButton::update(SceneState &scene_state)
     Vector2 screen_position(mouse_x, mouse_y);
     
     // Convert to world coordinates using the camera
-    Vector2 world_pos = camera_node_->get_camera().screen_to_world(screen_position, 
-                                                                  cge::SCREEN_WIDTH, 
-                                                                  cge::SCREEN_HEIGHT);
+    Vector2 world_pos = camera_node_->get_camera().screen_to_world(
+        screen_position, 
+        cge::ConfigManager::get_instance().get_screen_width(), 
+        cge::ConfigManager::get_instance().get_screen_height());
     
     // Check if mouse is over the button
     bool is_hovering = contains_point(world_pos.x, world_pos.y);
@@ -217,9 +219,9 @@ void UIButton::set_callback(std::function<void()> callback)
 
 bool UIButton::contains_point(float x, float y) const
 {
-    // Calculate button boundaries with 80% of the actual size for better hit detection
-    float half_width = width_ * 0.4f;  // 80% of half width
-    float half_height = height_ * 0.4f; // 80% of half height
+    // Use the full button size for hit detection now that we have proper scaling
+    float half_width = width_ * 0.5f;
+    float half_height = height_ * 0.5f;
     
     return (x >= x_ - half_width && 
             x <= x_ + half_width && 

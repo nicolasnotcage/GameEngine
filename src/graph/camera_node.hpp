@@ -32,6 +32,10 @@ class CameraNode : public Node
     // Utility functions to extract coordinates via mouse click
     void set_print_on_click(bool enabled);
     bool get_print_on_click() const;
+    
+    // Zoom control
+    void set_zoom_enabled(bool enabled);
+    bool is_zoom_enabled() const;
 
 private:
     Camera camera_;
@@ -42,6 +46,9 @@ private:
     // Utility variables for extracting coordinates via mouse click
     bool print_on_click_{false};
     Vector2 last_click_position;
+    
+    // Flag to enable/disable zooming
+    bool zoom_enabled_{true};
 
 
 };

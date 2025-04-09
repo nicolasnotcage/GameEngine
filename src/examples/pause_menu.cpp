@@ -6,9 +6,9 @@ For more information, please refer to <https://unlicense.org>
 */
 
 #include "examples/pause_menu.hpp"
-#include "platform/config.hpp"
 #include "platform/math.hpp"
 #include "platform/scene_manager.hpp"
+#include "system/config_manager.hpp"
 #include "system/save_manager.hpp"
 
 namespace cge
@@ -19,7 +19,7 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     sdl_info_ = sdl_info;
     io_handler_ = io_handler;
 
-    SDL_SetRenderDrawColor(sdl_info->renderer, 0, 0, 0, 128); // Semi-transparent black
+    SDL_SetRenderDrawColor(sdl_info->renderer, 0, 0, 0, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
 
     // Reset scene state
@@ -30,10 +30,17 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     // Initialize textures
     initialize_textures();
 
-    // Configure camera
+    // Configure camera with dimensions adjusted for screen aspect ratio
     auto &camera = root_.get_child<0>();
-    camera.get_camera().set_dimensions(20.0f, 15.0f);
+    float aspect_ratio = static_cast<float>(cge::ConfigManager::get_instance().get_screen_width()) / 
+                         static_cast<float>(cge::ConfigManager::get_instance().get_screen_height());
+    float camera_height = 15.0f;
+    float camera_width = camera_height * aspect_ratio;
+    camera.get_camera().set_dimensions(camera_width, camera_height);
     camera.get_camera().set_position(0.0f, 0.0f);
+    
+    // Disable zooming in pause menu
+    camera.set_zoom_enabled(false);
 
     // Get references to components
     auto &menu_background_transform = camera.get_child<0>();
@@ -47,9 +54,9 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     // Configure background
     menu_background_sprite.set_texture(&background_texture_);
 
-    // Scale and position the background to fill half the width and 3/4 the height
-    menu_background_transform.right_scale(10.0f, 11.25f); // Half width (20/2), 3/4 height (15*0.75)
-    menu_background_transform.right_translate(0.0f, 0.0f); // Center in the camera view
+    // Scale pause menu to camera size
+    menu_background_transform.right_scale(camera_width, camera_height); 
+    menu_background_transform.right_translate(0.0f, 0.0f); 
     
     // Configure Resume button
     auto &resume_transform = resume_button.get_child<0>();
