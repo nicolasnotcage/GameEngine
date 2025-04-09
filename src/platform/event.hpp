@@ -19,6 +19,7 @@ enum class EventType
     PLAY_SOUND,
     TOGGLE_MUSIC,
     QUIT,
+    TOGGLE_PAUSE,
 
     // New raw input events
     KEY_DOWN_W, 
@@ -34,6 +35,7 @@ enum class EventType
     MOUSE_MOTION,
     KEY_DOWN_SPACE,
     KEY_DOWN_T,
+    KEY_DOWN_ESCAPE,
 
     // Key held states
     KEY_HELD_W,

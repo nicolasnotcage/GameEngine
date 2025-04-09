@@ -47,7 +47,7 @@ SDLEventInfo get_current_events()
                 switch(e.key.key)
                 {
                     // Given actions
-                    case SDLK_ESCAPE: event_info.events[num_events++] = EventType::QUIT; break;
+                    case SDLK_ESCAPE: event_info.events[num_events++] = EventType::KEY_DOWN_ESCAPE; break;
                     case SDLK_SPACE: event_info.events[num_events++] = EventType::KEY_DOWN_SPACE; break;
 
                     // Other keys

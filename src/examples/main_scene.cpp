@@ -10,6 +10,7 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/audio_engine.hpp"
 #include "platform/collision_component.hpp" 
 #include "platform/collision_system.hpp"
+#include "platform/scene_manager.hpp"
 
 #include "system/file_locator.hpp"
 #include "system/serializer.hpp"
@@ -298,6 +299,18 @@ void MainScene::update(double delta)
         if (time_to_laugh_ >= 10)
         { 
             has_laughed_ = false;
+        }
+    }
+
+    // Check for pause action to open pause menu
+    const GameActionList &actions = io_handler_->get_game_actions();
+    for (uint8_t i = 0; i < actions.num_actions; i++)
+    {
+        if (actions.actions[i] == GameAction::TOGGLE_PAUSE)
+        {
+            // Push the pause menu
+            SceneManager::get_instance()->push_scene_by_key("pause_menu");
+            return; // Exit early to prevent further updates this frame
         }
     }
 

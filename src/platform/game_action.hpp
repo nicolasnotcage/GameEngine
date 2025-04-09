@@ -21,6 +21,7 @@ enum class GameAction
 
 	// System actions
 	QUIT,
+    TOGGLE_PAUSE,
 
 	// Audio actions
 	PLAY_SOUND,

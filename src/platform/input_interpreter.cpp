@@ -24,6 +24,7 @@ GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
             case EventType::QUIT: action = GameAction::QUIT; break;
             case EventType::PLAY_SOUND: action = GameAction::PLAY_SOUND; break;
             case EventType::TOGGLE_MUSIC: action = GameAction::TOGGLE_MUSIC; break;
+            case EventType::KEY_DOWN_ESCAPE: action = GameAction::TOGGLE_PAUSE; break;
 
             // WASD movement
             case EventType::KEY_HELD_W: action = GameAction::PLAYER_MOVE_UP; break;
@@ -57,4 +58,3 @@ GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
 }
 
 } // namespace cge
-

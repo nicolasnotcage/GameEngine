@@ -12,8 +12,10 @@ For more information, please refer to <https://unlicense.org>
 
 #include "examples/main_scene.hpp"
 #include "examples/main_menu.hpp"
+#include "examples/pause_menu.hpp"
 
 #include "platform/game_manager.hpp"
+#include "platform/game_action.hpp"
 #include "platform/io_handler.hpp"
 #include "platform/time_manager.hpp"
 #include "platform/config.hpp"
@@ -62,6 +64,7 @@ int main(int argc, char *argv[])
     // Register available scenes
     scene_manager->register_scene<cge::MainMenuScene>("main_menu");
     scene_manager->register_scene<cge::MainScene>("main_scene");
+    scene_manager->register_scene<cge::PauseMenuScene>("pause_menu");
 
     // Initialize save manager
     cge::SaveManager &save_manager = cge::SaveManager::get_instance();
@@ -83,8 +86,19 @@ int main(int argc, char *argv[])
         // Run game loop with scene manager
         game_manager->run_game_loop(*scene_manager, io_handler);
 
-        // See if a quit was requested
-        if(io_handler.quit_requested()) run_game = false;
+        // Check for game actions
+        const cge::GameActionList &actions = io_handler.get_game_actions();
+        for (uint8_t i = 0; i < actions.num_actions; i++)
+        {
+            // Only quit if the QUIT action is detected (window close button)
+            // TOGGLE_PAUSE is handled by the scenes
+            if (actions.actions[i] == cge::GameAction::QUIT && 
+                actions.actions[i] != cge::GameAction::TOGGLE_PAUSE)
+            {
+                run_game = false;
+                break;
+            }
+        }
     }
 
     // Get all scenes from the stack

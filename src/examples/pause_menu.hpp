@@ -15,6 +15,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/transform_node.hpp"
 #include "graph/texture_node.hpp"
 #include "graph/geometry_node.hpp"
+#include "graph/ui_button.hpp"
 
 namespace cge
 {
@@ -50,30 +51,24 @@ public:
 
 private:
     // Configure graph
-    using MenuBackground = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
-    using MenuButton = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
-    using MenuGraph = CameraNodeT<MenuBackground, MenuButton, MenuButton>;
+    using MenuBackground = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
+    using MenuButton = UIButtonT<TransformNodeT<SpriteNodeT<GeometryNodeT<>>>>;
+    using MenuGraph = CameraNodeT<MenuBackground, MenuButton, MenuButton, MenuButton>;
     using PauseMenuRoot = RootNodeT<MenuGraph>;
 
     // Set root
     PauseMenuRoot root_;
 
-    // Setup UI elements
-    void setup_background();
-    void setup_buttons();
-
-    // Button interaction and callback methods
-    void check_button_interactions();
-    void on_resume_clicked();
+    // Setup functions
+    void initialize_textures();
 
     // Textures
     TextureNode background_texture_;
-    TextureNode resume_texture_;
-    TextureNode resume_hover_texture_;
-    TextureNode resume_clicked_texture_;
-
-    // Button state tracking
-    bool is_resume_hovered_ = false;
+    
+    // Scene state and SDL info
+    SDLInfo* sdl_info_;
+    SceneState scene_state_;
+    IoHandler* io_handler_;
 };
 
 } // namespace cge
