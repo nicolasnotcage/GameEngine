@@ -157,12 +157,31 @@ int AudioEngine::play_sound(const std::string &key, float volume, bool pause)
     // Stop any sound playing on this channel
     if(channels_[channel_id]) channels_[channel_id]->stop();
 
+    // Check if this is a 3D sound
+    FMOD_MODE mode;
+    sound->getMode(&mode);
+    bool is_3d = (mode & FMOD_3D) != 0;
+
     // Configure sound
     FMOD_RESULT result = fmod_system_->playSound(sound, nullptr, pause, &channels_[channel_id]);
     if(result != FMOD_OK) return -1;
 
     // Set volume
     channels_[channel_id]->setVolume(volume);
+
+    // For 3D sounds, make sure 3D attributes are enabled
+    if (is_3d) {
+        // Enable 3D spatialization for this channel
+        channels_[channel_id]->setMode(mode);
+        
+        // Set default 3D attributes if needed
+        FMOD_VECTOR pos = {0.0f, 0.0f, 0.0f};
+        FMOD_VECTOR vel = {0.0f, 0.0f, 0.0f};
+        channels_[channel_id]->set3DAttributes(&pos, &vel);
+        
+        // Print debug info
+        std::cout << "Playing 3D sound: " << key << " on channel " << channel_id << std::endl;
+    }
 
     return channel_id;
 }

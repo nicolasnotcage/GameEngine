@@ -102,9 +102,11 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     golem_transform.right_translate(-15.55f, -7.625);
     golem_transform.right_scale(3.0f, 3.0f);
 
-    // Add audio to golem
+    // Add audio to golem with 3D settings
     auto *golem_audio = golem_transform.add_audio_component();
     golem_audio->set_sound("npc_clap");
+    golem_audio->set_min_distance(1.0f);
+    golem_audio->set_max_distance(10.0f);
 
     // Set witch transform if no save file exists
     if (!SaveManager::get_instance().save_exists()) witch_transform.right_translate(1.0f, 0.0f);
@@ -251,9 +253,9 @@ void MainScene::setup_audio()
     auto collision_sound_info = locate_path_for_filename("audio/creepy_ha_oneshot.wav");
     auto theme_sound_info = locate_path_for_filename("audio/theme_music.mp3");
 
-    // Load sounds
+    // Load sounds - note that npc_clap is now a 3D sound
     audio_engine->load_sound(player_file_info.path, "player_clap", false, false);
-    audio_engine->load_sound(npc_file_info.path, "npc_clap", false, false);
+    audio_engine->load_sound(npc_file_info.path, "npc_clap", true, false); // Set as 3D sound
     audio_engine->load_sound(collision_sound_info.path, "creepy_ha", false, false);
     audio_engine->load_sound(theme_sound_info.path, "theme_music", false, true);
 
@@ -286,6 +288,12 @@ void MainScene::update(double delta)
 {
     scene_state_.io_handler = io_handler_;
     scene_state_.delta = delta;
+    
+    // Update 3D audio listener position at the beginning of the frame
+    auto &camera = root_.get_child<0>();
+    auto &witch_transform = camera.get_child<2>();
+    Vector2 witch_position(witch_transform.get_position_x(), witch_transform.get_position_y());
+    AudioEngine::get_instance()->set_3d_listener_position(witch_position);
 
     // Handle boolean for laughing sound
     if (has_laughed_)
@@ -383,19 +391,100 @@ void MainScene::register_collision_component(CollisionComponent *component)
     collision_system_.add_component(component);
 }
 
- void MainScene::handle_audio()
+void MainScene::handle_audio()
 {    
+    auto &camera = root_.get_child<0>();
+    auto &golem_transform = camera.get_child<1>();
+    auto &witch_transform = camera.get_child<2>();
+    
+    // Update golem's audio component position for 3D audio
+    if (auto* golem_audio = golem_transform.get_audio_component())
+    {
+        // Force update of the golem's position in the audio component
+        float golem_x = golem_transform.get_position_x();
+        float golem_y = golem_transform.get_position_y();
+        
+        // Debug output for 3D audio positions
+        float witch_x = witch_transform.get_position_x();
+        float witch_y = witch_transform.get_position_y();
+        float distance = std::sqrt((witch_x - golem_x) * (witch_x - golem_x) + 
+                                  (witch_y - golem_y) * (witch_y - golem_y));
+        
+        // Make sure 3D position is updated
+        golem_audio->update_position();
+        
+        // Configure 3D audio parameters - using smaller values for better effect
+        golem_audio->set_min_distance(1.0f);  // Closer min distance for more pronounced effect
+        golem_audio->set_max_distance(10.0f); // Shorter max distance for more noticeable falloff
+        
+        // Only print occasionally to avoid console spam
+        if (npc_audio_timer_ >= time_to_clap_ - 0.1f) {
+            std::cout << "3D Audio Debug: Witch at (" << witch_x << ", " << witch_y 
+                      << "), Golem at (" << golem_x << ", " << golem_y 
+                      << "), Distance: " << distance << std::endl;
+        }
+    }
+    
     // Increment timer
     npc_audio_timer_ += scene_state_.delta;
 
     // Play audio if timer satisfied
     if (npc_audio_timer_ >= time_to_clap_) 
     { 
-        auto &camera = root_.get_child<0>();
-        auto &golem_transform = camera.get_child<1>();
-        if (auto* golem_audio = golem_transform.get_audio_component())
-        { 
-            golem_audio->play(1.0f);
+        // Get golem position
+        float golem_x = golem_transform.get_position_x();
+        float golem_y = golem_transform.get_position_y();
+        
+        // Play sound directly with FMOD to ensure 3D positioning
+        AudioEngine* audio_engine = AudioEngine::get_instance();
+        FMOD::Sound* sound = audio_engine->get_sound("npc_clap");
+        
+        if (sound) {
+            // Check if sound is 3D
+            FMOD_MODE mode;
+            sound->getMode(&mode);
+            bool is_3d = (mode & FMOD_3D) != 0;
+            
+            if (is_3d) {
+                std::cout << "Playing 3D sound directly with FMOD..." << std::endl;
+                
+                // Create a channel for the sound
+                FMOD::Channel* channel = nullptr;
+                FMOD_RESULT result = audio_engine->get_system()->playSound(sound, nullptr, true, &channel);
+                
+                if (result == FMOD_OK && channel) {
+                    // Set 3D attributes
+                    FMOD_VECTOR position = {golem_x, golem_y, 0.0f};
+                    FMOD_VECTOR velocity = {0.0f, 0.0f, 0.0f};
+                    
+                    // Set 3D attributes
+                    result = channel->set3DAttributes(&position, &velocity);
+                    if (result != FMOD_OK) {
+                        std::cout << "Failed to set 3D attributes. Error code: " << result << std::endl;
+                    }
+                    
+                    // Set min/max distance
+                    result = channel->set3DMinMaxDistance(1.0f, 10.0f);
+                    if (result != FMOD_OK) {
+                        std::cout << "Failed to set min/max distance. Error code: " << result << std::endl;
+                    }
+                    
+                    // Set volume and unpause
+                    channel->setVolume(1.0f);
+                    channel->setPaused(false);
+                    
+                    std::cout << "3D sound played directly at position (" << golem_x << ", " << golem_y << ")" << std::endl;
+                } else {
+                    std::cout << "Failed to play sound directly. Error code: " << result << std::endl;
+                }
+            } else {
+                // Fallback to using the audio component
+                if (auto* golem_audio = golem_transform.get_audio_component()) {
+                    golem_audio->play(1.0f);
+                }
+            }
+        } else {
+            std::cout << "Could not find sound 'npc_clap'" << std::endl;
         }
 
         // Reset timer
@@ -408,8 +497,6 @@ void MainScene::register_collision_component(CollisionComponent *component)
     {
         if(actions.actions[i] == GameAction::PLAYER_CLAP)
         {
-            auto &camera = root_.get_child<0>();
-            auto &witch_transform = camera.get_child<2>();
             if(auto *witch_audio = witch_transform.get_audio_component())
             {
                 witch_audio->play(1.0f);
