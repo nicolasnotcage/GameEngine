@@ -61,6 +61,7 @@ private:
 
     // Setup functions
     void initialize_textures();
+    void setup_audio();
 
     // Textures
     TextureNode background_texture_;

@@ -8,8 +8,10 @@
 
 #include "platform/math.hpp"
 #include "platform/scene_manager.hpp"
+#include "platform/audio_engine.hpp"
 #include "system/config_manager.hpp"
 #include "system/save_manager.hpp"
+#include "system/file_locator.hpp"
 
 namespace cge
 {
@@ -166,10 +168,32 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 		SDL_PushEvent(&quit_event);
 	});
 	
-	// TOOD: Add main menu music
+	// Setup audio
+	setup_audio();
+	
+	// Play theme music at low volume
+	AudioEngine::get_instance()->play_sound("theme_music", 0.2f);
+	
+	// Mute theme music if configuration set
+	bool music_enabled = ConfigManager::get_instance().get_music_enabled();
+	if (!music_enabled) AudioEngine::get_instance()->get_channel(3)->setMute(true);
 
 	// Initialize root node
 	root_.init(scene_state_);
+}
+
+void MainMenuScene::setup_audio()
+{
+	cge::AudioEngine *audio_engine = cge::AudioEngine::get_instance();
+	
+	// Locate files
+	auto theme_sound_info = locate_path_for_filename("audio/theme_music.mp3");
+	
+	// Load sounds if not already loaded
+	if (!audio_engine->get_sound("theme_music")) {
+		audio_engine->load_sound(theme_sound_info.path, "theme_music", false, true);
+		audio_engine->reserve_channel_for_sound("theme_music", 3);
+	}
 }
 
 void MainMenuScene::initialize_textures()
@@ -194,6 +218,9 @@ void MainMenuScene::update(double delta)
 
 	// Update scene graph - UIButton nodes will handle their own state
 	root_.update(scene_state_);
+	
+	// Update FMOD system once per tick
+	cge::AudioEngine::get_instance()->update();
 }
 
 void MainMenuScene::destroy()

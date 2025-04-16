@@ -8,8 +8,10 @@ For more information, please refer to <https://unlicense.org>
 #include "examples/pause_menu.hpp"
 #include "platform/math.hpp"
 #include "platform/scene_manager.hpp"
+#include "platform/audio_engine.hpp"
 #include "system/config_manager.hpp"
 #include "system/save_manager.hpp"
+#include "system/file_locator.hpp"
 
 namespace cge
 {
@@ -147,8 +149,25 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
         }
     });
     
+    // Setup audio
+    setup_audio();
+    
     // Initialize root node
     root_.init(scene_state_);
+}
+
+void PauseMenuScene::setup_audio()
+{
+    cge::AudioEngine *audio_engine = cge::AudioEngine::get_instance();
+    
+    // Locate files
+    auto theme_sound_info = locate_path_for_filename("audio/theme_music.mp3");
+    
+    // Load sounds if not already loaded
+    if (!audio_engine->get_sound("theme_music")) {
+        audio_engine->load_sound(theme_sound_info.path, "theme_music", false, true);
+        audio_engine->reserve_channel_for_sound("theme_music", 3);
+    }
 }
 
 void PauseMenuScene::initialize_textures()
@@ -167,6 +186,9 @@ void PauseMenuScene::update(double delta)
 
     // Update scene graph - UIButton nodes will handle their own state
     root_.update(scene_state_);
+    
+    // Update FMOD system once per tick
+    cge::AudioEngine::get_instance()->update();
     
     // Check for Escape key to close the pause menu
     const GameActionList &actions = io_handler_->get_game_actions();
@@ -209,6 +231,14 @@ void PauseMenuScene::deserialize(Serializer& serializer)
 void PauseMenuScene::on_enter()
 {
     // Called when the pause menu becomes active
+    
+    // Make sure theme music continues playing
+    bool music_enabled = ConfigManager::get_instance().get_music_enabled();
+    if (!music_enabled) {
+        AudioEngine::get_instance()->get_channel(3)->setMute(true);
+    } else {
+        AudioEngine::get_instance()->get_channel(3)->setMute(false);
+    }
 }
 
 void PauseMenuScene::on_exit()

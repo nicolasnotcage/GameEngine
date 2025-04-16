@@ -24,6 +24,7 @@ For more information, please refer to <https://unlicense.org>
 #include "system/save_manager.hpp"
 
 #include "fmod/fmod.hpp"
+#include "platform/audio_engine.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -72,6 +73,14 @@ int main(int argc, char *argv[])
         std::cout << "Save manager initialized\n";
     }
     
+    // Initialize audio engine
+    cge::AudioEngine *audio_engine = cge::AudioEngine::get_instance();
+    if (!audio_engine->init(32, true))
+    {
+        std::cerr << "Failed to initialize AudioEngine...\n";
+        return 1;
+    }
+    
     // Push the initial scene (main menu)
     scene_manager->push_scene_by_key("main_menu");
 
@@ -112,6 +121,10 @@ int main(int argc, char *argv[])
     
     // Cleanup after game loop
     scene_manager->clear_all_scenes();
+    
+    // Shutdown audio engine
+    audio_engine->shutdown();
+    
     cge::destroy_sdl_components(sdl_info);
     return 0;
 }

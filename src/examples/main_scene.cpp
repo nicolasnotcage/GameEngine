@@ -244,12 +244,7 @@ void MainScene::setup_trigger_zones()
 void MainScene::setup_audio() 
 { 
     cge::AudioEngine *audio_engine = cge::AudioEngine::get_instance(); 
-    if (!audio_engine->init(32, true))
-    {
-        std::cerr << "Failed to initialize AudioEngine in MainScene...\n";
-        return;
-    }
-
+    
     // Locate files
     auto player_file_info = locate_path_for_filename("audio/player_clap.wav");
     auto npc_file_info = locate_path_for_filename("audio/npc_clap.wav");
