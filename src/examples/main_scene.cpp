@@ -85,14 +85,64 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     intro_2_.set_blend_alpha(200);
     intro_2_.init(scene_state_);
 
+    intro_3_.set_filepath("images/game_text/intro_3.png");
+    intro_3_.set_blend(true);
+    intro_3_.set_blend_alpha(200);
+    intro_3_.init(scene_state_);
+
+    intro_4_.set_filepath("images/game_text/intro_4.png");
+    intro_4_.set_blend(true);
+    intro_4_.set_blend_alpha(200);
+    intro_4_.init(scene_state_);
+
+    first_find_.set_filepath("images/game_text/first_find.png");
+    first_find_.set_blend(true);
+    first_find_.set_blend_alpha(200);
+    first_find_.init(scene_state_);
+
+    second_find_.set_filepath("images/game_text/second_find.png");
+    second_find_.set_blend(true);
+    second_find_.set_blend_alpha(200);
+    second_find_.init(scene_state_);
+
+    third_find_.set_filepath("images/game_text/third_find.png");
+    third_find_.set_blend(true);
+    third_find_.set_blend_alpha(200);
+    third_find_.init(scene_state_);
+
     // Configure in-game text
-    auto &text_transform = root_.get_child<0>().get_child<2>().get_child<1>();
-    auto &text_node = text_transform.get_child<0>();
-    text_transform.right_translate(0, 1.8f);
-    text_transform.right_scale(3.0f, 1.0f);
-    text_node.push_texture(&intro_1_);
-    text_node.push_texture(&intro_2_);
-    text_node.set_should_render(true);
+    // Intro
+    auto &intro_text_transform = root_.get_child<0>().get_child<2>().get_child<1>();
+    auto &intro_text_node = intro_text_transform.get_child<0>();
+    intro_text_transform.right_translate(0, 1.8f);
+    intro_text_transform.right_scale(3.0f, 1.0f);
+    intro_text_node.push_texture(&intro_1_);
+    intro_text_node.push_texture(&intro_2_);
+    intro_text_node.push_texture(&intro_3_);
+    intro_text_node.push_texture(&intro_4_);
+    intro_text_node.set_should_render(true);
+
+    // First find
+    auto& first_find_transform = root_.get_child<0>().get_child<2>().get_child<2>();
+    auto& first_find_node = first_find_transform.get_child<0>();
+    first_find_transform.right_translate(0, 1.8f);
+    first_find_transform.right_scale(3.0f, 1.0f);
+    first_find_node.push_texture(&first_find_);
+
+    // Second find
+    auto& second_find_transform = root_.get_child<0>().get_child<2>().get_child<3>();
+    auto& second_find_node = second_find_transform.get_child<0>();
+    second_find_transform.right_translate(0, 1.8f);
+    second_find_transform.right_scale(3.0f, 1.0f);
+    second_find_node.push_texture(&second_find_);
+
+    // Third find
+    auto& third_find_transform = root_.get_child<0>().get_child<2>().get_child<4>();
+    auto& third_find_node = third_find_transform.get_child<0>();
+    third_find_transform.right_translate(0, 1.8f);
+    third_find_transform.right_scale(3.0f, 1.0f);
+    third_find_node.push_texture(&third_find_);
+    
 
     // ---------------------------
     //       Camera Setup
@@ -323,6 +373,33 @@ void MainScene::setup_collisions()
                     blue_witch_hidden_ = false;
                     has_laughed_ = true;
                     time_to_laugh_ = 0.0f;
+
+                    // Get camera reference for text nodes
+                    auto& camera = root_.get_child<0>();
+
+                    // Show appropriate text node based on find count
+                    if (find_count_ == 0) {
+                        // First find
+                        auto& text_transform = camera.get_child<2>().get_child<2>();
+                        auto& text_node = text_transform.get_child<0>();
+                        text_node.set_should_render(true);
+                    } else if (find_count_ == 1) {
+                        // Second find
+                        auto& text_transform = camera.get_child<2>().get_child<3>();
+                        auto& text_node = text_transform.get_child<0>();
+                        text_node.set_should_render(true);
+                    } else if (find_count_ == 2) {
+                        // Third find - NPC should remain visible after this
+                        auto& text_transform = camera.get_child<2>().get_child<4>();
+                        auto& text_node = text_transform.get_child<0>();
+                        text_node.set_should_render(true);
+                    }
+
+                    // Set waiting for dialogue flag
+                    waiting_for_dialogue_ = true;
+
+                    // Increment find count
+                    find_count_++;
                 }
             }
         }
@@ -368,6 +445,8 @@ void MainScene::destroy()
     blue_witch_transparent_texture_.destroy(); // Add this line
     intro_1_.destroy();
     intro_2_.destroy();
+    intro_3_.destroy();
+    intro_4_.destroy();
     bottom_boundary_.destroy();
     top_boundary_.destroy();
     left_boundary_.destroy();
@@ -396,25 +475,115 @@ void MainScene::update(double delta)
     auto& blue_witch_transform = camera.get_child<1>();
     auto& witch_transform = camera.get_child<2>();
 
-    // Check if dialogue is not rendered anymore (completed)
+    // Check if intro dialogue is not rendered anymore (completed)
     if (!dialogue_completed_ && !text_node.is_rendered()) 
     {
         dialogue_completed_ = true;
         blue_witch_transform.set_path_controlled(blue_witch_path_);
     }
 
-    // Check if path is completed and witch should be hidden
-    if (dialogue_completed_ 
-        && !blue_witch_hidden_ 
-        && !blue_witch_transform.is_moving() 
-        && blue_witch_transform.get_position_y() >= 1.5f) 
+    // Check if find dialogue is not rendered anymore (completed)
+    if (waiting_for_dialogue_) 
     {
-        // Set new pathing position (Stationary)
-        Path top_left_path{};
-        top_left_path.add_point(-15.55f, -7.625, 0.0f);
-        top_left_path.set_looping(false);
+        bool dialogue_still_showing = false;
+        
+        // Check which dialogue is currently showing based on find_count_
+        if (find_count_ == 1) {
+            // First find dialogue
+            auto& first_find_transform = camera.get_child<2>().get_child<2>();
+            auto& first_find_node = first_find_transform.get_child<0>();
+            dialogue_still_showing = first_find_node.is_rendered();
+            
+            // If dialogue is no longer showing, teleport NPC to next location
+            if (!dialogue_still_showing) {
+                waiting_for_dialogue_ = false;
+                
+                // Hide the NPC immediately
+                auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+                blue_witch_sprite.set_auto_animation_enabled(false);
+                blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
+                blue_witch_sprite.play("hidden");
+                blue_witch_hidden_ = true;
+                
+                // Create a new path with the teleport location
+                Path new_path{};
+                new_path.add_point(14.6641f, 6.5282f, 0.0f);
+                new_path.set_looping(false);
+                
+                // Set the path and teleport to next location
+                blue_witch_transform.set_path_controlled(new_path);
+                blue_witch_transform.set_position(14.6641f, 6.5282f);
+            }
+        } 
+        else if (find_count_ == 2) {
+            // Second find dialogue
+            auto& second_find_transform = camera.get_child<2>().get_child<3>();
+            auto& second_find_node = second_find_transform.get_child<0>();
+            dialogue_still_showing = second_find_node.is_rendered();
+            
+            // If dialogue is no longer showing, teleport NPC to next location
+            if (!dialogue_still_showing) {
+                waiting_for_dialogue_ = false;
+                
+                // Hide the NPC immediately
+                auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+                blue_witch_sprite.set_auto_animation_enabled(false);
+                blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
+                blue_witch_sprite.play("hidden");
+                blue_witch_hidden_ = true;
+                
+                // Create a new path with the teleport location
+                Path new_path{};
+                new_path.add_point(3.3f, -2.525f, 0.0f);
+                new_path.set_looping(false);
+                
+                // Set the path and teleport to next location
+                blue_witch_transform.set_path_controlled(new_path);
+                blue_witch_transform.set_position(3.3f, -2.525f);
+            }
+        }
+        else if (find_count_ == 3) {
+            // Third find dialogue
+            auto& third_find_transform = camera.get_child<2>().get_child<4>();
+            auto& third_find_node = third_find_transform.get_child<0>();
+            dialogue_still_showing = third_find_node.is_rendered();
+            
+            // If dialogue is no longer showing, NPC should remain visible
+            if (!dialogue_still_showing) {
+                waiting_for_dialogue_ = false;
+                
+                // Make sure the NPC is visible and using the idle animation
+                auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+                blue_witch_sprite.set_auto_animation_enabled(true);
+                blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
+                blue_witch_sprite.play("idle");
+                blue_witch_hidden_ = false;
+            }
+        }
+    }
 
-        // Hide witch and move to top left
+    // Check if intro path is completed and witch should be hidden
+    if (!blue_witch_hidden_ && !blue_witch_transform.is_moving() && 
+        dialogue_completed_ && blue_witch_transform.get_position_y() >= 1.5f && 
+        !waiting_for_dialogue_ && find_count_ == 0) 
+    {
+        // Set new pathing position based on find count
+        Path new_path{};
+        
+        if (find_count_ == 1) {
+            // First find - teleport to (14.6641, 6.5282)
+            new_path.add_point(14.6641f, 6.5282f, 0.0f);
+        } else if (find_count_ == 2) {
+            // Second find - teleport to (3.3, -2.525)
+            new_path.add_point(3.3f, -2.525f, 0.0f);
+        } else {
+            // Default position
+            new_path.add_point(-15.55f, -7.625f, 0.0f);
+        }
+        
+        new_path.set_looping(false);
+
+        // Hide witch and move to new position
         auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
         
         // Disable automatic animation switching to prevent overriding the hidden animation
@@ -424,11 +593,34 @@ void MainScene::update(double delta)
         blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
         blue_witch_sprite.play("hidden");
         
-        // Move the witch to the top left
-        blue_witch_transform.set_path_controlled(top_left_path);
-        blue_witch_transform.set_position(-15.55f, -7.625);
+        // Move the witch to the new position
+        blue_witch_transform.set_path_controlled(new_path);
+        
+        if (find_count_ == 1) {
+            blue_witch_transform.set_position(14.6641f, 6.5282f);
+        } else if (find_count_ == 2) {
+            blue_witch_transform.set_position(3.3f, -2.525f);
+        } else {
+            blue_witch_transform.set_position(-15.55f, -7.625f);
+        }
         
         blue_witch_hidden_ = true;
+    }
+    
+    // Special case for third find - NPC should remain visible
+    if (find_count_ == 3 && waiting_for_dialogue_ == false && !blue_witch_transform.is_moving()) {
+        // Make sure the NPC is visible and using the idle animation
+        auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+        
+        // Re-enable automatic animation switching
+        blue_witch_sprite.set_auto_animation_enabled(true);
+        
+        // Set the idle animation and texture
+        blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
+        blue_witch_sprite.play("idle");
+        
+        // Mark witch as visible
+        blue_witch_hidden_ = false;
     }
     
     // Check for pause action to open pause menu

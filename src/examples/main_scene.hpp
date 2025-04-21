@@ -34,7 +34,7 @@ namespace cge
 using AnimatedSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
 using GameMap = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 using GameText = TransformNodeT<TextNodeT<GeometryNodeT<>>>;
-using PlayerSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>, GameText>;
+using PlayerSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>, GameText, GameText, GameText, GameText>;
 
 // Parent camera with two child animated sprites and a zone transform node
 using AnimatedScene = CameraNodeT<GameMap, 
@@ -80,6 +80,11 @@ class MainScene : public Scene
     // Texture nodes for game text
     TextureNode intro_1_;
     TextureNode intro_2_;
+    TextureNode intro_3_;
+    TextureNode intro_4_;
+    TextureNode first_find_;
+    TextureNode second_find_;
+    TextureNode third_find_;
 
     // Collision system
     CollisionSystem collision_system_;
@@ -106,6 +111,8 @@ class MainScene : public Scene
     Path blue_witch_path_;
     bool dialogue_completed_{ false };
     bool blue_witch_hidden_{ false };
+    int find_count_{0}; // 0 = not found yet, 1 = found once, 2 = found twice, 3 = found three times
+    bool waiting_for_dialogue_{false}; // Flag to track if we're waiting for dialogue to complete
 
     // Serializer tests
     float test_float_{0.0};
