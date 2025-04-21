@@ -12,37 +12,56 @@ namespace cge
 
 // Forward declarations
 class CollisionComponent;
-
-// A pair of components that have collided
-struct CollisionPair
-{
-    std::shared_ptr<CollisionComponent> first;
-    std::shared_ptr<CollisionComponent> second;
-
-    CollisionPair(std::shared_ptr<CollisionComponent> a, std::shared_ptr<CollisionComponent> b) 
-        : first(a), second(b) {}
-};
+class TransformNode;
 
 // Collision system to manage and check collisions between components
 class CollisionSystem
 {
   public:
-    CollisionSystem() = default;
+    // Collision type enum
+    enum class CollisionType
+    {
+        ENTITY,
+        BOUNDARY,
+        TRIGGER
+    };
+
+    CollisionSystem();
     ~CollisionSystem();
 
-    // Add/remove collision components
-    void add_component(std::shared_ptr<CollisionComponent> component);
+    // Add/remove collision components with type
+    void add_component(std::shared_ptr<CollisionComponent> component, 
+                       CollisionType type = CollisionType::ENTITY);
     void remove_component(std::shared_ptr<CollisionComponent> component);
 
-    // Check all registered components for collisions
-    std::vector<CollisionPair> check_collisions();
+    // Register response handlers for different collision types
+    void register_boundary_response(std::function<void(TransformNode*, TransformNode*)> handler);
+    void register_entity_response(std::function<void(TransformNode*, TransformNode*)> handler);
+    void register_trigger_response(std::function<void(TransformNode*, TransformNode*)> handler);
+
+    // Process all collisions (detection and response)
+    void process_collisions();
 
     // Clear all components
     void clear();
 
-  private:
-    std::vector<std::shared_ptr<CollisionComponent>> components_;
+    // Get collision type for a component
+    CollisionType get_component_type(const CollisionComponent* component) const;
 
+  private:
+    // Component storage with type information
+    struct ComponentEntry
+    {
+        std::shared_ptr<CollisionComponent> component;
+        CollisionType type;
+    };
+    
+    std::vector<ComponentEntry> components_;
+    
+    // Response handlers
+    std::function<void(TransformNode*, TransformNode*)> boundary_handler_;
+    std::function<void(TransformNode*, TransformNode*)> entity_handler_;
+    std::function<void(TransformNode*, TransformNode*)> trigger_handler_;
 };
 
 } // namespace cge

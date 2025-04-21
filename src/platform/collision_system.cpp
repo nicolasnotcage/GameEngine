@@ -6,63 +6,148 @@ For more information, please refer to <https://unlicense.org>
 */
 
 #include "platform/collision_system.hpp"
+#include "graph/transform_node.hpp"
 #include <algorithm>
 
 namespace cge
 {
 
-CollisionSystem::~CollisionSystem() { clear(); }
+CollisionSystem::CollisionSystem()
+{
+    // Set default handlers that do nothing
+    boundary_handler_ = [](TransformNode*, TransformNode*) {};
+    entity_handler_ = [](TransformNode*, TransformNode*) {};
+    trigger_handler_ = [](TransformNode*, TransformNode*) {};
+}
 
-// Add a collision component to the collection of components. First 
-// checks if the component already exists within the collection before 
-// adding. 
-void CollisionSystem::add_component(std::shared_ptr<CollisionComponent> component)
+CollisionSystem::~CollisionSystem() 
+{ 
+    clear(); 
+}
+
+// Add a collision component to the collection of components with its type.
+void CollisionSystem::add_component(std::shared_ptr<CollisionComponent> component, CollisionType type)
 {
     if(component)
     {
         // Check if component is already in the list
-        auto it = std::find(components_.begin(), components_.end(), component);
-        if(it == components_.end()) { components_.push_back(component); }
+        for(auto& entry : components_)
+        {
+            if(entry.component == component)
+            {
+                entry.type = type; // Update type if already exists
+                return;
+            }
+        }
+        
+        // Add new component
+        components_.push_back({component, type});
     }
 }
 
-// Remove a component from the collection if it exists. 
+// Remove a component from the collection if it exists.
 void CollisionSystem::remove_component(std::shared_ptr<CollisionComponent> component)
 {
-    auto it = std::find(components_.begin(), components_.end(), component);
-    if(it != components_.end()) { components_.erase(it); }
+    auto it = std::remove_if(components_.begin(), components_.end(),
+                           [&component](const ComponentEntry& entry) {
+                               return entry.component == component;
+                           });
+    
+    if(it != components_.end())
+    {
+        components_.erase(it, components_.end());
+    }
 }
 
-// Iteratively evaluates collision components to detect collisions. Returns 
-// a vector of collision pairs. 
-std::vector<CollisionPair> CollisionSystem::check_collisions()
+// Register a handler for boundary collisions
+void CollisionSystem::register_boundary_response(std::function<void(TransformNode*, TransformNode*)> handler)
 {
-    std::vector<CollisionPair> colliding_pairs;
+    boundary_handler_ = handler;
+}
 
+// Register a handler for entity-entity collisions
+void CollisionSystem::register_entity_response(std::function<void(TransformNode*, TransformNode*)> handler)
+{
+    entity_handler_ = handler;
+}
+
+// Register a handler for trigger collisions
+void CollisionSystem::register_trigger_response(std::function<void(TransformNode*, TransformNode*)> handler)
+{
+    trigger_handler_ = handler;
+}
+
+// Process all collisions (detection and response)
+void CollisionSystem::process_collisions()
+{
     // Check all components against each other
-    // TODO: O(n^2). Optimize?
-    for(int i = 0; i < components_.size(); i++)
+    for(size_t i = 0; i < components_.size(); i++)
     {
-        for(int j = i + 1; j < components_.size(); j++)
+        for(size_t j = i + 1; j < components_.size(); j++)
         {
-            auto a = components_[i];
-            auto b = components_[j];
-
+            auto& entry_a = components_[i];
+            auto& entry_b = components_[j];
+            
+            auto component_a = entry_a.component;
+            auto component_b = entry_b.component;
+            
             // Skip if either component is disabled
-            if(!a->is_enabled() || !b->is_enabled()) { continue; }
-
+            if(!component_a->is_enabled() || !component_b->is_enabled())
+                continue;
+            
             // Check for collision
-            if(a->collides_with(*b))
+            if(component_a->collides_with(*component_b))
             {
-                // Add the pair to our result list
-                colliding_pairs.emplace_back(a, b);
+                // Get owner transform nodes
+                TransformNode* transform_a = component_a->get_owner();
+                TransformNode* transform_b = component_b->get_owner();
+                
+                // Skip if either owner is null
+                if(!transform_a || !transform_b)
+                    continue;
+                
+                // Determine collision type and call appropriate handler
+                if(entry_a.type == CollisionType::BOUNDARY)
+                {
+                    boundary_handler_(transform_b, transform_a);
+                }
+                else if(entry_b.type == CollisionType::BOUNDARY)
+                {
+                    boundary_handler_(transform_a, transform_b);
+                }
+                else if(entry_a.type == CollisionType::TRIGGER)
+                {
+                    trigger_handler_(transform_b, transform_a);
+                }
+                else if(entry_b.type == CollisionType::TRIGGER)
+                {
+                    trigger_handler_(transform_a, transform_b);
+                }
+                else
+                {
+                    entity_handler_(transform_a, transform_b);
+                }
             }
         }
     }
-
-    return colliding_pairs;
 }
 
+// Get the collision type for a component
+CollisionSystem::CollisionType CollisionSystem::get_component_type(const CollisionComponent* component) const
+{
+    for(const auto& entry : components_)
+    {
+        if(entry.component.get() == component)
+        {
+            return entry.type;
+        }
+    }
+    
+    // Default to entity type if not found
+    return CollisionType::ENTITY;
+}
+
+// Clear all components
 void CollisionSystem::clear()
 {
     components_.clear();

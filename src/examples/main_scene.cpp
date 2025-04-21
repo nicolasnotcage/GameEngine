@@ -8,9 +8,7 @@ For more information, please refer to <https://unlicense.org>
 #include "examples/main_scene.hpp"
 #include "platform/animation.hpp"
 #include "platform/audio_engine.hpp"
-#include "platform/collision_component.hpp" 
 #include "platform/collision_system.hpp"
-#include "platform/collision_handler.hpp"
 #include "platform/scene_manager.hpp"
 
 #include "system/file_locator.hpp"
@@ -28,9 +26,6 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 {
     sdl_info_ = sdl_info;
     io_handler_ = io_handler;
-    
-    // Initialize collision handler with the collision system
-    collision_handler_ = std::make_unique<CollisionHandler>(collision_system_);
 
     SDL_SetRenderDrawColor(sdl_info->renderer, 0, 0, 0, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
@@ -213,26 +208,26 @@ void MainScene::setup_witch_animations()
 
 void MainScene::setup_collisions()
 {
-    // Character objects
-    auto &camera = root_.get_child<0>();
-    auto &golem_transform = camera.get_child<1>();
-    auto &witch_transform = camera.get_child<2>();
-
-    // Collider transform objects
-    auto &bottom_boundary_transform = camera.get_child<4>();
-    auto &left_boundary_transform = camera.get_child<5>();
+    // Initialize boundary nodes (doesn't do anything currently but in case updates are made to texture node in the future)
+    bottom_boundary.init(scene_state_);
+    top_boundary.init(scene_state_);
+    left_boundary.init(scene_state_);
+    right_boundary.init(scene_state_);
+    left_pillar.init(scene_state_);
+    right_pillar.init(scene_state_);
 
     // Configure world boundaries
-    // 1. Bottom boundary
-    auto bottom_boundary =
-        bottom_boundary_transform.add_aabb_collider(Vector2(-17.3, 8.5), Vector2(17.75, 9.88));
-
-    // 2. Left boundary
-    auto left_boundary = 
-        left_boundary_transform.add_aabb_collider(Vector2(-17.8, -9.65), Vector2(-17.28, 9.88));
-
-    // 3. Right boundary
-    // 4. Top boundary
+    auto bottom = bottom_boundary.add_aabb_collider(Vector2(-17.3, 8.5), Vector2(17.75, 9.88));
+    auto top = top_boundary.add_aabb_collider(Vector2(-17.3, -10.4), Vector2(17.75, -10.2));
+    auto left = left_boundary.add_aabb_collider(Vector2(-18.3, -9.65), Vector2(-17.5, 9.88));
+    auto right = right_boundary.add_aabb_collider(Vector2(17.6, -9.65), Vector2(17.75, 9.88));
+    auto pillar_left = left_pillar.add_aabb_collider(Vector2(-12.9, -5.5), Vector2(-8.4, -1.3));
+    auto pillar_right = right_pillar.add_aabb_collider(Vector2(8.4, -5.5), Vector2(13.0, -1.3));
+    
+    // Character objects
+    auto& camera = root_.get_child<0>();
+    auto& golem_transform = camera.get_child<1>();
+    auto& witch_transform = camera.get_child<2>();
 
     // Add AABB collision component to witch (player)
     auto witch_collider =
@@ -243,19 +238,37 @@ void MainScene::setup_collisions()
         golem_transform.add_aabb_collider(Vector2(-0.5f, -1.0f), Vector2(0.5f, 1.0f));
 
     // Register components with the collision system
-    collision_system_.add_component(bottom_boundary);
-    collision_system_.add_component(left_boundary);
-    collision_system_.add_component(golem_collider);
-    collision_system_.add_component(witch_collider);
-    
-    // Register boundary nodes with the collision handler
-    collision_handler_->add_boundary_node(&bottom_boundary_transform);
-    collision_handler_->add_boundary_node(&left_boundary_transform);
+    collision_system_.add_component(bottom, CollisionSystem::CollisionType::BOUNDARY);
+    collision_system_.add_component(left, CollisionSystem::CollisionType::BOUNDARY);
+    collision_system_.add_component(right, CollisionSystem::CollisionType::BOUNDARY);
+    collision_system_.add_component(top, CollisionSystem::CollisionType::BOUNDARY);
+    collision_system_.add_component(pillar_left, CollisionSystem::CollisionType::BOUNDARY);
+    collision_system_.add_component(pillar_right, CollisionSystem::CollisionType::BOUNDARY);
+    collision_system_.add_component(golem_collider, CollisionSystem::CollisionType::ENTITY);
+    collision_system_.add_component(witch_collider, CollisionSystem::CollisionType::ENTITY);
     
     // Register boundary collision response
-    collision_handler_->register_boundary_response([this](TransformNode* entity, TransformNode* boundary) {
+    collision_system_.register_boundary_response([this](TransformNode* entity, TransformNode* boundary) 
+        {
         handle_boundary_collision(entity, boundary);
-    });
+        });
+
+    // Register entity collision response for witch-golem collision
+    collision_system_.register_entity_response([this, &golem_transform, &witch_transform](TransformNode* entity_a, TransformNode* entity_b) {
+        // Check for witch-golem collision
+        bool witch_golem_colliding =
+            (entity_a == &witch_transform && entity_b == &golem_transform) ||
+            (entity_b == &witch_transform && entity_a == &golem_transform);
+
+        // Handle laugh sound logic on player-npc collision
+        if (witch_golem_colliding && !has_laughed_)
+        {
+            // Play sound only if not already in cooldown period
+            AudioEngine::get_instance()->play_sound("creepy_ha", 1.0f);
+            has_laughed_ = true;
+            time_to_laugh_ = 0.0f;
+        }
+        });
 }
 
 void MainScene::setup_trigger_zones()
@@ -346,31 +359,9 @@ void MainScene::update(double delta)
 }
 
 void MainScene::handle_collisions()
-{
-    // Get nodes related to collision behavior
-    auto &camera = root_.get_child<0>();
-    auto &golem_transform = camera.get_child<1>();
-    auto &witch_transform = camera.get_child<2>();
-
-    // Register entity collision response for witch-golem collision
-    collision_handler_->register_entity_response([this, &golem_transform, &witch_transform](TransformNode* entity_a, TransformNode* entity_b) {
-        // Check for witch-golem collision
-        bool witch_golem_colliding = 
-            (entity_a == &witch_transform && entity_b == &golem_transform) ||
-            (entity_b == &witch_transform && entity_a == &golem_transform);
-
-        // Handle laugh sound logic on player-npc collision
-        if(witch_golem_colliding && !has_laughed_)
-        {
-            // Play sound only if not already in cooldown period
-            AudioEngine::get_instance()->play_sound("creepy_ha", 1.0f);
-            has_laughed_ = true;
-            time_to_laugh_ = 0.0f;
-        }
-    });
-
-    // Process all collisions using the collision handler
-    collision_handler_->process_collisions();
+{  
+    // Process all collisions using the collision system
+    collision_system_.process_collisions();
 }
 
 void MainScene::handle_boundary_collision(TransformNode *entity, TransformNode *boundary)
@@ -382,7 +373,7 @@ void MainScene::handle_boundary_collision(TransformNode *entity, TransformNode *
 // Register a collision component with the collision system. 
 void MainScene::register_collision_component(std::shared_ptr<CollisionComponent> component)
 {
-    collision_system_.add_component(component);
+    collision_system_.add_component(component, CollisionSystem::CollisionType::ENTITY);
 }
 
 void MainScene::handle_audio()

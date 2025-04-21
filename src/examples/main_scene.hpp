@@ -19,7 +19,6 @@ For more information, please refer to <https://unlicense.org>
 
 #include "platform/audio_component.hpp"
 #include "platform/collision_system.hpp"
-#include "platform/collision_handler.hpp"
 #include "platform/io_handler.hpp"
 #include "platform/path.hpp"
 #include "platform/scene.hpp"
@@ -73,9 +72,16 @@ class MainScene : public Scene
     TextureNode witch_run_texture_;
     TextureNode witch_idle_texture_;
 
-    // Collision system and handler
+    // Transform nodes for map boundaries and obstacles
+    TransformNode bottom_boundary;
+    TransformNode top_boundary;
+    TransformNode left_boundary;
+    TransformNode right_boundary;
+    TransformNode left_pillar;
+    TransformNode right_pillar;
+
+    // Collision system
     CollisionSystem collision_system_;
-    std::unique_ptr<CollisionHandler> collision_handler_;
 
     // Helper methods for scene setup
     void setup_golem_animations();
