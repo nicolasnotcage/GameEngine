@@ -41,8 +41,11 @@ GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
             // For clicking to get world coordinates
             case EventType::MOUSE_BUTTON_LEFT: action = GameAction::MOUSE_BUTTON_LEFT; break;
 
-            // For player clapping
+            // For player whistling
             case EventType::KEY_DOWN_F: action = GameAction::PLAYER_WHISTLE; break;
+
+            // For player investigating
+            case EventType::KEY_DOWN_E: action = GameAction::INVESTIGATE; break;
 
             // For toggling audio
             case EventType::KEY_DOWN_T: action = GameAction::TOGGLE_MUSIC; break;

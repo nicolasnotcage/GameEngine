@@ -42,6 +42,7 @@ enum class GameAction
     PLAYER_MOVE_RIGHT,
     PLAYER_WHISTLE,
     ADVANCE_TEXT,
+    INVESTIGATE,
 
     // Mouse actions
     MOUSE_BUTTON_LEFT
