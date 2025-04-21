@@ -82,6 +82,7 @@ class MainScene : public Scene
     TextureNode intro_2_;
     TextureNode intro_3_;
     TextureNode intro_4_;
+    TextureNode intro_5_;
     TextureNode first_find_;
     TextureNode second_find_;
     TextureNode third_find_;

@@ -5,6 +5,6 @@ screen_width = 800
 screen_height = 600
 test string = test
 test_bool = true
-music_enabled = false
+music_enabled = true
 test_int = 38
 test_float = 3.900000

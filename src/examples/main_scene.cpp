@@ -95,6 +95,11 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     intro_4_.set_blend_alpha(200);
     intro_4_.init(scene_state_);
 
+    intro_5_.set_filepath("images/game_text/intro_5.png");
+    intro_5_.set_blend(true);
+    intro_5_.set_blend_alpha(200);
+    intro_5_.init(scene_state_);
+
     first_find_.set_filepath("images/game_text/first_find.png");
     first_find_.set_blend(true);
     first_find_.set_blend_alpha(200);
@@ -120,6 +125,7 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     intro_text_node.push_texture(&intro_2_);
     intro_text_node.push_texture(&intro_3_);
     intro_text_node.push_texture(&intro_4_);
+    intro_text_node.push_texture(&intro_5_);
     intro_text_node.set_should_render(true);
 
     // First find
