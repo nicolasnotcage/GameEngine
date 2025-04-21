@@ -67,6 +67,7 @@ class MainScene : public Scene
     TextureNode blue_witch_idle_texture_;
     TextureNode white_witch_run_texture_;
     TextureNode white_witch_idle_texture_;
+    TextureNode blue_witch_transparent_texture_;
 
     // Transform nodes for map boundaries and obstacles
     TransformNode bottom_boundary_;
@@ -84,7 +85,7 @@ class MainScene : public Scene
     CollisionSystem collision_system_;
 
     // Helper methods for scene setup
-    void setup_golem_animations();
+    void setup_npc_animations();
     void setup_witch_animations();
     void setup_collisions();
     void setup_trigger_zones();
@@ -101,6 +102,9 @@ class MainScene : public Scene
     float time_to_laugh_{0.0f};
     bool  has_laughed_{false};
     int   laugh_channel_id{-1};
+    Path blue_witch_path_;
+    bool dialogue_completed_{ false };
+    bool blue_witch_hidden_{ false };
 
     // Serializer tests
     float test_float_{0.0};

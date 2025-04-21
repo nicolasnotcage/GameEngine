@@ -53,6 +53,13 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     blue_witch_idle_texture_.define_grid(1, 6, 32, 48);
     blue_witch_idle_texture_.init(scene_state_);
 
+    // Blue witch (NPC) transparent texture
+    blue_witch_transparent_texture_.set_filepath("images/blue_witch/B_witch_transparent.png");
+    blue_witch_transparent_texture_.set_blend(true);
+    blue_witch_transparent_texture_.set_blend_alpha(0); // Fully transparent
+    blue_witch_transparent_texture_.define_grid(1, 8, 32, 48);
+    blue_witch_transparent_texture_.init(scene_state_);
+
     // White witch (Player) run texture
     white_witch_run_texture_.set_filepath("images/white_witch/witch_run.png");
     white_witch_run_texture_.set_blend(true);
@@ -117,8 +124,11 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     auto &blue_witch_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
 
-    // Position golem
-    blue_witch_transform.right_translate(-15.55f, -7.625);
+    // Position blue witch and configure path
+    blue_witch_transform.right_translate(4.0f, 1.0f); 
+    blue_witch_path_.add_point(4.0f, 1.0f, 0.5f);  // Start position
+    blue_witch_path_.add_point(4.0f, 2.5f, 0.5f);  // Move down
+    blue_witch_path_.set_looping(false);
     blue_witch_transform.right_scale(2.0f, 2.0f);
 
     // Add audio to golem with 3D settings
@@ -142,7 +152,7 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     camera.set_follow_smoothness(1.0f);
 
     // Setup animations
-    setup_golem_animations();
+    setup_npc_animations();
     setup_witch_animations();
 
     // Setup systems
@@ -169,7 +179,7 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     root_.init(scene_state_);
 }
 
-void MainScene::setup_golem_animations()
+void MainScene::setup_npc_animations()
 {
     auto &camera = root_.get_child<0>();
     auto &blue_witch_transform = camera.get_child<1>();
@@ -183,9 +193,14 @@ void MainScene::setup_golem_animations()
     Animation idle_animation("idle", true);
     for(int i = 0; i < 6; i++) { idle_animation.add_frame(i, 10); }
 
+    // Create hidden animation
+    Animation hidden_animation("hidden", true);
+    for (int i = 0; i < 8; i++) { hidden_animation.add_frame(i, 10); }
+
     // Add animations with their respective textures
     blue_witch_sprite.add_animation_with_texture(run_animation, &blue_witch_run_texture_);
     blue_witch_sprite.add_animation_with_texture(idle_animation, &blue_witch_idle_texture_);
+    blue_witch_sprite.add_animation_with_texture(hidden_animation, &blue_witch_transparent_texture_);
 
     // Set initial texture
     blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
@@ -327,6 +342,7 @@ void MainScene::destroy()
     white_witch_run_texture_.destroy();
     blue_witch_run_texture_.destroy();
     blue_witch_idle_texture_.destroy();
+    blue_witch_transparent_texture_.destroy(); // Add this line
     intro_1_.destroy();
     intro_2_.destroy();
     bottom_boundary_.destroy();
@@ -350,22 +366,44 @@ void MainScene::update(double delta)
 {
     scene_state_.io_handler = io_handler_;
     scene_state_.delta = delta;
-    
+
+    auto& camera = root_.get_child<0>();
+    auto& text_transform = camera.get_child<2>().get_child<1>();
+    auto& text_node = text_transform.get_child<0>();
+    auto& blue_witch_transform = camera.get_child<1>();
+    auto& witch_transform = camera.get_child<2>();
+
+    // Check if dialogue is not rendered anymore (completed)
+    if (!dialogue_completed_ && !text_node.is_rendered()) 
+    {
+        dialogue_completed_ = true;
+        blue_witch_transform.set_path_controlled(blue_witch_path_);
+    }
+
+    // Check if path is completed and witch should be hidden
+    if (dialogue_completed_ 
+        && !blue_witch_hidden_ 
+        && !blue_witch_transform.is_moving() 
+        && blue_witch_transform.get_position_y() >= 1.5f) 
+    {
+        // Set new pathing position (Stationary)
+        Path top_left_path{};
+        top_left_path.add_point(-15.55f, -7.625, 0.0f);
+        top_left_path.set_looping(false);
+
+        // Hide witch and move to top left
+        auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+        blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
+        blue_witch_sprite.play("hidden");
+        blue_witch_transform.set_path_controlled(top_left_path);
+        blue_witch_transform.set_position(-15.55f, -7.625);
+        
+        blue_witch_hidden_ = true;
+    }
+
     // Update 3D audio listener position at the beginning of the frame
-    auto &camera = root_.get_child<0>();
-    auto &witch_transform = camera.get_child<2>();
     Vector2 witch_position(witch_transform.get_position_x(), witch_transform.get_position_y());
     AudioEngine::get_instance()->set_3d_listener_position(witch_position);
-
-    // Handle boolean for laughing sound
-    if (has_laughed_)
-    { 
-        time_to_laugh_ += delta;
-        if (time_to_laugh_ >= 10)
-        { 
-            has_laughed_ = false;
-        }
-    }
 
     // Check for pause action to open pause menu
     const GameActionList &actions = io_handler_->get_game_actions();
@@ -411,10 +449,10 @@ void MainScene::handle_audio()
     auto &blue_witch_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
     
-    // Update golem's audio component position for 3D audio
+    // Update witch's audio component position for 3D audio
     if (auto* blue_witch_audio = blue_witch_transform.get_audio_component())
     {
-        // Force update of the golem's position in the audio component
+        // Force update of the witch's position in the audio component
         float blue_witch_x = blue_witch_transform.get_position_x();
         float blue_witch_y = blue_witch_transform.get_position_y();
         
@@ -430,83 +468,22 @@ void MainScene::handle_audio()
         // Configure 3D audio parameters - using smaller values for better effect
         blue_witch_audio->set_min_distance(1.0f);  // Closer min distance for more pronounced effect
         blue_witch_audio->set_max_distance(10.0f); // Shorter max distance for more noticeable falloff
-    }
-    
-    // Increment timer
-    npc_audio_timer_ += scene_state_.delta;
-
-    // Play audio if timer satisfied
-    if (npc_audio_timer_ >= time_to_clap_) 
-    { 
-        // Get golem position
-        float blue_witch_x = blue_witch_transform.get_position_x();
-        float blue_witch_y = blue_witch_transform.get_position_y();
-        
-        // Play sound directly with FMOD to ensure 3D positioning
-        AudioEngine* audio_engine = AudioEngine::get_instance();
-        FMOD::Sound* sound = audio_engine->get_sound("npc_clap");
-        
-        if (sound) {
-            // Check if sound is 3D
-            FMOD_MODE mode;
-            sound->getMode(&mode);
-            bool is_3d = (mode & FMOD_3D) != 0;
-            
-            if (is_3d) {                
-                // Create a channel for the sound
-                FMOD::Channel* channel = nullptr;
-                FMOD_RESULT result = audio_engine->get_system()->playSound(sound, nullptr, true, &channel);
-                
-                if (result == FMOD_OK && channel) {
-                    // Set 3D attributes
-                    FMOD_VECTOR position = { blue_witch_x, blue_witch_y, 0.0f};
-                    FMOD_VECTOR velocity = {0.0f, 0.0f, 0.0f};
-                    
-                    // Set 3D attributes
-                    result = channel->set3DAttributes(&position, &velocity);
-                    if (result != FMOD_OK) {
-                        std::cout << "Failed to set 3D attributes. Error code: " << result << std::endl;
-                    }
-                    
-                    // Set min/max distance
-                    result = channel->set3DMinMaxDistance(1.0f, 10.0f);
-                    if (result != FMOD_OK) {
-                        std::cout << "Failed to set min/max distance. Error code: " << result << std::endl;
-                    }
-                    
-                    // Set volume and unpause
-                    channel->setVolume(1.0f);
-                    channel->setPaused(false);
-                } 
-                else 
-                {
-                    std::cout << "Failed to play sound directly. Error code: " << result << std::endl;
-                }
-            } else {
-                // Fallback to using the audio component
-                if (auto* blue_witch_audio = blue_witch_transform.get_audio_component()) {
-                    blue_witch_audio->play(1.0f);
-                }
-            }
-        } 
-        else 
-        {
-            std::cout << "Could not find sound 'npc_clap'" << std::endl;
-        }
-
-        // Reset timer
-        npc_audio_timer_ = 0.0f;
-    }
+    }    
 
     // Check for whistling action
     const GameActionList &actions = io_handler_->get_game_actions();
     for(uint8_t i = 0; i < actions.num_actions; i++)
     {
-        if(actions.actions[i] == GameAction::PLAYER_WHISTLE)
-        {
-            if(auto *witch_audio = witch_transform.get_audio_component())
-            {
+        if (actions.actions[i] == GameAction::PLAYER_WHISTLE) {
+            // Play witch whistle sound
+            if (auto* witch_audio = witch_transform.get_audio_component()) {
                 witch_audio->play(1.0f);
+            }
+
+            // Make blue witch clap in response if hidden
+            if (auto* blue_witch_audio = blue_witch_transform.get_audio_component()) 
+            {
+                if (blue_witch_hidden_) blue_witch_audio->play(1.0f);
             }
             break;
         }

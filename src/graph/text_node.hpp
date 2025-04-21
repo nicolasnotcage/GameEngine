@@ -29,6 +29,7 @@ class TextNode : public Node
     void update(SceneState &scene_state) override;
 
     void set_should_render(bool should_render) { is_rendered_ = should_render; }
+    bool is_rendered() const { return is_rendered_; }
     void push_texture(TextureNode* texture) { text_textures_.push_back(texture); }
 
   private:
