@@ -298,23 +298,31 @@ void MainScene::setup_collisions()
         // Handle witch found logic
         if (witches_colliding && blue_witch_hidden_)
         {
-            // Make blue witch visible again
-            auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
-            
-            // Re-enable automatic animation switching
-            blue_witch_sprite.set_auto_animation_enabled(true);
-            
-            // Set the idle animation and texture
-            blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
-            blue_witch_sprite.play("idle");
-            
-            // Play found sound
-            AudioEngine::get_instance()->play_sound("creepy_ha", 1.0f);
-            
-            // Mark witch as found
-            blue_witch_hidden_ = false;
-            has_laughed_ = true;
-            time_to_laugh_ = 0.0f;
+            // Reveal witch if player investigates
+            const GameActionList& actions = io_handler_->get_game_actions();
+            for (uint8_t i = 0; i < actions.num_actions; i++)
+            {
+                if (actions.actions[i] == GameAction::INVESTIGATE)
+                {
+                    // Make blue witch visible again
+                    auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+
+                    // Re-enable automatic animation switching
+                    blue_witch_sprite.set_auto_animation_enabled(true);
+
+                    // Set the idle animation and texture
+                    blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
+                    blue_witch_sprite.play("idle");
+
+                    // Play found sound
+                    AudioEngine::get_instance()->play_sound("success", 1.0f);
+
+                    // Mark witch as found
+                    blue_witch_hidden_ = false;
+                    has_laughed_ = true;
+                    time_to_laugh_ = 0.0f;
+                }
+            }
         }
         });
 }
@@ -331,18 +339,18 @@ void MainScene::setup_audio()
     // Locate files
     auto player_file_info = locate_path_for_filename("audio/whistle.wav");
     auto npc_file_info = locate_path_for_filename("audio/npc_clap.wav");
-    auto collision_sound_info = locate_path_for_filename("audio/creepy_ha_oneshot.wav");
+    auto collision_sound_info = locate_path_for_filename("audio/success.wav");
     auto theme_sound_info = locate_path_for_filename("audio/theme_music.mp3");
 
     // Load sounds - note that npc_clap is now a 3D sound
     audio_engine->load_sound(player_file_info.path, "whistle", false, false);
     audio_engine->load_sound(npc_file_info.path, "npc_clap", true, false); // Set as 3D sound
-    audio_engine->load_sound(collision_sound_info.path, "creepy_ha", false, false);
+    audio_engine->load_sound(collision_sound_info.path, "success", false, false);
     audio_engine->load_sound(theme_sound_info.path, "theme_music", false, true);
 
 
     // Reserve channels for each sound
-    audio_engine->reserve_channel_for_sound("creepy_ha", 0);
+    audio_engine->reserve_channel_for_sound("success", 0);
     audio_engine->reserve_channel_for_sound("npc_clap", 1);
     audio_engine->reserve_channel_for_sound("whistle", 2);
     audio_engine->reserve_channel_for_sound("theme_music", 3);
