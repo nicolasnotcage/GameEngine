@@ -161,6 +161,10 @@ const std::string &SpriteNode::get_current_animation_name() const
 
 void SpriteNode::update_animation_for_movement()
 {
+    // Skip automatic animation switching if disabled
+    if (!auto_animation_enabled_)
+        return;
+        
     if(is_moving_)
     {
         // If we have a walk animation, play it when moving

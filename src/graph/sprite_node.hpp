@@ -51,6 +51,10 @@ class SpriteNode : public Node
 
     // Update sprite based on movement state
     void set_movement_state(bool is_moving, MoveDirection direction, bool facing_left);
+    
+    // Control automatic animation switching
+    void set_auto_animation_enabled(bool enabled) { auto_animation_enabled_ = enabled; }
+    bool is_auto_animation_enabled() const { return auto_animation_enabled_; }
 
   private:
     // Current texture and frame
@@ -67,6 +71,9 @@ class SpriteNode : public Node
     bool is_moving_{false};
     MoveDirection current_direction_{MoveDirection::NONE};
     bool facing_left_{false};
+    
+    // Animation control
+    bool auto_animation_enabled_{true};
 };
 
 template <typename... ChildrenTs>

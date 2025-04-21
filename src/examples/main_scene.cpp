@@ -295,11 +295,24 @@ void MainScene::setup_collisions()
             (entity_a == &witch_transform && entity_b == &blue_witch_transform) ||
             (entity_b == &witch_transform && entity_a == &blue_witch_transform);
 
-        // Handle laugh sound logic on player-npc collision
-        if (witches_colliding && !has_laughed_)
+        // Handle witch found logic
+        if (witches_colliding && blue_witch_hidden_)
         {
-            // Play sound only if not already in cooldown period
+            // Make blue witch visible again
+            auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+            
+            // Re-enable automatic animation switching
+            blue_witch_sprite.set_auto_animation_enabled(true);
+            
+            // Set the idle animation and texture
+            blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
+            blue_witch_sprite.play("idle");
+            
+            // Play found sound
             AudioEngine::get_instance()->play_sound("creepy_ha", 1.0f);
+            
+            // Mark witch as found
+            blue_witch_hidden_ = false;
             has_laughed_ = true;
             time_to_laugh_ = 0.0f;
         }
@@ -393,8 +406,15 @@ void MainScene::update(double delta)
 
         // Hide witch and move to top left
         auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+        
+        // Disable automatic animation switching to prevent overriding the hidden animation
+        blue_witch_sprite.set_auto_animation_enabled(false);
+        
+        // Set the hidden animation and texture
         blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
         blue_witch_sprite.play("hidden");
+        
+        // Move the witch to the top left
         blue_witch_transform.set_path_controlled(top_left_path);
         blue_witch_transform.set_position(-15.55f, -7.625);
         
