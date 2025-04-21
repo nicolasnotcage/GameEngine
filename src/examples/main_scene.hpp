@@ -34,12 +34,12 @@ namespace cge
 using AnimatedSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
 using GameMap = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
 using GameText = TransformNodeT<TextNodeT<GeometryNodeT<>>>;
+using PlayerSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>, GameText>;
 
 // Parent camera with two child animated sprites and a zone transform node
 using AnimatedScene = CameraNodeT<GameMap, 
                                   AnimatedSprite, 
-                                  AnimatedSprite, 
-                                  GameText>;
+                                  PlayerSprite>;
 
 class MainScene : public Scene
 {

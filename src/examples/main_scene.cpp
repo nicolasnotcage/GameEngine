@@ -79,10 +79,10 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     intro_2_.init(scene_state_);
 
     // Push in-game text
-    auto &text_transform = root_.get_child<0>().get_child<3>();
-    auto& text_node = text_transform.get_child<0>();
-    text_transform.right_translate(0, 3);
-    text_transform.right_scale(12.0f, 4.0f);
+    auto &text_transform = root_.get_child<0>().get_child<2>().get_child<1>();
+    auto &text_node = text_transform.get_child<0>();
+    text_transform.right_translate(0, 1.8f);
+    text_transform.right_scale(3.0f, 1.0f);
     text_node.push_texture(&intro_1_);
     text_node.push_texture(&intro_2_);
     text_node.set_should_render(true);
