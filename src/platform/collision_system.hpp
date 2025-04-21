@@ -4,6 +4,7 @@
 #include "platform/collision_component.hpp"
 
 #include <functional>
+#include <memory>
 #include <vector>
 
 namespace cge
@@ -15,10 +16,11 @@ class CollisionComponent;
 // A pair of components that have collided
 struct CollisionPair
 {
-    CollisionComponent *first;
-    CollisionComponent *second;
+    std::shared_ptr<CollisionComponent> first;
+    std::shared_ptr<CollisionComponent> second;
 
-    CollisionPair(CollisionComponent *a, CollisionComponent *b) : first(a), second(b) {}
+    CollisionPair(std::shared_ptr<CollisionComponent> a, std::shared_ptr<CollisionComponent> b) 
+        : first(a), second(b) {}
 };
 
 // Collision system to manage and check collisions between components
@@ -29,8 +31,8 @@ class CollisionSystem
     ~CollisionSystem();
 
     // Add/remove collision components
-    void add_component(CollisionComponent *component);
-    void remove_component(CollisionComponent *component);
+    void add_component(std::shared_ptr<CollisionComponent> component);
+    void remove_component(std::shared_ptr<CollisionComponent> component);
 
     // Check all registered components for collisions
     std::vector<CollisionPair> check_collisions();
@@ -39,7 +41,7 @@ class CollisionSystem
     void clear();
 
   private:
-    std::vector<CollisionComponent *> components_;
+    std::vector<std::shared_ptr<CollisionComponent>> components_;
 
 };
 

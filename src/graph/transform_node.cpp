@@ -132,22 +132,20 @@ void TransformNode::set_associated_sprite(SpriteNode *sprite) { associated_sprit
 // Collision component methods
 //------------------------------
 
-// Create and return a pointer to a CircleCollisionComponent. 
-CircleCollisionComponent *TransformNode::add_circle_collider(float radius)
+// Create and return a shared pointer to a CircleCollisionComponent. 
+std::shared_ptr<CircleCollisionComponent> TransformNode::add_circle_collider(float radius)
 {
-    auto                      collider = std::make_unique<CircleCollisionComponent>(this, radius);
-    CircleCollisionComponent *raw_ptr = collider.get();
-    collision_component_ = std::move(collider);
-    return raw_ptr;
+    auto collider = std::make_shared<CircleCollisionComponent>(this, radius);
+    collision_component_ = collider;
+    return collider;
 }
 
-// Create and return a pointer to an AABBCollisionComponent. 
-AABBCollisionComponent *TransformNode::add_aabb_collider(const Vector2 &min, const Vector2 &max)
+// Create and return a shared pointer to an AABBCollisionComponent. 
+std::shared_ptr<AABBCollisionComponent> TransformNode::add_aabb_collider(const Vector2 &min, const Vector2 &max)
 {
-    auto                    collider = std::make_unique<AABBCollisionComponent>(this, min, max);
-    AABBCollisionComponent *raw_ptr = collider.get();
-    collision_component_ = std::move(collider);
-    return raw_ptr;
+    auto collider = std::make_shared<AABBCollisionComponent>(this, min, max);
+    collision_component_ = collider;
+    return collider;
 }
 
 //------------------------------

@@ -19,11 +19,13 @@ For more information, please refer to <https://unlicense.org>
 
 #include "platform/audio_component.hpp"
 #include "platform/collision_system.hpp"
+#include "platform/collision_handler.hpp"
 #include "platform/io_handler.hpp"
 #include "platform/path.hpp"
 #include "platform/scene.hpp"
 
 #include <string>
+#include <memory>
 
 namespace cge
 {
@@ -31,9 +33,18 @@ namespace cge
 // Define animated sprite
 using AnimatedSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
 using GameMap = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
+using MapCollider = TransformNodeT<>;
 
 // Parent camera with two child animated sprites and a zone transform node
-using AnimatedScene = CameraNodeT<GameMap, AnimatedSprite, AnimatedSprite, TransformNodeT<>>;
+using AnimatedScene = CameraNodeT<GameMap, 
+                                  AnimatedSprite, 
+                                  AnimatedSprite, 
+                                  TransformNodeT<>, 
+                                  MapCollider, 
+                                  MapCollider, 
+                                  MapCollider,
+                                  MapCollider,
+                                  MapCollider>;
 
 class MainScene : public Scene
 {
@@ -44,7 +55,7 @@ class MainScene : public Scene
     void update(double delta);
 
     // Register collision components with the stored collision system. 
-    void register_collision_component(CollisionComponent *component);
+    void register_collision_component(std::shared_ptr<CollisionComponent> component);
 
     // Serializable overrides
     void serialize(Serializer& serializer) const override;
@@ -62,8 +73,9 @@ class MainScene : public Scene
     TextureNode witch_run_texture_;
     TextureNode witch_idle_texture_;
 
-    // Collision system
+    // Collision system and handler
     CollisionSystem collision_system_;
+    std::unique_ptr<CollisionHandler> collision_handler_;
 
     // Helper methods for scene setup
     void setup_golem_animations();

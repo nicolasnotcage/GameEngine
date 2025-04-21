@@ -16,7 +16,7 @@ CollisionSystem::~CollisionSystem() { clear(); }
 // Add a collision component to the collection of components. First 
 // checks if the component already exists within the collection before 
 // adding. 
-void CollisionSystem::add_component(CollisionComponent *component)
+void CollisionSystem::add_component(std::shared_ptr<CollisionComponent> component)
 {
     if(component)
     {
@@ -27,7 +27,7 @@ void CollisionSystem::add_component(CollisionComponent *component)
 }
 
 // Remove a component from the collection if it exists. 
-void CollisionSystem::remove_component(CollisionComponent *component)
+void CollisionSystem::remove_component(std::shared_ptr<CollisionComponent> component)
 {
     auto it = std::find(components_.begin(), components_.end(), component);
     if(it != components_.end()) { components_.erase(it); }
@@ -45,8 +45,8 @@ std::vector<CollisionPair> CollisionSystem::check_collisions()
     {
         for(int j = i + 1; j < components_.size(); j++)
         {
-            CollisionComponent *a = components_[i];
-            CollisionComponent *b = components_[j];
+            auto a = components_[i];
+            auto b = components_[j];
 
             // Skip if either component is disabled
             if(!a->is_enabled() || !b->is_enabled()) { continue; }

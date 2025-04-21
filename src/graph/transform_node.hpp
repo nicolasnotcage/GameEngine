@@ -72,9 +72,9 @@ class TransformNode : public Node
     // TODO: Could a transform reasonably handle a collection of collision components? If each has an offset and 
     // a global position, then we could likely simplify things like map boundaries by accommodating collections 
     // of components. 
-    CircleCollisionComponent *add_circle_collider(float radius);
-    AABBCollisionComponent   *add_aabb_collider(const Vector2 &min, const Vector2 &max);
-    CollisionComponent       *get_collision_component() const { return collision_component_.get(); }
+    std::shared_ptr<CircleCollisionComponent> add_circle_collider(float radius);
+    std::shared_ptr<AABBCollisionComponent> add_aabb_collider(const Vector2 &min, const Vector2 &max);
+    std::shared_ptr<CollisionComponent> get_collision_component() const { return collision_component_; }
 
     // Position-related functions; primarily used when handling collisions. 
     void store_previous_transform() { previous_transform_ = transform_; }

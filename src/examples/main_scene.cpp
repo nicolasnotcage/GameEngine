@@ -10,6 +10,7 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/audio_engine.hpp"
 #include "platform/collision_component.hpp" 
 #include "platform/collision_system.hpp"
+#include "platform/collision_handler.hpp"
 #include "platform/scene_manager.hpp"
 
 #include "system/file_locator.hpp"
@@ -27,6 +28,9 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 {
     sdl_info_ = sdl_info;
     io_handler_ = io_handler;
+    
+    // Initialize collision handler with the collision system
+    collision_handler_ = std::make_unique<CollisionHandler>(collision_system_);
 
     SDL_SetRenderDrawColor(sdl_info->renderer, 0, 0, 0, 0);
     SDL_SetRenderDrawBlendMode(sdl_info->renderer, SDL_BLENDMODE_BLEND);
@@ -209,33 +213,49 @@ void MainScene::setup_witch_animations()
 
 void MainScene::setup_collisions()
 {
+    // Character objects
     auto &camera = root_.get_child<0>();
-    auto &game_map_transform = camera.get_child<0>();
     auto &golem_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
 
-    // Configure world boundaries
-    // 1. Bottom boundary (water on the bottom of the map)
-    AABBCollisionComponent *boundary =
-        game_map_transform.add_aabb_collider(Vector2(-17.725, 8.5), Vector2(17.75, 9.88));
+    // Collider transform objects
+    auto &bottom_boundary_transform = camera.get_child<4>();
+    auto &left_boundary_transform = camera.get_child<5>();
 
-    // TODO: Better map boundary handling
+    // Configure world boundaries
+    // 1. Bottom boundary
+    auto bottom_boundary =
+        bottom_boundary_transform.add_aabb_collider(Vector2(-17.3, 8.5), Vector2(17.75, 9.88));
+
     // 2. Left boundary
+    auto left_boundary = 
+        left_boundary_transform.add_aabb_collider(Vector2(-17.8, -9.65), Vector2(-17.28, 9.88));
+
     // 3. Right boundary
     // 4. Top boundary
 
     // Add AABB collision component to witch (player)
-    AABBCollisionComponent *witch_collider =
+    auto witch_collider =
         witch_transform.add_aabb_collider(Vector2(-0.5f, -1.0f), Vector2(0.5f, 1.0f));
 
     // Add AABB collision component to golem (NPC)
-    AABBCollisionComponent *golem_collider =
+    auto golem_collider =
         golem_transform.add_aabb_collider(Vector2(-0.5f, -1.0f), Vector2(0.5f, 1.0f));
 
     // Register components with the collision system
-    collision_system_.add_component(boundary);
+    collision_system_.add_component(bottom_boundary);
+    collision_system_.add_component(left_boundary);
     collision_system_.add_component(golem_collider);
     collision_system_.add_component(witch_collider);
+    
+    // Register boundary nodes with the collision handler
+    collision_handler_->add_boundary_node(&bottom_boundary_transform);
+    collision_handler_->add_boundary_node(&left_boundary_transform);
+    
+    // Register boundary collision response
+    collision_handler_->register_boundary_response([this](TransformNode* entity, TransformNode* boundary) {
+        handle_boundary_collision(entity, boundary);
+    });
 }
 
 void MainScene::setup_trigger_zones()
@@ -327,66 +347,40 @@ void MainScene::update(double delta)
 
 void MainScene::handle_collisions()
 {
-    // Get collision pairs from the system
-    auto collision_pairs = collision_system_.check_collisions();
-
     // Get nodes related to collision behavior
     auto &camera = root_.get_child<0>();
-    auto &game_map_transform = camera.get_child<0>();
     auto &golem_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
 
-    // Track if witch and golem are colliding this frame
-    bool witch_golem_colliding = false;
-
-    // Handle each collision pair
-    for(const auto &pair : collision_pairs)
-    {
-        // Get transform nodes
-        TransformNode *transform_a = pair.first->get_owner();
-        TransformNode *transform_b = pair.second->get_owner();
-
-        // Handle boundary collisions
-        if(transform_a == &game_map_transform)
-        {
-            handle_boundary_collision(transform_b, transform_a);
-        }
-        else if(transform_b == &game_map_transform)
-        {
-            handle_boundary_collision(transform_a, transform_b);
-        }
-
+    // Register entity collision response for witch-golem collision
+    collision_handler_->register_entity_response([this, &golem_transform, &witch_transform](TransformNode* entity_a, TransformNode* entity_b) {
         // Check for witch-golem collision
-        if((transform_a == &witch_transform && transform_b == &golem_transform) ||
-           (transform_b == &witch_transform && transform_a == &golem_transform))
+        bool witch_golem_colliding = 
+            (entity_a == &witch_transform && entity_b == &golem_transform) ||
+            (entity_b == &witch_transform && entity_a == &golem_transform);
+
+        // Handle laugh sound logic on player-npc collision
+        if(witch_golem_colliding && !has_laughed_)
         {
-            witch_golem_colliding = true;
+            // Play sound only if not already in cooldown period
+            AudioEngine::get_instance()->play_sound("creepy_ha", 1.0f);
+            has_laughed_ = true;
+            time_to_laugh_ = 0.0f;
         }
+    });
 
-        // TODO: Handle other collision types
-    }
-
-    // Handle laugh sound logic on player-npc collision
-    if(witch_golem_colliding && !has_laughed_)
-    {
-        // Play sound only if not already in cooldown period
-        AudioEngine::get_instance()->play_sound("creepy_ha", 1.0f);
-        has_laughed_ = true;
-        time_to_laugh_ = 0.0f;
-    }
-
+    // Process all collisions using the collision handler
+    collision_handler_->process_collisions();
 }
 
 void MainScene::handle_boundary_collision(TransformNode *entity, TransformNode *boundary)
 {
     // Basic boundary collision. Just moves the player back to their previous position.
     entity->set_position(entity->get_prev_position_x(), entity->get_prev_position_y());
-
-    std::cout << "AABB-AABB COLLISION: Player collided with world boundary and had position reset.\n";
 }
 
 // Register a collision component with the collision system. 
-void MainScene::register_collision_component(CollisionComponent *component)
+void MainScene::register_collision_component(std::shared_ptr<CollisionComponent> component)
 {
     collision_system_.add_component(component);
 }
@@ -416,13 +410,6 @@ void MainScene::handle_audio()
         // Configure 3D audio parameters - using smaller values for better effect
         golem_audio->set_min_distance(1.0f);  // Closer min distance for more pronounced effect
         golem_audio->set_max_distance(10.0f); // Shorter max distance for more noticeable falloff
-        
-        // Only print occasionally to avoid console spam
-        if (npc_audio_timer_ >= time_to_clap_ - 0.1f) {
-            std::cout << "3D Audio Debug: Witch at (" << witch_x << ", " << witch_y 
-                      << "), Golem at (" << golem_x << ", " << golem_y 
-                      << "), Distance: " << distance << std::endl;
-        }
     }
     
     // Increment timer
@@ -445,9 +432,7 @@ void MainScene::handle_audio()
             sound->getMode(&mode);
             bool is_3d = (mode & FMOD_3D) != 0;
             
-            if (is_3d) {
-                std::cout << "Playing 3D sound directly with FMOD..." << std::endl;
-                
+            if (is_3d) {                
                 // Create a channel for the sound
                 FMOD::Channel* channel = nullptr;
                 FMOD_RESULT result = audio_engine->get_system()->playSound(sound, nullptr, true, &channel);
@@ -472,9 +457,9 @@ void MainScene::handle_audio()
                     // Set volume and unpause
                     channel->setVolume(1.0f);
                     channel->setPaused(false);
-                    
-                    std::cout << "3D sound played directly at position (" << golem_x << ", " << golem_y << ")" << std::endl;
-                } else {
+                } 
+                else 
+                {
                     std::cout << "Failed to play sound directly. Error code: " << result << std::endl;
                 }
             } else {
@@ -483,7 +468,9 @@ void MainScene::handle_audio()
                     golem_audio->play(1.0f);
                 }
             }
-        } else {
+        } 
+        else 
+        {
             std::cout << "Could not find sound 'npc_clap'" << std::endl;
         }
 
@@ -534,11 +521,6 @@ void MainScene::serialize(Serializer& serializer) const
     serializer.write("test_int", test_int_);
     serializer.write("test_bool", test_bool_);
     serializer.write("test_string", test_string_);
-
-    std::cout << "Serialized Test Values\nTest Float: " << test_float_
-              << "\nTest Int: " << test_int_ 
-              << "\nTest Bool: " << test_bool_
-              << "\nTest String: " << test_string_ << "\n";
 }
 
 void MainScene::deserialize(Serializer& serializer)
@@ -557,11 +539,6 @@ void MainScene::deserialize(Serializer& serializer)
     serializer.read("test_int", test_int_);
     serializer.read("test_bool", test_bool_);
     serializer.read("test_string", test_string_);
-
-    std::cout << "Deserialized Test Values\nTest Float: " << test_float_
-              << "\nTest Int: " << test_int_ 
-              << "\nTest Bool: " << test_bool_
-              << "\nTest String: " << test_string_ << "\n";
 }
 
 } // namespace cge
