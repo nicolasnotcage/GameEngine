@@ -131,21 +131,11 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     blue_witch_path_.set_looping(false);
     blue_witch_transform.right_scale(2.0f, 2.0f);
 
-    // Add audio to golem with 3D settings
-    auto *blue_witch_audio = blue_witch_transform.add_audio_component();
-    blue_witch_audio->set_sound("npc_clap");
-    blue_witch_audio->set_min_distance(1.0f);
-    blue_witch_audio->set_max_distance(10.0f);
-
     // Set witch transform if no save file exists
     if (!SaveManager::get_instance().save_exists()) witch_transform.right_translate(1.0f, 0.0f);
 
     // Scale witch
     witch_transform.right_scale(3.0f, 3.0f);
-
-    // Add audio to witch
-    auto *witch_audio = witch_transform.add_audio_component();
-    witch_audio->set_sound("whistle");
 
     // Set camera to follow player (witch)
     camera.set_target(&witch_transform, true);
@@ -158,7 +148,19 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     // Setup systems
     setup_collisions();
     setup_trigger_zones();
+    
+    // Setup audio first, before creating audio components
     setup_audio();
+    
+    // Add audio to golem with 3D settings
+    auto *blue_witch_audio = blue_witch_transform.add_audio_component();
+    blue_witch_audio->set_sound("npc_clap");
+    blue_witch_audio->set_min_distance(1.0f);
+    blue_witch_audio->set_max_distance(10.0f);
+
+    // Add audio to witch
+    auto *witch_audio = witch_transform.add_audio_component();
+    witch_audio->set_sound("whistle");
 
     // Begin theme music at low volume
     AudioEngine::get_instance()->play_sound("theme_music", 0.2f);
@@ -428,11 +430,7 @@ void MainScene::update(double delta)
         
         blue_witch_hidden_ = true;
     }
-
-    // Update 3D audio listener position at the beginning of the frame
-    Vector2 witch_position(witch_transform.get_position_x(), witch_transform.get_position_y());
-    AudioEngine::get_instance()->set_3d_listener_position(witch_position);
-
+    
     // Check for pause action to open pause menu
     const GameActionList &actions = io_handler_->get_game_actions();
     for (uint8_t i = 0; i < actions.num_actions; i++)
@@ -477,19 +475,13 @@ void MainScene::handle_audio()
     auto &blue_witch_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
     
-    // Update witch's audio component position for 3D audio
+    // Update listener position (player position) first
+    Vector2 witch_position(witch_transform.get_position_x(), witch_transform.get_position_y());
+    AudioEngine::get_instance()->set_3d_listener_position(witch_position);
+    
+    // Update NPC's audio component position for 3D audio
     if (auto* blue_witch_audio = blue_witch_transform.get_audio_component())
     {
-        // Force update of the witch's position in the audio component
-        float blue_witch_x = blue_witch_transform.get_position_x();
-        float blue_witch_y = blue_witch_transform.get_position_y();
-        
-        // Debug output for 3D audio positions
-        float witch_x = witch_transform.get_position_x();
-        float witch_y = witch_transform.get_position_y();
-        float distance = std::sqrt((witch_x - blue_witch_x) * (witch_x - blue_witch_x) +
-                                  (witch_y - blue_witch_y) * (witch_y - blue_witch_y));
-        
         // Make sure 3D position is updated
         blue_witch_audio->update_position();
         
@@ -545,8 +537,8 @@ void MainScene::handle_audio()
         }
     }
     
-    // Update FMOD system once per tick; per FMOD Core documentation
-    cge::AudioEngine::get_instance()->update();
+    // No need to call update() here as it's called after position changes
+    // in set_3d_listener_position and update_position
 }
 
 // Serialization overrides

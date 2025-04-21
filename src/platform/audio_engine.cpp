@@ -178,9 +178,6 @@ int AudioEngine::play_sound(const std::string &key, float volume, bool pause)
         FMOD_VECTOR pos = {0.0f, 0.0f, 0.0f};
         FMOD_VECTOR vel = {0.0f, 0.0f, 0.0f};
         channels_[channel_id]->set3DAttributes(&pos, &vel);
-        
-        // Print debug info
-        std::cout << "Playing 3D sound: " << key << " on channel " << channel_id << std::endl;
     }
 
     return channel_id;
@@ -259,7 +256,6 @@ void AudioEngine::reserve_channel_for_sound(const std::string &sound_key, int ch
     }
 }
 
-// TODO: Get this working so we can have directional audio
 void AudioEngine::set_3d_listener_position(const Vector2& position)
 {
     if(!fmod_system_) return;
@@ -267,15 +263,21 @@ void AudioEngine::set_3d_listener_position(const Vector2& position)
     // Convert to FMOD vector
     FMOD_VECTOR pos = {position.x, position.y, 0.0f};
     
-    // Set up direction vector
+    // Set up direction vector - for a top-down 2D game, forward is typically along the y-axis
     FMOD_VECTOR forward = {0.0f, 1.0f, 0.0f};
     FMOD_VECTOR up = {0.0f, 0.0f, 1.0f};
 
-    // TODO: Still unsure of how to think of velocity in the context of the game and the audio.
+    // Velocity can be zero
     FMOD_VECTOR velocity = {0.0f, 0.0f, 0.0f};
 
     // Update listener position
-    fmod_system_->set3DListenerAttributes(0, &pos, &velocity, &forward, &up);
+    FMOD_RESULT result = fmod_system_->set3DListenerAttributes(0, &pos, &velocity, &forward, &up);
+    if (result != FMOD_OK) {
+        std::cerr << "Failed to set 3D listener attributes. Error: " << result << std::endl;
+    }
+    
+    // Call update immediately after changing listener attributes
+    fmod_system_->update();
 }
 
 // For user configuration

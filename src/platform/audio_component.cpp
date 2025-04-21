@@ -33,8 +33,9 @@ void AudioComponent::set_sound(const std::string &sound_key)
 // Play the audio clip.
 int AudioComponent::play(float volume)
 {
-    // Stop existing playback
-    stop();
+    // Don't stop existing playback - this allows multiple sounds to play simultaneously
+    // from the same component
+    // stop();
 
     // Prepare sound. The sound is paused when returned from the engine. 
     channel_id_ = AudioEngine::get_instance()->play_sound(sound_key_, volume, true);
@@ -49,11 +50,6 @@ int AudioComponent::play(float volume)
         if(channel) {
             // Set min/max distance for attenuation
             channel->set3DMinMaxDistance(min_distance_, max_distance_);
-            
-            // Debug output
-            std::cout << "3D Audio: Set min distance to " << min_distance_ 
-                      << " and max distance to " << max_distance_ 
-                      << " for sound " << sound_key_ << std::endl;
         }
     }
 
@@ -204,21 +200,19 @@ void AudioComponent::update_position()
 
     // Convert to FMOD vector
     FMOD_VECTOR position = {x, y, 0.0f};
-
-    // Calculate velocity
-    float prev_x = owner_->get_prev_position_x();
-    float prev_y = owner_->get_prev_position_y();
-
-    // TODO: Pass SceneState object to access delta time
-    // Get delta time from scene state
-    float delta_time = 1.0f / 60.0f;
-
-    FMOD_VECTOR velocity = {(x - prev_x) / delta_time, (y - prev_y) / delta_time, 0.0f};
+    
+    // Zero velocity
+    FMOD_VECTOR velocity = {0.0f, 0.0f, 0.0f};
 
     // Set 3D attributes if we have a valid channel
     if (channel_id_ >= 0) {
         FMOD::Channel *channel = AudioEngine::get_instance()->get_channel(channel_id_);
         if(channel) {
+            // Check if channel is playing
+            bool isPlaying = false;
+            channel->isPlaying(&isPlaying);
+            if (!isPlaying) return;
+
             // Make sure the channel is in 3D mode
             FMOD_MODE mode;
             channel->getMode(&mode);
@@ -230,11 +224,11 @@ void AudioComponent::update_position()
             // Set 3D attributes
             FMOD_RESULT result = channel->set3DAttributes(&position, &velocity);
             if (result != FMOD_OK) {
-                std::cout << "Failed to set 3D attributes for audio component. Error code: " << result << std::endl;
-            } else {
-                // Debug output for successful position update
-                std::cout << "3D Audio Position Updated: Sound at (" << x << ", " << y << ")" << std::endl;
+                std::cerr << "Failed to set 3D attributes for audio component. Error: " << result << std::endl;
             }
+            
+            // Call update after changing sound position
+            AudioEngine::get_instance()->get_system()->update();
         }
     }
 }
