@@ -97,10 +97,11 @@ class MainScene : public Scene
     void handle_audio();
 
     // Gameplay specific data
-    float time_to_clap_{3.0f};
+    float time_to_clap_{1.0f};  // Delay in seconds before clapping
     float npc_audio_timer_{0.0f};
     float time_to_laugh_{0.0f};
     bool  has_laughed_{false};
+    bool  waiting_to_clap_{false};  // Flag to track if we're waiting to clap
     int   laugh_channel_id{-1};
     Path blue_witch_path_;
     bool dialogue_completed_{ false };

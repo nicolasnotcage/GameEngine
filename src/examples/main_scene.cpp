@@ -498,6 +498,26 @@ void MainScene::handle_audio()
         blue_witch_audio->set_max_distance(10.0f); // Shorter max distance for more noticeable falloff
     }    
 
+    // Update clap timer if waiting to clap
+    if (waiting_to_clap_) 
+    {
+        npc_audio_timer_ += scene_state_.delta;
+        
+        // Check if it's time to clap
+        if (npc_audio_timer_ >= time_to_clap_) 
+        {
+            // Play the clap sound
+            if (auto* blue_witch_audio = blue_witch_transform.get_audio_component()) 
+            {
+                if (blue_witch_hidden_) blue_witch_audio->play(1.0f);
+            }
+            
+            // Reset the timer and flag
+            waiting_to_clap_ = false;
+            npc_audio_timer_ = 0.0f;
+        }
+    }
+
     // Check for whistling action
     const GameActionList &actions = io_handler_->get_game_actions();
     for(uint8_t i = 0; i < actions.num_actions; i++)
@@ -508,10 +528,11 @@ void MainScene::handle_audio()
                 witch_audio->play(1.0f);
             }
 
-            // Make blue witch clap in response if hidden
-            if (auto* blue_witch_audio = blue_witch_transform.get_audio_component()) 
+            // Set flag to clap after delay if hidden
+            if (blue_witch_hidden_ && !waiting_to_clap_) 
             {
-                if (blue_witch_hidden_) blue_witch_audio->play(1.0f);
+                waiting_to_clap_ = true;
+                npc_audio_timer_ = 0.0f;
             }
             break;
         }
