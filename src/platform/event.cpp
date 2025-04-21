@@ -56,6 +56,7 @@ SDLEventInfo get_current_events()
                     case SDLK_S: event_info.events[num_events++] = EventType::KEY_DOWN_S; break;
                     case SDLK_D: event_info.events[num_events++] = EventType::KEY_DOWN_D; break;
                     case SDLK_T: event_info.events[num_events++] = EventType::KEY_DOWN_T; break;
+                    case SDLK_F: event_info.events[num_events++] = EventType::KEY_DOWN_F; break;
                     case SDLK_PLUS:
                     case SDLK_EQUALS:
                         event_info.events[num_events++] = EventType::KEY_DOWN_PLUS;

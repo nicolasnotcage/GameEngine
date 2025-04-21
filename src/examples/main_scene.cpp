@@ -78,7 +78,7 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     intro_2_.set_blend_alpha(200);
     intro_2_.init(scene_state_);
 
-    // Push in-game text
+    // Configure in-game text
     auto &text_transform = root_.get_child<0>().get_child<2>().get_child<1>();
     auto &text_node = text_transform.get_child<0>();
     text_transform.right_translate(0, 1.8f);
@@ -135,7 +135,7 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 
     // Add audio to witch
     auto *witch_audio = witch_transform.add_audio_component();
-    witch_audio->set_sound("player_clap");
+    witch_audio->set_sound("whistle");
 
     // Set camera to follow player (witch)
     camera.set_target(&witch_transform, true);
@@ -301,13 +301,13 @@ void MainScene::setup_audio()
     cge::AudioEngine *audio_engine = cge::AudioEngine::get_instance(); 
     
     // Locate files
-    auto player_file_info = locate_path_for_filename("audio/player_clap.wav");
+    auto player_file_info = locate_path_for_filename("audio/whistle.wav");
     auto npc_file_info = locate_path_for_filename("audio/npc_clap.wav");
     auto collision_sound_info = locate_path_for_filename("audio/creepy_ha_oneshot.wav");
     auto theme_sound_info = locate_path_for_filename("audio/theme_music.mp3");
 
     // Load sounds - note that npc_clap is now a 3D sound
-    audio_engine->load_sound(player_file_info.path, "player_clap", false, false);
+    audio_engine->load_sound(player_file_info.path, "whistle", false, false);
     audio_engine->load_sound(npc_file_info.path, "npc_clap", true, false); // Set as 3D sound
     audio_engine->load_sound(collision_sound_info.path, "creepy_ha", false, false);
     audio_engine->load_sound(theme_sound_info.path, "theme_music", false, true);
@@ -316,7 +316,7 @@ void MainScene::setup_audio()
     // Reserve channels for each sound
     audio_engine->reserve_channel_for_sound("creepy_ha", 0);
     audio_engine->reserve_channel_for_sound("npc_clap", 1);
-    audio_engine->reserve_channel_for_sound("player_clap", 2);
+    audio_engine->reserve_channel_for_sound("whistle", 2);
     audio_engine->reserve_channel_for_sound("theme_music", 3);
 }
 
@@ -498,11 +498,11 @@ void MainScene::handle_audio()
         npc_audio_timer_ = 0.0f;
     }
 
-    // Check for spacebar to play player clap
+    // Check for whistling action
     const GameActionList &actions = io_handler_->get_game_actions();
     for(uint8_t i = 0; i < actions.num_actions; i++)
     {
-        if(actions.actions[i] == GameAction::PLAYER_CLAP)
+        if(actions.actions[i] == GameAction::PLAYER_WHISTLE)
         {
             if(auto *witch_audio = witch_transform.get_audio_component())
             {
