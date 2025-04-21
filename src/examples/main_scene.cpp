@@ -39,33 +39,53 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     //    Initialize Sprite Textures
     // ------------------------------------
 
-    // Golem walk texture
-    golem_walk_texture_.set_filepath("images/golem_walk.png");
-    golem_walk_texture_.set_blend(true);
-    golem_walk_texture_.set_blend_alpha(200);
-    golem_walk_texture_.define_grid(7, 1, 64, 64);
-    golem_walk_texture_.init(scene_state_);
+    // Blue witch (NPC) walk texture
+    blue_witch_run_texture_.set_filepath("images/blue_witch/B_witch_run.png");
+    blue_witch_run_texture_.set_blend(true);
+    blue_witch_run_texture_.set_blend_alpha(200);
+    blue_witch_run_texture_.define_grid(1, 8, 32, 48);
+    blue_witch_run_texture_.init(scene_state_);
 
-    // Golem idle texture
-    golem_idle_texture_.set_filepath("images/golem_idle.png");
-    golem_idle_texture_.set_blend(true);
-    golem_idle_texture_.set_blend_alpha(200);
-    golem_idle_texture_.define_grid(12, 1, 64, 64);
-    golem_idle_texture_.init(scene_state_);
+    // Blue witch (NPC) idle texture
+    blue_witch_idle_texture_.set_filepath("images/blue_witch/B_witch_idle.png");
+    blue_witch_idle_texture_.set_blend(true);
+    blue_witch_idle_texture_.set_blend_alpha(200);
+    blue_witch_idle_texture_.define_grid(1, 6, 32, 48);
+    blue_witch_idle_texture_.init(scene_state_);
 
-    // Witch run texture
-    witch_run_texture_.set_filepath("images/witch_run.png");
-    witch_run_texture_.set_blend(true);
-    witch_run_texture_.set_blend_alpha(200);
-    witch_run_texture_.define_grid(1, 6, 64, 64);
-    witch_run_texture_.init(scene_state_);
+    // White witch (Player) run texture
+    white_witch_run_texture_.set_filepath("images/white_witch/witch_run.png");
+    white_witch_run_texture_.set_blend(true);
+    white_witch_run_texture_.set_blend_alpha(200);
+    white_witch_run_texture_.define_grid(1, 6, 64, 64);
+    white_witch_run_texture_.init(scene_state_);
 
-    // Witch idle texture
-    witch_idle_texture_.set_filepath("images/witch_idle.png");
-    witch_idle_texture_.set_blend(true);
-    witch_idle_texture_.set_blend_alpha(200);
-    witch_idle_texture_.define_grid(1, 6, 64, 64);
-    witch_idle_texture_.init(scene_state_);
+    // White witch (Player) idle texture
+    white_witch_idle_texture_.set_filepath("images/white_witch/witch_idle.png");
+    white_witch_idle_texture_.set_blend(true);
+    white_witch_idle_texture_.set_blend_alpha(200);
+    white_witch_idle_texture_.define_grid(1, 6, 64, 64);
+    white_witch_idle_texture_.init(scene_state_);
+
+    // In-game text
+    intro_1_.set_filepath("images/game_text/intro_1.png");
+    intro_1_.set_blend(true);
+    intro_1_.set_blend_alpha(200);
+    intro_1_.init(scene_state_);
+
+    intro_2_.set_filepath("images/game_text/intro_2.png");
+    intro_2_.set_blend(true);
+    intro_2_.set_blend_alpha(200);
+    intro_2_.init(scene_state_);
+
+    // Push in-game text
+    auto &text_transform = root_.get_child<0>().get_child<3>();
+    auto& text_node = text_transform.get_child<0>();
+    text_transform.right_translate(0, 3);
+    text_transform.right_scale(12.0f, 4.0f);
+    text_node.push_texture(&intro_1_);
+    text_node.push_texture(&intro_2_);
+    text_node.set_should_render(true);
 
     // ---------------------------
     //       Camera Setup
@@ -94,18 +114,18 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     // ------------------------
     
     // Get character transforms
-    auto &golem_transform = camera.get_child<1>();
+    auto &blue_witch_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
 
     // Position golem
-    golem_transform.right_translate(-15.55f, -7.625);
-    golem_transform.right_scale(3.0f, 3.0f);
+    blue_witch_transform.right_translate(-15.55f, -7.625);
+    blue_witch_transform.right_scale(2.0f, 2.0f);
 
     // Add audio to golem with 3D settings
-    auto *golem_audio = golem_transform.add_audio_component();
-    golem_audio->set_sound("npc_clap");
-    golem_audio->set_min_distance(1.0f);
-    golem_audio->set_max_distance(10.0f);
+    auto *blue_witch_audio = blue_witch_transform.add_audio_component();
+    blue_witch_audio->set_sound("npc_clap");
+    blue_witch_audio->set_min_distance(1.0f);
+    blue_witch_audio->set_max_distance(10.0f);
 
     // Set witch transform if no save file exists
     if (!SaveManager::get_instance().save_exists()) witch_transform.right_translate(1.0f, 0.0f);
@@ -152,29 +172,29 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 void MainScene::setup_golem_animations()
 {
     auto &camera = root_.get_child<0>();
-    auto &golem_transform = camera.get_child<1>();
-    auto &golem_sprite = golem_transform.get_child<0>();
+    auto &blue_witch_transform = camera.get_child<1>();
+    auto &blue_witch_sprite = blue_witch_transform.get_child<0>();
 
     // Create walk animation
-    Animation walk_animation("run", true);
-    for(int i = 0; i < 7; i++) { walk_animation.add_frame(i, 10); }
+    Animation run_animation("run", true);
+    for(int i = 0; i < 8; i++) { run_animation.add_frame(i, 10); }
 
     // Create idle animation
     Animation idle_animation("idle", true);
-    for(int i = 0; i < 12; i++) { idle_animation.add_frame(i, 10); }
+    for(int i = 0; i < 6; i++) { idle_animation.add_frame(i, 10); }
 
     // Add animations with their respective textures
-    golem_sprite.add_animation_with_texture(walk_animation, &golem_walk_texture_);
-    golem_sprite.add_animation_with_texture(idle_animation, &golem_idle_texture_);
+    blue_witch_sprite.add_animation_with_texture(run_animation, &blue_witch_run_texture_);
+    blue_witch_sprite.add_animation_with_texture(idle_animation, &blue_witch_idle_texture_);
 
     // Set initial texture
-    golem_sprite.set_texture(&golem_idle_texture_);
+    blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
 
     // Start playing idle animation by default
-    golem_sprite.play("idle");
+    blue_witch_sprite.play("idle");
 
     // Associate the golem's transform with its sprite
-    golem_transform.set_associated_sprite(&golem_sprite);
+    blue_witch_transform.set_associated_sprite(&blue_witch_sprite);
 }
 
 void MainScene::setup_witch_animations()
@@ -192,11 +212,11 @@ void MainScene::setup_witch_animations()
     for(int i = 0; i < 6; i++) { idle_animation.add_frame(i, 10); }
 
     // Add animations with their respective textures
-    witch_sprite.add_animation_with_texture(run_animation, &witch_run_texture_);
-    witch_sprite.add_animation_with_texture(idle_animation, &witch_idle_texture_);
+    witch_sprite.add_animation_with_texture(run_animation, &white_witch_run_texture_);
+    witch_sprite.add_animation_with_texture(idle_animation, &white_witch_idle_texture_);
 
     // Set initial texture
-    witch_sprite.set_texture(&witch_idle_texture_);
+    witch_sprite.set_texture(&white_witch_idle_texture_);
 
     // Start playing run animation by default
     witch_sprite.play("idle");
@@ -209,33 +229,33 @@ void MainScene::setup_witch_animations()
 void MainScene::setup_collisions()
 {
     // Initialize boundary nodes (doesn't do anything currently but in case updates are made to texture node in the future)
-    bottom_boundary.init(scene_state_);
-    top_boundary.init(scene_state_);
-    left_boundary.init(scene_state_);
-    right_boundary.init(scene_state_);
-    left_pillar.init(scene_state_);
-    right_pillar.init(scene_state_);
+    bottom_boundary_.init(scene_state_);
+    top_boundary_.init(scene_state_);
+    left_boundary_.init(scene_state_);
+    right_boundary_.init(scene_state_);
+    left_pillar_.init(scene_state_);
+    right_pillar_.init(scene_state_);
 
     // Configure world boundaries
-    auto bottom = bottom_boundary.add_aabb_collider(Vector2(-17.3, 8.5), Vector2(17.75, 9.88));
-    auto top = top_boundary.add_aabb_collider(Vector2(-17.3, -10.4), Vector2(17.75, -10.2));
-    auto left = left_boundary.add_aabb_collider(Vector2(-18.3, -9.65), Vector2(-17.5, 9.88));
-    auto right = right_boundary.add_aabb_collider(Vector2(17.6, -9.65), Vector2(17.75, 9.88));
-    auto pillar_left = left_pillar.add_aabb_collider(Vector2(-12.9, -5.5), Vector2(-8.4, -1.3));
-    auto pillar_right = right_pillar.add_aabb_collider(Vector2(8.4, -5.5), Vector2(13.0, -1.3));
+    auto bottom = bottom_boundary_.add_aabb_collider(Vector2(-17.3, 8.5), Vector2(17.75, 9.88));
+    auto top = top_boundary_.add_aabb_collider(Vector2(-17.3, -10.4), Vector2(17.75, -10.2));
+    auto left = left_boundary_.add_aabb_collider(Vector2(-18.3, -9.65), Vector2(-17.5, 9.88));
+    auto right = right_boundary_.add_aabb_collider(Vector2(17.6, -9.65), Vector2(17.75, 9.88));
+    auto pillar_left = left_pillar_.add_aabb_collider(Vector2(-12.9, -5.5), Vector2(-8.4, -1.3));
+    auto pillar_right = right_pillar_.add_aabb_collider(Vector2(8.4, -5.5), Vector2(13.0, -1.3));
     
     // Character objects
     auto& camera = root_.get_child<0>();
-    auto& golem_transform = camera.get_child<1>();
+    auto& blue_witch_transform = camera.get_child<1>();
     auto& witch_transform = camera.get_child<2>();
 
     // Add AABB collision component to witch (player)
     auto witch_collider =
         witch_transform.add_aabb_collider(Vector2(-0.5f, -1.0f), Vector2(0.5f, 1.0f));
 
-    // Add AABB collision component to golem (NPC)
-    auto golem_collider =
-        golem_transform.add_aabb_collider(Vector2(-0.5f, -1.0f), Vector2(0.5f, 1.0f));
+    // Add AABB collision component to blue witch (NPC)
+    auto blue_witch_collider =
+        blue_witch_transform.add_aabb_collider(Vector2(-0.5f, -1.0f), Vector2(0.5f, 1.0f));
 
     // Register components with the collision system
     collision_system_.add_component(bottom, CollisionSystem::CollisionType::BOUNDARY);
@@ -244,7 +264,7 @@ void MainScene::setup_collisions()
     collision_system_.add_component(top, CollisionSystem::CollisionType::BOUNDARY);
     collision_system_.add_component(pillar_left, CollisionSystem::CollisionType::BOUNDARY);
     collision_system_.add_component(pillar_right, CollisionSystem::CollisionType::BOUNDARY);
-    collision_system_.add_component(golem_collider, CollisionSystem::CollisionType::ENTITY);
+    collision_system_.add_component(blue_witch_collider, CollisionSystem::CollisionType::ENTITY);
     collision_system_.add_component(witch_collider, CollisionSystem::CollisionType::ENTITY);
     
     // Register boundary collision response
@@ -253,15 +273,15 @@ void MainScene::setup_collisions()
         handle_boundary_collision(entity, boundary);
         });
 
-    // Register entity collision response for witch-golem collision
-    collision_system_.register_entity_response([this, &golem_transform, &witch_transform](TransformNode* entity_a, TransformNode* entity_b) {
-        // Check for witch-golem collision
-        bool witch_golem_colliding =
-            (entity_a == &witch_transform && entity_b == &golem_transform) ||
-            (entity_b == &witch_transform && entity_a == &golem_transform);
+    // Register entity collision response for witches collision
+    collision_system_.register_entity_response([this, &blue_witch_transform, &witch_transform](TransformNode* entity_a, TransformNode* entity_b) {
+        // Check for witches collision
+        bool witches_colliding =
+            (entity_a == &witch_transform && entity_b == &blue_witch_transform) ||
+            (entity_b == &witch_transform && entity_a == &blue_witch_transform);
 
         // Handle laugh sound logic on player-npc collision
-        if (witch_golem_colliding && !has_laughed_)
+        if (witches_colliding && !has_laughed_)
         {
             // Play sound only if not already in cooldown period
             AudioEngine::get_instance()->play_sound("creepy_ha", 1.0f);
@@ -303,9 +323,18 @@ void MainScene::setup_audio()
 void MainScene::destroy()
 {
     root_.destroy();
-    golem_walk_texture_.destroy();
-    golem_idle_texture_.destroy();
-    witch_run_texture_.destroy();
+    white_witch_idle_texture_.destroy();
+    white_witch_run_texture_.destroy();
+    blue_witch_run_texture_.destroy();
+    blue_witch_idle_texture_.destroy();
+    intro_1_.destroy();
+    intro_2_.destroy();
+    bottom_boundary_.destroy();
+    top_boundary_.destroy();
+    left_boundary_.destroy();
+    right_boundary_.destroy();
+    left_pillar_.destroy();
+    right_pillar_.destroy();
 }
 
 void MainScene::render()
@@ -379,28 +408,28 @@ void MainScene::register_collision_component(std::shared_ptr<CollisionComponent>
 void MainScene::handle_audio()
 {    
     auto &camera = root_.get_child<0>();
-    auto &golem_transform = camera.get_child<1>();
+    auto &blue_witch_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
     
     // Update golem's audio component position for 3D audio
-    if (auto* golem_audio = golem_transform.get_audio_component())
+    if (auto* blue_witch_audio = blue_witch_transform.get_audio_component())
     {
         // Force update of the golem's position in the audio component
-        float golem_x = golem_transform.get_position_x();
-        float golem_y = golem_transform.get_position_y();
+        float blue_witch_x = blue_witch_transform.get_position_x();
+        float blue_witch_y = blue_witch_transform.get_position_y();
         
         // Debug output for 3D audio positions
         float witch_x = witch_transform.get_position_x();
         float witch_y = witch_transform.get_position_y();
-        float distance = std::sqrt((witch_x - golem_x) * (witch_x - golem_x) + 
-                                  (witch_y - golem_y) * (witch_y - golem_y));
+        float distance = std::sqrt((witch_x - blue_witch_x) * (witch_x - blue_witch_x) +
+                                  (witch_y - blue_witch_y) * (witch_y - blue_witch_y));
         
         // Make sure 3D position is updated
-        golem_audio->update_position();
+        blue_witch_audio->update_position();
         
         // Configure 3D audio parameters - using smaller values for better effect
-        golem_audio->set_min_distance(1.0f);  // Closer min distance for more pronounced effect
-        golem_audio->set_max_distance(10.0f); // Shorter max distance for more noticeable falloff
+        blue_witch_audio->set_min_distance(1.0f);  // Closer min distance for more pronounced effect
+        blue_witch_audio->set_max_distance(10.0f); // Shorter max distance for more noticeable falloff
     }
     
     // Increment timer
@@ -410,8 +439,8 @@ void MainScene::handle_audio()
     if (npc_audio_timer_ >= time_to_clap_) 
     { 
         // Get golem position
-        float golem_x = golem_transform.get_position_x();
-        float golem_y = golem_transform.get_position_y();
+        float blue_witch_x = blue_witch_transform.get_position_x();
+        float blue_witch_y = blue_witch_transform.get_position_y();
         
         // Play sound directly with FMOD to ensure 3D positioning
         AudioEngine* audio_engine = AudioEngine::get_instance();
@@ -430,7 +459,7 @@ void MainScene::handle_audio()
                 
                 if (result == FMOD_OK && channel) {
                     // Set 3D attributes
-                    FMOD_VECTOR position = {golem_x, golem_y, 0.0f};
+                    FMOD_VECTOR position = { blue_witch_x, blue_witch_y, 0.0f};
                     FMOD_VECTOR velocity = {0.0f, 0.0f, 0.0f};
                     
                     // Set 3D attributes
@@ -455,8 +484,8 @@ void MainScene::handle_audio()
                 }
             } else {
                 // Fallback to using the audio component
-                if (auto* golem_audio = golem_transform.get_audio_component()) {
-                    golem_audio->play(1.0f);
+                if (auto* blue_witch_audio = blue_witch_transform.get_audio_component()) {
+                    blue_witch_audio->play(1.0f);
                 }
             }
         } 

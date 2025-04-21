@@ -14,6 +14,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/root_node.hpp"
 #include "graph/scene_state.hpp"
 #include "graph/sprite_node.hpp"
+#include "graph/text_node.hpp"
 #include "graph/texture_node.hpp"
 #include "graph/transform_node.hpp"
 
@@ -32,18 +33,13 @@ namespace cge
 // Define animated sprite
 using AnimatedSprite = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
 using GameMap = TransformNodeT<TextureNodeT<GeometryNodeT<>>>;
-using MapCollider = TransformNodeT<>;
+using GameText = TransformNodeT<TextNodeT<GeometryNodeT<>>>;
 
 // Parent camera with two child animated sprites and a zone transform node
 using AnimatedScene = CameraNodeT<GameMap, 
                                   AnimatedSprite, 
                                   AnimatedSprite, 
-                                  TransformNodeT<>, 
-                                  MapCollider, 
-                                  MapCollider, 
-                                  MapCollider,
-                                  MapCollider,
-                                  MapCollider>;
+                                  GameText>;
 
 class MainScene : public Scene
 {
@@ -67,18 +63,22 @@ class MainScene : public Scene
     IoHandler               *io_handler_;
 
     // Texture nodes for specific sprite sheets
-    TextureNode golem_walk_texture_;
-    TextureNode golem_idle_texture_;
-    TextureNode witch_run_texture_;
-    TextureNode witch_idle_texture_;
+    TextureNode blue_witch_run_texture_;
+    TextureNode blue_witch_idle_texture_;
+    TextureNode white_witch_run_texture_;
+    TextureNode white_witch_idle_texture_;
 
     // Transform nodes for map boundaries and obstacles
-    TransformNode bottom_boundary;
-    TransformNode top_boundary;
-    TransformNode left_boundary;
-    TransformNode right_boundary;
-    TransformNode left_pillar;
-    TransformNode right_pillar;
+    TransformNode bottom_boundary_;
+    TransformNode top_boundary_;
+    TransformNode left_boundary_;
+    TransformNode right_boundary_;
+    TransformNode left_pillar_;
+    TransformNode right_pillar_;
+
+    // Texture nodes for game text
+    TextureNode intro_1_;
+    TextureNode intro_2_;
 
     // Collision system
     CollisionSystem collision_system_;

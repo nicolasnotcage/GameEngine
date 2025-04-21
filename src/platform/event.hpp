@@ -35,6 +35,7 @@ enum class EventType
     MOUSE_MOTION,
     KEY_DOWN_SPACE,
     KEY_DOWN_T,
+    KEY_DOWN_F,
     KEY_DOWN_ESCAPE,
 
     // Key held states
