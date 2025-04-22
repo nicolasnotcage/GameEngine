@@ -97,10 +97,34 @@ class MainScene : public Scene
     void setup_trigger_zones();
     void setup_audio();
 
+    // Texture initialization helpers
+    void initialize_character_textures();
+    void initialize_dialogue_textures();
+    void configure_texture(TextureNode& texture, const std::string& filepath, bool blend, int alpha, int rows = 1, int cols = 1, int width = 0, int height = 0);
+
+    // Scene graph configuration helpers
+    void setup_camera();
+    void setup_game_map();
+    void setup_characters();
+    void configure_dialogue_text_node(TransformNode& transform_node, TextNode& text_node, TextureNode* texture);
+    void setup_dialogue_nodes();
+
+    // Game logic helpers
+    void handle_dialogue_state();
+    void handle_npc_state();
+    void teleport_npc_to_location(float x, float y);
+    void hide_npc();
+    void show_npc();
+    void show_dialogue_for_find(int find_number);
+
     // Collision and audio handling methods
     void handle_collisions();
     void handle_boundary_collision(TransformNode *entity, TransformNode *boundary);
     void handle_audio();
+    void handle_input_actions();
+    void update_audio_positions(TransformNode& player_transform, TransformNode& npc_transform);
+    void update_npc_audio_timing(TransformNode& npc_transform);
+    void process_audio_actions(TransformNode& player_transform);
 
     // Gameplay specific data
     float time_to_clap_{1.0f};  // Delay in seconds before clapping

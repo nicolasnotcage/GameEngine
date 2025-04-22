@@ -35,167 +35,15 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     scene_state_.sdl_info = sdl_info_;
     scene_state_.io_handler = io_handler_;
 
-    // ------------------------------------
-    //    Initialize Sprite Textures
-    // ------------------------------------
+    // Initialize textures
+    initialize_character_textures();
+    initialize_dialogue_textures();
 
-    // Blue witch (NPC) walk texture
-    blue_witch_run_texture_.set_filepath("images/blue_witch/B_witch_run.png");
-    blue_witch_run_texture_.set_blend(true);
-    blue_witch_run_texture_.set_blend_alpha(200);
-    blue_witch_run_texture_.define_grid(1, 8, 32, 48);
-    blue_witch_run_texture_.init(scene_state_);
-
-    // Blue witch (NPC) idle texture
-    blue_witch_idle_texture_.set_filepath("images/blue_witch/B_witch_idle.png");
-    blue_witch_idle_texture_.set_blend(true);
-    blue_witch_idle_texture_.set_blend_alpha(200);
-    blue_witch_idle_texture_.define_grid(1, 6, 32, 48);
-    blue_witch_idle_texture_.init(scene_state_);
-
-    // Blue witch (NPC) transparent texture
-    blue_witch_transparent_texture_.set_filepath("images/blue_witch/B_witch_transparent.png");
-    blue_witch_transparent_texture_.set_blend(true);
-    blue_witch_transparent_texture_.set_blend_alpha(0); // Fully transparent
-    blue_witch_transparent_texture_.define_grid(1, 8, 32, 48);
-    blue_witch_transparent_texture_.init(scene_state_);
-
-    // White witch (Player) run texture
-    white_witch_run_texture_.set_filepath("images/white_witch/witch_run.png");
-    white_witch_run_texture_.set_blend(true);
-    white_witch_run_texture_.set_blend_alpha(200);
-    white_witch_run_texture_.define_grid(1, 6, 64, 64);
-    white_witch_run_texture_.init(scene_state_);
-
-    // White witch (Player) idle texture
-    white_witch_idle_texture_.set_filepath("images/white_witch/witch_idle.png");
-    white_witch_idle_texture_.set_blend(true);
-    white_witch_idle_texture_.set_blend_alpha(200);
-    white_witch_idle_texture_.define_grid(1, 6, 64, 64);
-    white_witch_idle_texture_.init(scene_state_);
-
-    // In-game text
-    intro_1_.set_filepath("images/game_text/intro_1.png");
-    intro_1_.set_blend(true);
-    intro_1_.set_blend_alpha(200);
-    intro_1_.init(scene_state_);
-
-    intro_2_.set_filepath("images/game_text/intro_2.png");
-    intro_2_.set_blend(true);
-    intro_2_.set_blend_alpha(200);
-    intro_2_.init(scene_state_);
-
-    intro_3_.set_filepath("images/game_text/intro_3.png");
-    intro_3_.set_blend(true);
-    intro_3_.set_blend_alpha(200);
-    intro_3_.init(scene_state_);
-
-    intro_4_.set_filepath("images/game_text/intro_4.png");
-    intro_4_.set_blend(true);
-    intro_4_.set_blend_alpha(200);
-    intro_4_.init(scene_state_);
-
-    intro_5_.set_filepath("images/game_text/intro_5.png");
-    intro_5_.set_blend(true);
-    intro_5_.set_blend_alpha(200);
-    intro_5_.init(scene_state_);
-
-    first_find_.set_filepath("images/game_text/first_find.png");
-    first_find_.set_blend(true);
-    first_find_.set_blend_alpha(200);
-    first_find_.init(scene_state_);
-
-    second_find_.set_filepath("images/game_text/second_find.png");
-    second_find_.set_blend(true);
-    second_find_.set_blend_alpha(200);
-    second_find_.init(scene_state_);
-
-    third_find_.set_filepath("images/game_text/third_find.png");
-    third_find_.set_blend(true);
-    third_find_.set_blend_alpha(200);
-    third_find_.init(scene_state_);
-
-    // Configure in-game text
-    // Intro
-    auto &intro_text_transform = root_.get_child<0>().get_child<2>().get_child<1>();
-    auto &intro_text_node = intro_text_transform.get_child<0>();
-    intro_text_transform.right_translate(0, 1.8f);
-    intro_text_transform.right_scale(3.0f, 1.0f);
-    intro_text_node.push_texture(&intro_1_);
-    intro_text_node.push_texture(&intro_2_);
-    intro_text_node.push_texture(&intro_3_);
-    intro_text_node.push_texture(&intro_4_);
-    intro_text_node.push_texture(&intro_5_);
-    intro_text_node.set_should_render(true);
-
-    // First find
-    auto& first_find_transform = root_.get_child<0>().get_child<2>().get_child<2>();
-    auto& first_find_node = first_find_transform.get_child<0>();
-    first_find_transform.right_translate(0, 1.8f);
-    first_find_transform.right_scale(3.0f, 1.0f);
-    first_find_node.push_texture(&first_find_);
-
-    // Second find
-    auto& second_find_transform = root_.get_child<0>().get_child<2>().get_child<3>();
-    auto& second_find_node = second_find_transform.get_child<0>();
-    second_find_transform.right_translate(0, 1.8f);
-    second_find_transform.right_scale(3.0f, 1.0f);
-    second_find_node.push_texture(&second_find_);
-
-    // Third find
-    auto& third_find_transform = root_.get_child<0>().get_child<2>().get_child<4>();
-    auto& third_find_node = third_find_transform.get_child<0>();
-    third_find_transform.right_translate(0, 1.8f);
-    third_find_transform.right_scale(3.0f, 1.0f);
-    third_find_node.push_texture(&third_find_);
-    
-
-    // ---------------------------
-    //       Camera Setup
-    // ---------------------------
-    auto &camera = root_.get_child<0>();
-    camera.get_camera().set_dimensions(20.0f, 15.0f);
-    camera.get_camera().set_position(0.0f, 0.0f);
-
-    // Set camera to print world coordinates on click; used for testing and defining collision boundaries
-    camera.set_print_on_click(true);
-
-    // ---------------------------
-    //       Game Map Setup
-    // ---------------------------
-    
-    // Get game map transform and texture nodes
-    auto &game_map_transform = camera.get_child<0>();
-    auto &game_map_tex = game_map_transform.get_child<0>();
-
-    // Set map filepath and scale it
-    game_map_tex.set_filepath("images/game_map.png");
-    game_map_transform.right_scale(35.5f, 20.0f);
-
-    // ------------------------
-    //     Character Setup
-    // ------------------------
-    
-    // Get character transforms
-    auto &blue_witch_transform = camera.get_child<1>();
-    auto &witch_transform = camera.get_child<2>();
-
-    // Position blue witch and configure path
-    blue_witch_transform.right_translate(4.0f, 1.0f); 
-    blue_witch_path_.add_point(4.0f, 1.0f, 0.5f);  // Start position
-    blue_witch_path_.add_point(4.0f, 2.5f, 0.5f);  // Move down
-    blue_witch_path_.set_looping(false);
-    blue_witch_transform.right_scale(2.0f, 2.0f);
-
-    // Set witch transform if no save file exists
-    if (!SaveManager::get_instance().save_exists()) witch_transform.right_translate(1.0f, 0.0f);
-
-    // Scale witch
-    witch_transform.right_scale(3.0f, 3.0f);
-
-    // Set camera to follow player (witch)
-    camera.set_target(&witch_transform, true);
-    camera.set_follow_smoothness(1.0f);
+    // Setup scene components
+    setup_camera();
+    setup_game_map();
+    setup_characters();
+    setup_dialogue_nodes();
 
     // Setup animations
     setup_npc_animations();
@@ -204,11 +52,14 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     // Setup systems
     setup_collisions();
     setup_trigger_zones();
-    
-    // Setup audio first, before creating audio components
     setup_audio();
     
-    // Add audio to golem with 3D settings
+    // Add audio components to characters
+    auto &camera = root_.get_child<0>();
+    auto &blue_witch_transform = camera.get_child<1>();
+    auto &witch_transform = camera.get_child<2>();
+    
+    // Add audio to blue witch with 3D settings
     auto *blue_witch_audio = blue_witch_transform.add_audio_component();
     blue_witch_audio->set_sound("npc_clap");
     blue_witch_audio->set_min_distance(1.0f);
@@ -235,6 +86,142 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
 
     // Initialize root node
     root_.init(scene_state_);
+}
+
+// Helper method to configure a texture with common settings
+void MainScene::configure_texture(TextureNode& texture, const std::string& filepath, bool blend, int alpha, int rows, int cols, int width, int height)
+{
+    texture.set_filepath(filepath);
+    texture.set_blend(blend);
+    texture.set_blend_alpha(alpha);
+    
+    if (cols > 1 || rows > 1) {
+        texture.define_grid(rows, cols, width, height);
+    }
+    
+    texture.init(scene_state_);
+}
+
+// Initialize character textures
+void MainScene::initialize_character_textures()
+{
+    // Blue witch (NPC) textures
+    configure_texture(blue_witch_run_texture_, "images/blue_witch/B_witch_run.png", true, 200, 1, 8, 32, 48);
+    configure_texture(blue_witch_idle_texture_, "images/blue_witch/B_witch_idle.png", true, 200, 1, 6, 32, 48);
+    configure_texture(blue_witch_transparent_texture_, "images/blue_witch/B_witch_transparent.png", true, 0, 1, 8, 32, 48);
+    
+    // White witch (Player) textures
+    configure_texture(white_witch_run_texture_, "images/white_witch/witch_run.png", true, 200, 1, 6, 64, 64);
+    configure_texture(white_witch_idle_texture_, "images/white_witch/witch_idle.png", true, 200, 1, 6, 64, 64);
+}
+
+// Initialize dialogue textures
+void MainScene::initialize_dialogue_textures()
+{
+    // Intro dialogue textures
+    configure_texture(intro_1_, "images/game_text/intro_1.png", true, 200);
+    configure_texture(intro_2_, "images/game_text/intro_2.png", true, 200);
+    configure_texture(intro_3_, "images/game_text/intro_3.png", true, 200);
+    configure_texture(intro_4_, "images/game_text/intro_4.png", true, 200);
+    configure_texture(intro_5_, "images/game_text/intro_5.png", true, 200);
+    
+    // Find dialogue textures
+    configure_texture(first_find_, "images/game_text/first_find.png", true, 200);
+    configure_texture(second_find_, "images/game_text/second_find.png", true, 200);
+    configure_texture(third_find_, "images/game_text/third_find.png", true, 200);
+}
+
+// Setup camera
+void MainScene::setup_camera()
+{
+    auto &camera = root_.get_child<0>();
+    camera.get_camera().set_dimensions(20.0f, 15.0f);
+    camera.get_camera().set_position(0.0f, 0.0f);
+
+    // Set camera to print world coordinates on click; used for testing and defining collision boundaries
+    camera.set_print_on_click(true);
+}
+
+// Setup game map
+void MainScene::setup_game_map()
+{
+    auto &camera = root_.get_child<0>();
+    auto &game_map_transform = camera.get_child<0>();
+    auto &game_map_tex = game_map_transform.get_child<0>();
+
+    // Set map filepath and scale it
+    game_map_tex.set_filepath("images/game_map.png");
+    game_map_transform.right_scale(35.5f, 20.0f);
+}
+
+// Setup characters
+void MainScene::setup_characters()
+{
+    auto &camera = root_.get_child<0>();
+    auto &blue_witch_transform = camera.get_child<1>();
+    auto &witch_transform = camera.get_child<2>();
+
+    // Position blue witch and configure path
+    blue_witch_transform.right_translate(4.0f, 1.0f); 
+    blue_witch_path_.add_point(4.0f, 1.0f, 0.5f);  // Start position
+    blue_witch_path_.add_point(4.0f, 2.5f, 0.5f);  // Move down
+    blue_witch_path_.set_looping(false);
+    blue_witch_transform.right_scale(2.0f, 2.0f);
+
+    // Set witch transform if no save file exists
+    if (!SaveManager::get_instance().save_exists()) witch_transform.right_translate(1.0f, 0.0f);
+
+    // Scale witch
+    witch_transform.right_scale(3.0f, 3.0f);
+
+    // Set camera to follow player (witch)
+    camera.set_target(&witch_transform, true);
+    camera.set_follow_smoothness(1.0f);
+}
+
+// Configure a dialogue text node
+void MainScene::configure_dialogue_text_node(TransformNode& transform_node, TextNode& text_node, TextureNode* texture)
+{
+    transform_node.right_translate(0, 1.8f);
+    transform_node.right_scale(3.0f, 1.0f);
+    
+    if (texture) {
+        text_node.push_texture(texture);
+    }
+}
+
+// Setup dialogue nodes
+void MainScene::setup_dialogue_nodes()
+{
+    auto &camera = root_.get_child<0>();
+    
+    // Intro text
+    auto &intro_text_transform = camera.get_child<2>().get_child<1>();
+    auto &intro_text_node = intro_text_transform.get_child<0>();
+    configure_dialogue_text_node(intro_text_transform, intro_text_node, nullptr);
+    
+    // Add all intro textures
+    intro_text_node.push_texture(&intro_1_);
+    intro_text_node.push_texture(&intro_2_);
+    intro_text_node.push_texture(&intro_3_);
+    intro_text_node.push_texture(&intro_4_);
+    intro_text_node.push_texture(&intro_5_);
+    intro_text_node.set_should_render(true);
+
+    // First find
+    auto& first_find_transform = camera.get_child<2>().get_child<2>();
+    auto& first_find_node = first_find_transform.get_child<0>();
+    configure_dialogue_text_node(first_find_transform, first_find_node, &first_find_);
+
+    // Second find
+    auto& second_find_transform = camera.get_child<2>().get_child<3>();
+    auto& second_find_node = second_find_transform.get_child<0>();
+    configure_dialogue_text_node(second_find_transform, second_find_node, &second_find_);
+
+    // Third find
+    auto& third_find_transform = camera.get_child<2>().get_child<4>();
+    auto& third_find_node = third_find_transform.get_child<0>();
+    configure_dialogue_text_node(third_find_transform, third_find_node, &third_find_);
 }
 
 void MainScene::setup_npc_animations()
@@ -475,11 +462,28 @@ void MainScene::update(double delta)
     scene_state_.io_handler = io_handler_;
     scene_state_.delta = delta;
 
+    // Handle dialogue and NPC state
+    handle_dialogue_state();
+    handle_npc_state();
+    
+    // Handle input actions (pause, etc.)
+    handle_input_actions();
+
+    // Handle general collisions using the collision system
+    handle_collisions();
+    handle_audio();
+
+    // Update the scene graph
+    root_.update(scene_state_);
+}
+
+// Handle dialogue state changes
+void MainScene::handle_dialogue_state()
+{
     auto& camera = root_.get_child<0>();
     auto& text_transform = camera.get_child<2>().get_child<1>();
     auto& text_node = text_transform.get_child<0>();
     auto& blue_witch_transform = camera.get_child<1>();
-    auto& witch_transform = camera.get_child<2>();
 
     // Check if intro dialogue is not rendered anymore (completed)
     if (!dialogue_completed_ && !text_node.is_rendered()) 
@@ -503,22 +507,8 @@ void MainScene::update(double delta)
             // If dialogue is no longer showing, teleport NPC to next location
             if (!dialogue_still_showing) {
                 waiting_for_dialogue_ = false;
-                
-                // Hide the NPC immediately
-                auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
-                blue_witch_sprite.set_auto_animation_enabled(false);
-                blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
-                blue_witch_sprite.play("hidden");
-                blue_witch_hidden_ = true;
-                
-                // Create a new path with the teleport location
-                Path new_path{};
-                new_path.add_point(14.6641f, 6.5282f, 0.0f);
-                new_path.set_looping(false);
-                
-                // Set the path and teleport to next location
-                blue_witch_transform.set_path_controlled(new_path);
-                blue_witch_transform.set_position(14.6641f, 6.5282f);
+                hide_npc();
+                teleport_npc_to_location(14.6641f, 6.5282f);
             }
         } 
         else if (find_count_ == 2) {
@@ -530,22 +520,8 @@ void MainScene::update(double delta)
             // If dialogue is no longer showing, teleport NPC to next location
             if (!dialogue_still_showing) {
                 waiting_for_dialogue_ = false;
-                
-                // Hide the NPC immediately
-                auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
-                blue_witch_sprite.set_auto_animation_enabled(false);
-                blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
-                blue_witch_sprite.play("hidden");
-                blue_witch_hidden_ = true;
-                
-                // Create a new path with the teleport location
-                Path new_path{};
-                new_path.add_point(3.3f, -2.525f, 0.0f);
-                new_path.set_looping(false);
-                
-                // Set the path and teleport to next location
-                blue_witch_transform.set_path_controlled(new_path);
-                blue_witch_transform.set_position(3.3f, -2.525f);
+                hide_npc();
+                teleport_npc_to_location(3.3f, -2.525f);
             }
         }
         else if (find_count_ == 3) {
@@ -557,78 +533,120 @@ void MainScene::update(double delta)
             // If dialogue is no longer showing, NPC should remain visible
             if (!dialogue_still_showing) {
                 waiting_for_dialogue_ = false;
-                
-                // Make sure the NPC is visible and using the idle animation
-                auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
-                blue_witch_sprite.set_auto_animation_enabled(true);
-                blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
-                blue_witch_sprite.play("idle");
-                blue_witch_hidden_ = false;
+                show_npc();
             }
         }
     }
+}
+
+// Handle NPC state changes
+void MainScene::handle_npc_state()
+{
+    auto& camera = root_.get_child<0>();
+    auto& blue_witch_transform = camera.get_child<1>();
 
     // Check if intro path is completed and witch should be hidden
     if (!blue_witch_hidden_ && !blue_witch_transform.is_moving() && 
         dialogue_completed_ && blue_witch_transform.get_position_y() >= 1.5f && 
         !waiting_for_dialogue_ && find_count_ == 0) 
     {
-        // Set new pathing position based on find count
-        Path new_path{};
-        
-        if (find_count_ == 1) {
-            // First find - teleport to (14.6641, 6.5282)
-            new_path.add_point(14.6641f, 6.5282f, 0.0f);
-        } else if (find_count_ == 2) {
-            // Second find - teleport to (3.3, -2.525)
-            new_path.add_point(3.3f, -2.525f, 0.0f);
-        } else {
-            // Default position
-            new_path.add_point(-15.55f, -7.625f, 0.0f);
-        }
-        
-        new_path.set_looping(false);
-
         // Hide witch and move to new position
-        auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+        hide_npc();
         
-        // Disable automatic animation switching to prevent overriding the hidden animation
-        blue_witch_sprite.set_auto_animation_enabled(false);
-        
-        // Set the hidden animation and texture
-        blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
-        blue_witch_sprite.play("hidden");
-        
-        // Move the witch to the new position
-        blue_witch_transform.set_path_controlled(new_path);
-        
+        // Set position based on find count
         if (find_count_ == 1) {
-            blue_witch_transform.set_position(14.6641f, 6.5282f);
+            teleport_npc_to_location(14.6641f, 6.5282f);
         } else if (find_count_ == 2) {
-            blue_witch_transform.set_position(3.3f, -2.525f);
+            teleport_npc_to_location(3.3f, -2.525f);
         } else {
-            blue_witch_transform.set_position(-15.55f, -7.625f);
+            teleport_npc_to_location(-15.55f, -7.625f);
         }
-        
-        blue_witch_hidden_ = true;
     }
     
     // Special case for third find - NPC should remain visible
     if (find_count_ == 3 && waiting_for_dialogue_ == false && !blue_witch_transform.is_moving()) {
-        // Make sure the NPC is visible and using the idle animation
-        auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
-        
-        // Re-enable automatic animation switching
-        blue_witch_sprite.set_auto_animation_enabled(true);
-        
-        // Set the idle animation and texture
-        blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
-        blue_witch_sprite.play("idle");
-        
-        // Mark witch as visible
-        blue_witch_hidden_ = false;
+        show_npc();
     }
+}
+
+// Teleport NPC to a specific location
+void MainScene::teleport_npc_to_location(float x, float y)
+{
+    auto& camera = root_.get_child<0>();
+    auto& blue_witch_transform = camera.get_child<1>();
     
+    // Create a new path with the teleport location
+    Path new_path{};
+    new_path.add_point(x, y, 0.0f);
+    new_path.set_looping(false);
+    
+    // Set the path and teleport to location
+    blue_witch_transform.set_path_controlled(new_path);
+    blue_witch_transform.set_position(x, y);
+}
+
+// Hide NPC
+void MainScene::hide_npc()
+{
+    auto& camera = root_.get_child<0>();
+    auto& blue_witch_transform = camera.get_child<1>();
+    auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+    
+    // Disable automatic animation switching to prevent overriding the hidden animation
+    blue_witch_sprite.set_auto_animation_enabled(false);
+    
+    // Set the hidden animation and texture
+    blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
+    blue_witch_sprite.play("hidden");
+    
+    // Mark witch as hidden
+    blue_witch_hidden_ = true;
+}
+
+// Show NPC
+void MainScene::show_npc()
+{
+    auto& camera = root_.get_child<0>();
+    auto& blue_witch_transform = camera.get_child<1>();
+    auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+    
+    // Re-enable automatic animation switching
+    blue_witch_sprite.set_auto_animation_enabled(true);
+    
+    // Set the idle animation and texture
+    blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
+    blue_witch_sprite.play("idle");
+    
+    // Mark witch as visible
+    blue_witch_hidden_ = false;
+}
+
+// Show dialogue for a specific find
+void MainScene::show_dialogue_for_find(int find_number)
+{
+    auto& camera = root_.get_child<0>();
+    
+    if (find_number == 1) {
+        // First find
+        auto& text_transform = camera.get_child<2>().get_child<2>();
+        auto& text_node = text_transform.get_child<0>();
+        text_node.set_should_render(true);
+    } else if (find_number == 2) {
+        // Second find
+        auto& text_transform = camera.get_child<2>().get_child<3>();
+        auto& text_node = text_transform.get_child<0>();
+        text_node.set_should_render(true);
+    } else if (find_number == 3) {
+        // Third find
+        auto& text_transform = camera.get_child<2>().get_child<4>();
+        auto& text_node = text_transform.get_child<0>();
+        text_node.set_should_render(true);
+    }
+}
+
+// Handle input actions
+void MainScene::handle_input_actions()
+{
     // Check for pause action to open pause menu
     const GameActionList &actions = io_handler_->get_game_actions();
     for (uint8_t i = 0; i < actions.num_actions; i++)
@@ -640,13 +658,6 @@ void MainScene::update(double delta)
             return; // Exit early to prevent further updates this frame
         }
     }
-
-    // Handle general collisions using the collision system
-    handle_collisions();
-    handle_audio();
-
-    // Update the scene graph
-    root_.update(scene_state_);
 }
 
 void MainScene::handle_collisions()
@@ -673,21 +684,38 @@ void MainScene::handle_audio()
     auto &blue_witch_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
     
+    // Update 3D audio positioning
+    update_audio_positions(witch_transform, blue_witch_transform);
+    
+    // Handle NPC audio timing
+    update_npc_audio_timing(blue_witch_transform);
+    
+    // Process audio-related input actions
+    process_audio_actions(witch_transform);
+}
+
+// Update 3D audio positioning for listener and sources
+void MainScene::update_audio_positions(TransformNode& player_transform, TransformNode& npc_transform)
+{
     // Update listener position (player position) first
-    Vector2 witch_position(witch_transform.get_position_x(), witch_transform.get_position_y());
-    AudioEngine::get_instance()->set_3d_listener_position(witch_position);
+    Vector2 player_position(player_transform.get_position_x(), player_transform.get_position_y());
+    AudioEngine::get_instance()->set_3d_listener_position(player_position);
     
     // Update NPC's audio component position for 3D audio
-    if (auto* blue_witch_audio = blue_witch_transform.get_audio_component())
+    if (auto* npc_audio = npc_transform.get_audio_component())
     {
         // Make sure 3D position is updated
-        blue_witch_audio->update_position();
+        npc_audio->update_position();
         
         // Configure 3D audio parameters - using smaller values for better effect
-        blue_witch_audio->set_min_distance(1.0f);  // Closer min distance for more pronounced effect
-        blue_witch_audio->set_max_distance(10.0f); // Shorter max distance for more noticeable falloff
-    }    
+        npc_audio->set_min_distance(1.0f);  // Closer min distance for more pronounced effect
+        npc_audio->set_max_distance(10.0f); // Shorter max distance for more noticeable falloff
+    }
+}
 
+// Update NPC audio timing for delayed sounds
+void MainScene::update_npc_audio_timing(TransformNode& npc_transform)
+{
     // Update clap timer if waiting to clap
     if (waiting_to_clap_) 
     {
@@ -697,9 +725,9 @@ void MainScene::handle_audio()
         if (npc_audio_timer_ >= time_to_clap_) 
         {
             // Play the clap sound
-            if (auto* blue_witch_audio = blue_witch_transform.get_audio_component()) 
+            if (auto* npc_audio = npc_transform.get_audio_component()) 
             {
-                if (blue_witch_hidden_) blue_witch_audio->play(1.0f);
+                if (blue_witch_hidden_) npc_audio->play(1.0f);
             }
             
             // Reset the timer and flag
@@ -707,18 +735,21 @@ void MainScene::handle_audio()
             npc_audio_timer_ = 0.0f;
         }
     }
+}
 
-    // Check for whistling action
+// Process audio-related input actions
+void MainScene::process_audio_actions(TransformNode& player_transform)
+{
     const GameActionList &actions = io_handler_->get_game_actions();
     for(uint8_t i = 0; i < actions.num_actions; i++)
     {
         if (actions.actions[i] == GameAction::PLAYER_WHISTLE) {
-            // Play witch whistle sound
-            if (auto* witch_audio = witch_transform.get_audio_component()) {
-                witch_audio->play(1.0f);
+            // Play player whistle sound
+            if (auto* player_audio = player_transform.get_audio_component()) {
+                player_audio->play(1.0f);
             }
 
-            // Set flag to clap after delay if hidden
+            // Set flag to clap after delay if NPC is hidden
             if (blue_witch_hidden_ && !waiting_to_clap_) 
             {
                 waiting_to_clap_ = true;
@@ -734,9 +765,6 @@ void MainScene::handle_audio()
             break;
         }
     }
-    
-    // No need to call update() here as it's called after position changes
-    // in set_3d_listener_position and update_position
 }
 
 // Serialization overrides
