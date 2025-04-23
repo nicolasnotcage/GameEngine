@@ -40,9 +40,6 @@ public:
     bool get_music_enabled() const;
     void set_music_enabled(bool enabled);
 
-    // Increment test values
-    void increment_test_values();
-
 private:
     ConfigManager() = default;
     ~ConfigManager();
@@ -55,12 +52,6 @@ private:
     int screen_width_{800};
     int screen_height_{600};
     bool music_enabled_{true};
-
-    // Test config values
-    int test_int_{0};
-    float test_float_{0.0};
-    bool test_bool_{true};
-    std::string test_string_{"test"};
 };
 } // namespace cge
 

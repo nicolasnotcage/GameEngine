@@ -50,6 +50,9 @@ GameActionList InputInterpreter::interpret_events(const SDLEventInfo &events)
             // For toggling audio
             case EventType::KEY_DOWN_T: action = GameAction::TOGGLE_MUSIC; break;
 
+            // For saving the game
+            case EventType::KEY_DOWN_O: action = GameAction::SAVE_GAME; break;
+
             // For advancing text
             case EventType::KEY_DOWN_SPACE: action = GameAction::ADVANCE_TEXT; break;
 

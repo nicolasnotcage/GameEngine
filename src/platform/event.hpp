@@ -37,6 +37,7 @@ enum class EventType
     KEY_DOWN_T,
     KEY_DOWN_F,
     KEY_DOWN_E,
+    KEY_DOWN_O,
     KEY_DOWN_ESCAPE,
 
     // Key held states

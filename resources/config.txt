@@ -3,8 +3,4 @@
 
 screen_width = 1920
 screen_height = 1080
-test string = test
-test_bool = true
 music_enabled = true
-test_int = 38
-test_float = 3.900000

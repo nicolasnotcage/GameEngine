@@ -129,8 +129,6 @@ class MainScene : public Scene
     // Gameplay specific data
     float time_to_clap_{1.0f};  // Delay in seconds before clapping
     float npc_audio_timer_{0.0f};
-    float time_to_laugh_{0.0f};
-    bool  has_laughed_{false};
     bool  waiting_to_clap_{false};  // Flag to track if we're waiting to clap
     int   laugh_channel_id{-1};
     Path blue_witch_path_;
@@ -138,12 +136,6 @@ class MainScene : public Scene
     bool blue_witch_hidden_{ false };
     int find_count_{0}; // 0 = not found yet, 1 = found once, 2 = found twice, 3 = found three times
     bool waiting_for_dialogue_{false}; // Flag to track if we're waiting for dialogue to complete
-
-    // Serializer tests
-    float test_float_{0.0};
-    int test_int_{0};
-    bool test_bool_{true};
-    std::string test_string_{"test"};
 };
 
 } // namespace cge

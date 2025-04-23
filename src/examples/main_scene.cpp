@@ -76,14 +76,6 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     bool music_enabled = ConfigManager::get_instance().get_music_enabled();
     if (!music_enabled) AudioEngine::get_instance()->get_channel(3)->setMute(true);
 
-    // Modify test serializer values
-    test_float_ += 0.1;
-    test_int_ += 1;
-    test_bool_ = !test_bool_;
-
-    if (test_bool_) test_string_ = cge::utility::to_lower(test_string_);
-    else test_string_ = cge::utility::to_upper(test_string_);
-
     // Initialize root node
     root_.init(scene_state_);
 }
@@ -206,7 +198,9 @@ void MainScene::setup_dialogue_nodes()
     intro_text_node.push_texture(&intro_3_);
     intro_text_node.push_texture(&intro_4_);
     intro_text_node.push_texture(&intro_5_);
-    intro_text_node.set_should_render(true);
+
+    // Only render intro text on fresh game instance (if dialogue not completed)
+    intro_text_node.set_should_render(!dialogue_completed_);
 
     // First find
     auto& first_find_transform = camera.get_child<2>().get_child<2>();
@@ -364,8 +358,6 @@ void MainScene::setup_collisions()
 
                     // Mark witch as found
                     blue_witch_hidden_ = false;
-                    has_laughed_ = true;
-                    time_to_laugh_ = 0.0f;
 
                     // Get camera reference for text nodes
                     auto& camera = root_.get_child<0>();
@@ -657,6 +649,14 @@ void MainScene::handle_input_actions()
             SceneManager::get_instance()->push_scene_by_key("pause_menu");
             return; // Exit early to prevent further updates this frame
         }
+        else if (actions.actions[i] == GameAction::SAVE_GAME)
+        {
+            // Save the game
+            SaveManager::get_instance().save_game(this);
+            
+            // Provide feedback to the player (optional)
+            std::cout << "Game saved successfully!" << std::endl;
+        }
     }
 }
 
@@ -772,19 +772,24 @@ void MainScene::serialize(Serializer& serializer) const
 {
     // Serialize player (witch) position
     auto &camera = root_.get_child<0>();
+    auto& blue_witch_transform = camera.get_child<1>();
     auto &witch_transform = camera.get_child<2>();
 
     // Directly write position to make sure it's saved with consistent keys
     float player_x = witch_transform.get_position_x();
     float player_y = witch_transform.get_position_y();
+    float npc_x = blue_witch_transform.get_position_x();
+    float npc_y = blue_witch_transform.get_position_y();
+
     serializer.write("player_x", player_x);
     serializer.write("player_y", player_y);
-
-    // Serialize test values
-    serializer.write("test_float", test_float_);
-    serializer.write("test_int", test_int_);
-    serializer.write("test_bool", test_bool_);
-    serializer.write("test_string", test_string_);
+    serializer.write("npc_x", npc_x);
+    serializer.write("npc_y", npc_y);
+    serializer.write("waiting_to_clap", waiting_to_clap_);
+    serializer.write("dialogue_completed", dialogue_completed_);
+    serializer.write("blue_witch_hidden", blue_witch_hidden_);
+    serializer.write("find_count", find_count_);
+    serializer.write("waiting_for_dialogue", waiting_for_dialogue_);
 }
 
 void MainScene::deserialize(Serializer& serializer)
@@ -792,17 +797,49 @@ void MainScene::deserialize(Serializer& serializer)
     // Deserialize player (witch) position
     auto &camera = root_.get_child<0>();
     auto &witch_transform = camera.get_child<2>();
+    auto &blue_witch_transform = camera.get_child<1>();
+    
     float player_x = 0.0f, player_y = 0.0f;
+    float npc_x = 0.0f, npc_y = 0.0f;
+    
+    // Load player position
     if (serializer.read("player_x", player_x) && serializer.read("player_y", player_y)) 
     {          
         witch_transform.set_position(player_x, player_y);
     }
-
-    // Serialize test values
-    serializer.read("test_float", test_float_);
-    serializer.read("test_int", test_int_);
-    serializer.read("test_bool", test_bool_);
-    serializer.read("test_string", test_string_);
+    
+    // Load NPC position
+    if (serializer.read("npc_x", npc_x) && serializer.read("npc_y", npc_y)) 
+    {          
+        blue_witch_transform.set_position(npc_x, npc_y);
+    }
+    
+    // Load game state flags
+    serializer.read("waiting_to_clap", waiting_to_clap_);
+    serializer.read("dialogue_completed", dialogue_completed_);
+    serializer.read("blue_witch_hidden", blue_witch_hidden_);
+    serializer.read("find_count", find_count_);
+    serializer.read("waiting_for_dialogue", waiting_for_dialogue_);
+    
+    // Update NPC visibility based on loaded state
+    if (blue_witch_hidden_) {
+        hide_npc();
+    } else {
+        show_npc();
+    }
+    
+    // Update dialogue state based on loaded state
+    if (waiting_for_dialogue_ && find_count_ > 0 && find_count_ <= 3) {
+        show_dialogue_for_find(find_count_);
+    }
+    
+    // Hide intro text if dialogue is already completed
+    if (dialogue_completed_) 
+    {
+        auto& intro_text_transform = camera.get_child<2>().get_child<1>();
+        auto& intro_text_node = intro_text_transform.get_child<0>();
+        intro_text_node.set_should_render(false);
+    }
 }
 
 } // namespace cge
