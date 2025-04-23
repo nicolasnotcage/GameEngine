@@ -385,6 +385,12 @@ void MainScene::setup_collisions()
 
                     // Increment find count
                     find_count_++;
+                    
+                    // Check if the game is completed (found NPC three times)
+                    if (find_count_ == 3) {
+                        // Set a flag to show game over menu after dialogue completes
+                        game_completed_ = true;
+                    }
                 }
             }
         }
@@ -523,9 +529,17 @@ void MainScene::handle_dialogue_state()
             dialogue_still_showing = third_find_node.is_rendered();
             
             // If dialogue is no longer showing, NPC should remain visible
-            if (!dialogue_still_showing) {
+            if (!dialogue_still_showing) 
+            {
                 waiting_for_dialogue_ = false;
                 show_npc();
+                
+                // If the game is completed, show the game over menu
+                if (game_completed_) 
+                {
+                    // Push the game over menu
+                    SceneManager::get_instance()->push_scene_by_key("game_over_menu");
+                }
             }
         }
     }
@@ -790,10 +804,22 @@ void MainScene::serialize(Serializer& serializer) const
     serializer.write("blue_witch_hidden", blue_witch_hidden_);
     serializer.write("find_count", find_count_);
     serializer.write("waiting_for_dialogue", waiting_for_dialogue_);
+    serializer.write("game_completed", game_completed_);
 }
 
 void MainScene::deserialize(Serializer& serializer)
 {    
+    // First check if the game was completed
+    bool game_completed = false;
+    serializer.read("game_completed", game_completed);
+    
+    // If the game was completed, don't load the saved state
+    // This forces a new game instance if a player tries to load a completed game
+    if (game_completed) {
+        std::cout << "Loading a completed game - starting a new game instead." << std::endl;
+        return;
+    }
+    
     // Deserialize player (witch) position
     auto &camera = root_.get_child<0>();
     auto &witch_transform = camera.get_child<2>();
@@ -820,6 +846,7 @@ void MainScene::deserialize(Serializer& serializer)
     serializer.read("blue_witch_hidden", blue_witch_hidden_);
     serializer.read("find_count", find_count_);
     serializer.read("waiting_for_dialogue", waiting_for_dialogue_);
+    serializer.read("game_completed", game_completed_);
     
     // Update NPC visibility based on loaded state
     if (blue_witch_hidden_) {

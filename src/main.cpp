@@ -13,6 +13,7 @@ For more information, please refer to <https://unlicense.org>
 #include "examples/main_scene.hpp"
 #include "examples/main_menu.hpp"
 #include "examples/pause_menu.hpp"
+#include "examples/game_over_menu.hpp"
 
 #include "platform/game_manager.hpp"
 #include "platform/game_action.hpp"
@@ -65,6 +66,7 @@ int main(int argc, char *argv[])
     scene_manager->register_scene<cge::MainMenuScene>("main_menu");
     scene_manager->register_scene<cge::MainScene>("main_scene");
     scene_manager->register_scene<cge::PauseMenuScene>("pause_menu");
+    scene_manager->register_scene<cge::GameOverMenuScene>("game_over_menu");
 
     // Initialize save manager
     cge::SaveManager &save_manager = cge::SaveManager::get_instance();

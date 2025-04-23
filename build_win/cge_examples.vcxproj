@@ -128,9 +128,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\examples\game_over_menu.cpp" />
     <ClCompile Include="..\src\examples\main_menu.cpp" />
     <ClCompile Include="..\src\examples\main_scene.cpp" />
     <ClCompile Include="..\src\examples\pause_menu.cpp" />
+    <ClInclude Include="..\src\examples\game_over_menu.hpp" />
     <ClInclude Include="..\src\examples\main_menu.hpp" />
     <ClInclude Include="..\src\examples\main_scene.hpp" />
     <ClInclude Include="..\src\examples\pause_menu.hpp" />

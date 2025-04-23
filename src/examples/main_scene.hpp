@@ -136,6 +136,7 @@ class MainScene : public Scene
     bool blue_witch_hidden_{ false };
     int find_count_{0}; // 0 = not found yet, 1 = found once, 2 = found twice, 3 = found three times
     bool waiting_for_dialogue_{false}; // Flag to track if we're waiting for dialogue to complete
+    bool game_completed_{false}; // Flag to track if the game is completed (found NPC three times)
 };
 
 } // namespace cge
