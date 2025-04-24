@@ -35,17 +35,17 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     scene_state_.sdl_info = sdl_info_;
     scene_state_.io_handler = io_handler_;
 
-    // Initialize textures
-    initialize_character_textures();
-    initialize_dialogue_textures();
-
     // Setup scene components
     setup_camera();
     setup_game_map();
     setup_characters();
     setup_dialogue_nodes();
 
-    // Initialize character animations
+    // Initialize character textures, animations, and audio
+    player_->init_textures(scene_state_);
+    blue_witch_->init_textures(scene_state_);
+    dialogue_manager_->init_textures(scene_state_);
+    
     player_->init_animations();
     blue_witch_->init_animations();
 
@@ -57,46 +57,7 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     root_.init(scene_state_);
 }
 
-// Helper method to configure a texture with common settings
-void MainScene::configure_texture(TextureNode& texture, const std::string& filepath, bool blend, int alpha, int rows, int cols, int width, int height)
-{
-    texture.set_filepath(filepath);
-    texture.set_blend(blend);
-    texture.set_blend_alpha(alpha);
-    
-    if (cols > 1 || rows > 1) texture.define_grid(rows, cols, width, height);
-
-    texture.init(scene_state_);
-}
-
-// Initialize character textures
-void MainScene::initialize_character_textures()
-{
-    // Blue witch (NPC) textures
-    configure_texture(blue_witch_run_texture_, "images/blue_witch/B_witch_run.png", true, 200, 1, 8, 32, 48);
-    configure_texture(blue_witch_idle_texture_, "images/blue_witch/B_witch_idle.png", true, 200, 1, 6, 32, 48);
-    configure_texture(blue_witch_transparent_texture_, "images/blue_witch/B_witch_transparent.png", true, 0, 1, 8, 32, 48);
-    
-    // White witch (Player) textures
-    configure_texture(white_witch_run_texture_, "images/white_witch/witch_run.png", true, 200, 1, 6, 64, 64);
-    configure_texture(white_witch_idle_texture_, "images/white_witch/witch_idle.png", true, 200, 1, 6, 64, 64);
-}
-
-// Initialize dialogue textures
-void MainScene::initialize_dialogue_textures()
-{
-    // Intro dialogue textures
-    configure_texture(intro_1_, "images/game_text/intro_1.png", true, 200);
-    configure_texture(intro_2_, "images/game_text/intro_2.png", true, 200);
-    configure_texture(intro_3_, "images/game_text/intro_3.png", true, 200);
-    configure_texture(intro_4_, "images/game_text/intro_4.png", true, 200);
-    configure_texture(intro_5_, "images/game_text/intro_5.png", true, 200);
-    
-    // Find dialogue textures
-    configure_texture(first_find_, "images/game_text/first_find.png", true, 200);
-    configure_texture(second_find_, "images/game_text/second_find.png", true, 200);
-    configure_texture(third_find_, "images/game_text/third_find.png", true, 200);
-}
+// Texture initialization methods have been moved to the Character and DialogueManager classes
 
 // Setup camera
 void MainScene::setup_camera()
@@ -135,14 +96,6 @@ void MainScene::setup_characters()
     blue_witch_ = std::make_shared<NPC>(&blue_witch_transform, &blue_witch_sprite);
     player_ = std::make_shared<Player>(&witch_transform, &witch_sprite);
 
-    // Configure NPC with textures
-    blue_witch_->set_hidden_texture(&blue_witch_transparent_texture_);
-    blue_witch_->set_idle_texture(&blue_witch_idle_texture_);
-
-    // Configure Player with textures
-    player_->set_run_texture(&white_witch_run_texture_);
-    player_->set_idle_texture(&white_witch_idle_texture_);
-
     // Position blue witch and configure path
     blue_witch_->set_position(4.0f, 1.0f);
     blue_witch_path_.add_point(4.0f, 1.0f, 0.5f);  // Start position
@@ -179,45 +132,38 @@ void MainScene::setup_dialogue_nodes()
     dialogue_manager_ = std::make_unique<DialogueManager>();
     dialogue_manager_->init(scene_state_);
     
-    // Register dialogue textures
-    dialogue_manager_->register_texture("intro_1", &intro_1_);
-    dialogue_manager_->register_texture("intro_2", &intro_2_);
-    dialogue_manager_->register_texture("intro_3", &intro_3_);
-    dialogue_manager_->register_texture("intro_4", &intro_4_);
-    dialogue_manager_->register_texture("intro_5", &intro_5_);
-    dialogue_manager_->register_texture("first_find", &first_find_);
-    dialogue_manager_->register_texture("second_find", &second_find_);
-    dialogue_manager_->register_texture("third_find", &third_find_);
+    // Register dialogue textures by filepath
+    dialogue_manager_->register_texture("intro_1", "images/game_text/intro_1.png");
+    dialogue_manager_->register_texture("intro_2", "images/game_text/intro_2.png");
+    dialogue_manager_->register_texture("intro_3", "images/game_text/intro_3.png");
+    dialogue_manager_->register_texture("intro_4", "images/game_text/intro_4.png");
+    dialogue_manager_->register_texture("intro_5", "images/game_text/intro_5.png");
+    dialogue_manager_->register_texture("first_find", "images/game_text/first_find.png");
+    dialogue_manager_->register_texture("second_find", "images/game_text/second_find.png");
+    dialogue_manager_->register_texture("third_find", "images/game_text/third_find.png");
     
     // Configure and register dialogue nodes
     auto &intro_text_transform = camera.get_child<2>().get_child<1>();
     auto &intro_text_node = intro_text_transform.get_child<0>();
     configure_dialogue_text_node(intro_text_transform, intro_text_node, nullptr);
     dialogue_manager_->register_text_node("intro", &intro_text_node);
-    
-    // Add all intro textures
-    intro_text_node.push_texture(&intro_1_);
-    intro_text_node.push_texture(&intro_2_);
-    intro_text_node.push_texture(&intro_3_);
-    intro_text_node.push_texture(&intro_4_);
-    intro_text_node.push_texture(&intro_5_);
 
     // First find
     auto& first_find_transform = camera.get_child<2>().get_child<2>();
     auto& first_find_node = first_find_transform.get_child<0>();
-    configure_dialogue_text_node(first_find_transform, first_find_node, &first_find_);
+    configure_dialogue_text_node(first_find_transform, first_find_node, nullptr);
     dialogue_manager_->register_text_node("first_find", &first_find_node);
 
     // Second find
     auto& second_find_transform = camera.get_child<2>().get_child<3>();
     auto& second_find_node = second_find_transform.get_child<0>();
-    configure_dialogue_text_node(second_find_transform, second_find_node, &second_find_);
+    configure_dialogue_text_node(second_find_transform, second_find_node, nullptr);
     dialogue_manager_->register_text_node("second_find", &second_find_node);
 
     // Third find
     auto& third_find_transform = camera.get_child<2>().get_child<4>();
     auto& third_find_node = third_find_transform.get_child<0>();
-    configure_dialogue_text_node(third_find_transform, third_find_node, &third_find_);
+    configure_dialogue_text_node(third_find_transform, third_find_node, nullptr);
     dialogue_manager_->register_text_node("third_find", &third_find_node);
     
     // Register dialogue completion callback
@@ -293,9 +239,8 @@ void MainScene::setup_collisions()
                     // Re-enable automatic animation switching
                     blue_witch_sprite.set_auto_animation_enabled(true);
 
-                    // Set the idle animation and texture
-                    blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
-                    blue_witch_sprite.play("idle");
+                    // Show the NPC
+                    blue_witch_->show();
 
                     // Play found sound
                     AudioEngine::get_instance()->play_sound("success", 1.0f);
@@ -350,22 +295,21 @@ void MainScene::setup_audio()
 
 void MainScene::destroy()
 {
-    root_.destroy();
-    white_witch_idle_texture_.destroy();
-    white_witch_run_texture_.destroy();
-    blue_witch_run_texture_.destroy();
-    blue_witch_idle_texture_.destroy();
-    blue_witch_transparent_texture_.destroy(); // Add this line
-    intro_1_.destroy();
-    intro_2_.destroy();
-    intro_3_.destroy();
-    intro_4_.destroy();
+    // Destroy character textures
+    if (player_) player_->destroy_textures();
+    if (blue_witch_) blue_witch_->destroy_textures();
+    if (dialogue_manager_) dialogue_manager_->destroy_textures();
+    
+    // Destroy boundary nodes
     bottom_boundary_.destroy();
     top_boundary_.destroy();
     left_boundary_.destroy();
     right_boundary_.destroy();
     left_pillar_.destroy();
     right_pillar_.destroy();
+    
+    // Destroy root node
+    root_.destroy();
 }
 
 void MainScene::render()
@@ -559,27 +503,16 @@ void MainScene::handle_audio()
 // Serialization overrides
 void MainScene::serialize(Serializer& serializer) const
 {
-    // Serialize player (witch) position
-    auto &camera = root_.get_child<0>();
-    auto& blue_witch_transform = camera.get_child<1>();
-    auto &witch_transform = camera.get_child<2>();
-
-    // Directly write position to make sure it's saved with consistent keys
-    float player_x = witch_transform.get_position_x();
-    float player_y = witch_transform.get_position_y();
-    float npc_x = blue_witch_transform.get_position_x();
-    float npc_y = blue_witch_transform.get_position_y();
-
-    serializer.write("player_x", player_x);
-    serializer.write("player_y", player_y);
-    serializer.write("npc_x", npc_x);
-    serializer.write("npc_y", npc_y);
-    serializer.write("waiting_to_clap", waiting_to_clap_);
-    serializer.write("dialogue_completed", dialogue_completed_);
-    serializer.write("blue_witch_hidden", blue_witch_hidden_);
+    // Delegate serialization to the Player, NPC, and DialogueManager classes
+    if (player_) player_->serialize(serializer);
+    if (blue_witch_) blue_witch_->serialize(serializer);
+    if (dialogue_manager_) dialogue_manager_->serialize(serializer);
+    
+    // Serialize game state flags
     serializer.write("find_count", find_count_);
     serializer.write("waiting_for_dialogue", waiting_for_dialogue_);
     serializer.write("game_completed", game_completed_);
+    serializer.write("dialogue_completed", dialogue_completed_);
 }
 
 void MainScene::deserialize(Serializer& serializer)
@@ -595,51 +528,19 @@ void MainScene::deserialize(Serializer& serializer)
         return;
     }
     
-    // Deserialize player (witch) position
-    auto &camera = root_.get_child<0>();
-    auto &witch_transform = camera.get_child<2>();
-    auto &blue_witch_transform = camera.get_child<1>();
+    // Delegate deserialization to the Player, NPC, and DialogueManager classes
+    if (player_) player_->deserialize(serializer);
+    if (blue_witch_) blue_witch_->deserialize(serializer);
+    if (dialogue_manager_) dialogue_manager_->deserialize(serializer);
     
-    float player_x = 0.0f, player_y = 0.0f;
-    float npc_x = 0.0f, npc_y = 0.0f;
-    
-    // Load player position
-    if (serializer.read("player_x", player_x) && serializer.read("player_y", player_y)) 
-    {          
-        witch_transform.set_position(player_x, player_y);
-    }
-    
-    // Load NPC position
-    if (serializer.read("npc_x", npc_x) && serializer.read("npc_y", npc_y)) 
-    {          
-        blue_witch_transform.set_position(npc_x, npc_y);
-    }
-    
-    // Load game state flags
-    serializer.read("waiting_to_clap", waiting_to_clap_);
-    serializer.read("dialogue_completed", dialogue_completed_);
-    serializer.read("blue_witch_hidden", blue_witch_hidden_);
+    // Deserialize game state flags
     serializer.read("find_count", find_count_);
     serializer.read("waiting_for_dialogue", waiting_for_dialogue_);
     serializer.read("game_completed", game_completed_);
+    serializer.read("dialogue_completed", dialogue_completed_);
     
-    // Update NPC visibility based on loaded state
-    if (blue_witch_hidden_) hide_npc();
-    else show_npc();
-
-    // Update dialogue state based on loaded state
-    if (waiting_for_dialogue_ && find_count_ > 0 && find_count_ <= 3) 
-    {
-        show_dialogue_for_find(find_count_);
-    }
-    
-    // Hide intro text if dialogue is already completed
-    if (dialogue_completed_) 
-    {
-        auto& intro_text_transform = camera.get_child<2>().get_child<1>();
-        auto& intro_text_node = intro_text_transform.get_child<0>();
-        intro_text_node.set_should_render(false);
-    }
+    // Update NPC visibility based on blue_witch_->is_hidden()
+    blue_witch_hidden_ = blue_witch_->is_hidden();
 }
 
 } // namespace cge

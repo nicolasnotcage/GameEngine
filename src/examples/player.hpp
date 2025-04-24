@@ -39,6 +39,8 @@ public:
 	void update(double delta) override;
 	void init_animations() override;
 	void init_audio() override;
+	void init_textures(SceneState& scene_state) override;
+	void destroy_textures() override;
 	
 	// Audio actions
 	void whistle();
@@ -48,13 +50,14 @@ public:
 	void handle_input_actions(IoHandler* io_handler);
 	bool is_investigating(IoHandler* io_handler) const;
 	
-	// Texture management
-	void set_run_texture(TextureNode* texture) { run_texture_ = texture; }
-	void set_idle_texture(TextureNode* texture) { idle_texture_ = texture; }
+	// Serializable interface implementation
+	void serialize(Serializer& serializer) const override;
+	void deserialize(Serializer& serializer) override;
 	
 private:
-	TextureNode* run_texture_{nullptr};
-	TextureNode* idle_texture_{nullptr};
+	// Owned textures
+	TextureNode run_texture_;
+	TextureNode idle_texture_;
 };
 
 } // namespace cge

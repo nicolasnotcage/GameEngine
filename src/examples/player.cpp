@@ -16,6 +16,7 @@ For more information, please refer to <https://unlicense.org>
 #include "platform/game_action.hpp"
 #include "platform/scene_manager.hpp"
 #include "system/save_manager.hpp"
+#include "system/serializer.hpp"
 
 #include <iostream>
 #include <memory>
@@ -43,21 +44,29 @@ void Player::init_animations()
 	for(int i = 0; i < 6; i++) { idle_animation.add_frame(i, 10); }
 
 	// Add animations with their respective textures
-	if (run_texture_) {
-		sprite_node_->add_animation_with_texture(run_animation, run_texture_);
-	}
-	
-	if (idle_texture_) {
-		sprite_node_->add_animation_with_texture(idle_animation, idle_texture_);
-		sprite_node_->set_texture(idle_texture_);
-		sprite_node_->play("idle");
-	}
+	sprite_node_->add_animation_with_texture(run_animation, &run_texture_);
+	sprite_node_->add_animation_with_texture(idle_animation, &idle_texture_);
+	sprite_node_->set_texture(&idle_texture_);
+	sprite_node_->play("idle");
 
 	// Set player as player controlled and associate its transform with its sprite
 	if (transform_node_) {
 		transform_node_->set_player_controlled();
 		transform_node_->set_associated_sprite(sprite_node_);
 	}
+}
+
+void Player::init_textures(SceneState& scene_state)
+{
+	// White witch (Player) textures
+	configure_texture(run_texture_, "images/white_witch/witch_run.png", scene_state, true, 200, 1, 6, 64, 64);
+	configure_texture(idle_texture_, "images/white_witch/witch_idle.png", scene_state, true, 200, 1, 6, 64, 64);
+}
+
+void Player::destroy_textures()
+{
+	run_texture_.destroy();
+	idle_texture_.destroy();
 }
 
 void Player::init_audio()
@@ -140,6 +149,27 @@ bool Player::is_investigating(IoHandler* io_handler) const
 		}
 	}
 	return false;
+}
+
+// Serializable interface implementation
+void Player::serialize(Serializer& serializer) const
+{
+	// Serialize player position
+	float x = transform_node_->get_position_x();
+	float y = transform_node_->get_position_y();
+	
+	serializer.write("player_x", x);
+	serializer.write("player_y", y);
+}
+
+void Player::deserialize(Serializer& serializer)
+{
+	// Deserialize player position
+	float x = 0.0f, y = 0.0f;
+	
+	if (serializer.read("player_x", x) && serializer.read("player_y", y)) {
+		transform_node_->set_position(x, y);
+	}
 }
 
 } // namespace cge

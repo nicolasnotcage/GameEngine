@@ -31,6 +31,7 @@ class TextNode : public Node
     void set_should_render(bool should_render) { is_rendered_ = should_render; }
     bool is_rendered() const { return is_rendered_; }
     void push_texture(TextureNode* texture) { text_textures_.push_back(texture); }
+    void clear_textures() { text_textures_.clear(); }
 
   private:
     std::vector<TextureNode*> text_textures_{};

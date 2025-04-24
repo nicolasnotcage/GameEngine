@@ -75,13 +75,6 @@ class MainScene : public Scene
     std::unique_ptr<CollisionManager> collision_manager_;
     std::unique_ptr<AudioManager> audio_manager_;
 
-    // Texture nodes for specific sprite sheets
-    TextureNode blue_witch_run_texture_;
-    TextureNode blue_witch_idle_texture_;
-    TextureNode white_witch_run_texture_;
-    TextureNode white_witch_idle_texture_;
-    TextureNode blue_witch_transparent_texture_;
-
     // Transform nodes for map boundaries and obstacles
     TransformNode bottom_boundary_;
     TransformNode top_boundary_;
@@ -90,16 +83,6 @@ class MainScene : public Scene
     TransformNode left_pillar_;
     TransformNode right_pillar_;
 
-    // Texture nodes for game text
-    TextureNode intro_1_;
-    TextureNode intro_2_;
-    TextureNode intro_3_;
-    TextureNode intro_4_;
-    TextureNode intro_5_;
-    TextureNode first_find_;
-    TextureNode second_find_;
-    TextureNode third_find_;
-
     // No longer needed as we're using CollisionManager
     // CollisionSystem collision_system_;
 
@@ -107,10 +90,7 @@ class MainScene : public Scene
     void setup_collisions();
     void setup_audio();
 
-    // Texture initialization helpers
-    void initialize_character_textures();
-    void initialize_dialogue_textures();
-    void configure_texture(TextureNode& texture, const std::string& filepath, bool blend, int alpha, int rows = 1, int cols = 1, int width = 0, int height = 0);
+    // Helper method for configuring dialogue text nodes
 
     // Scene graph configuration helpers
     void setup_camera();

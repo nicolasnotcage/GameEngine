@@ -6,6 +6,7 @@ For more information, please refer to <https://unlicense.org>
 */
 
 #include "examples/dialogue_manager.hpp"
+#include "system/serializer.hpp"
 
 namespace cge
 {
@@ -54,10 +55,28 @@ void DialogueManager::register_text_node(const std::string& id, TextNode* node)
     }
 }
 
-void DialogueManager::register_texture(const std::string& id, TextureNode* texture)
+void DialogueManager::register_texture(const std::string& id, const std::string& filepath)
 {
-    if (texture) {
-        textures_[id] = texture;
+    TextureEntry entry;
+    entry.id = id;
+    entry.filepath = filepath;
+    textures_.push_back(entry);
+}
+
+void DialogueManager::init_textures(SceneState& scene_state)
+{
+    for (auto& entry : textures_) {
+        entry.texture.set_filepath(entry.filepath);
+        entry.texture.set_blend(true);
+        entry.texture.set_blend_alpha(200);
+        entry.texture.init(scene_state);
+    }
+}
+
+void DialogueManager::destroy_textures()
+{
+    for (auto& entry : textures_) {
+        entry.texture.destroy();
     }
 }
 
@@ -69,43 +88,67 @@ void DialogueManager::show_dialogue(DialogueState state)
     // Hide all dialogues first
     hide_all_dialogue();
     
-    // Show the appropriate dialogue based on state
+    // Find the appropriate dialogue node and texture
+    TextNode* node_to_show = nullptr;
+    std::string texture_id;
+    
     switch (state) {
         case DialogueState::INTRO:
+            // Find intro dialogue node
             for (auto& entry : dialogue_entries_) {
                 if (entry.id == "intro") {
                     entry.active = true;
-                    entry.node->set_should_render(true);
+                    node_to_show = entry.node;
                     break;
                 }
+            }
+            
+            // Set intro textures
+            if (node_to_show) {
+                node_to_show->clear_textures();
+                
+                // Add all intro textures
+                for (int i = 1; i <= 5; i++) {
+                    std::string id = "intro_" + std::to_string(i);
+                    for (auto& tex_entry : textures_) {
+                        if (tex_entry.id == id) {
+                            node_to_show->push_texture(&tex_entry.texture);
+                        }
+                    }
+                }
+                
+                node_to_show->set_should_render(true);
             }
             break;
             
         case DialogueState::FIRST_FIND:
+            texture_id = "first_find";
             for (auto& entry : dialogue_entries_) {
                 if (entry.id == "first_find") {
                     entry.active = true;
-                    entry.node->set_should_render(true);
+                    node_to_show = entry.node;
                     break;
                 }
             }
             break;
             
         case DialogueState::SECOND_FIND:
+            texture_id = "second_find";
             for (auto& entry : dialogue_entries_) {
                 if (entry.id == "second_find") {
                     entry.active = true;
-                    entry.node->set_should_render(true);
+                    node_to_show = entry.node;
                     break;
                 }
             }
             break;
             
         case DialogueState::THIRD_FIND:
+            texture_id = "third_find";
             for (auto& entry : dialogue_entries_) {
                 if (entry.id == "third_find") {
                     entry.active = true;
-                    entry.node->set_should_render(true);
+                    node_to_show = entry.node;
                     break;
                 }
             }
@@ -117,6 +160,19 @@ void DialogueManager::show_dialogue(DialogueState state)
             
         default:
             break;
+    }
+    
+    // Set texture for find dialogues
+    if (node_to_show && !texture_id.empty()) {
+        node_to_show->clear_textures();
+        
+        for (auto& tex_entry : textures_) {
+            if (tex_entry.id == texture_id) {
+                node_to_show->push_texture(&tex_entry.texture);
+                node_to_show->set_should_render(true);
+                break;
+            }
+        }
     }
 }
 
@@ -143,6 +199,40 @@ DialogueManager::DialogueState DialogueManager::get_current_state() const
 void DialogueManager::register_on_dialogue_completed_callback(std::function<void(DialogueState)> callback)
 {
     on_dialogue_completed_ = callback;
+}
+
+// Serializable interface implementation
+void DialogueManager::serialize(Serializer& serializer) const
+{
+    // Serialize dialogue state
+    int state = static_cast<int>(current_state_);
+    serializer.write("dialogue_state", state);
+    serializer.write("dialogue_active", dialogue_active_);
+    serializer.write("dialogue_completed", current_state_ == DialogueState::COMPLETED);
+}
+
+void DialogueManager::deserialize(Serializer& serializer)
+{
+    // Deserialize dialogue state
+    int state = 0;
+    if (serializer.read("dialogue_state", state)) {
+        current_state_ = static_cast<DialogueState>(state);
+    }
+    
+    serializer.read("dialogue_active", dialogue_active_);
+    
+    // Check if dialogue was completed
+    bool dialogue_completed = false;
+    if (serializer.read("dialogue_completed", dialogue_completed) && dialogue_completed) {
+        current_state_ = DialogueState::COMPLETED;
+    }
+    
+    // Update dialogue visibility based on state
+    if (dialogue_active_ && current_state_ != DialogueState::INACTIVE) {
+        show_dialogue(current_state_);
+    } else {
+        hide_all_dialogue();
+    }
 }
 
 } // namespace cge

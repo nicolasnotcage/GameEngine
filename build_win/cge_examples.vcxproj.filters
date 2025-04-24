@@ -22,6 +22,9 @@
     <ClCompile Include="..\src\examples\npc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\examples\dialogue_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\examples\main_scene.hpp">
@@ -43,6 +46,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\examples\npc.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\examples\dialogue_manager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

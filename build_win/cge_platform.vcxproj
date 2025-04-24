@@ -133,8 +133,10 @@
     <ClCompile Include="..\src\platform\animation.cpp" />
     <ClCompile Include="..\src\platform\audio_component.cpp" />
     <ClCompile Include="..\src\platform\audio_engine.cpp" />
+    <ClCompile Include="..\src\platform\audio_manager.cpp" />
     <ClCompile Include="..\src\platform\camera.cpp" />
     <ClCompile Include="..\src\platform\collision_component.cpp" />
+    <ClCompile Include="..\src\platform\collision_manager.cpp" />
     <ClCompile Include="..\src\platform\collision_system.cpp" />
     <ClCompile Include="..\src\platform\game_manager.cpp" />
     <ClCompile Include="..\src\platform\input_interpreter.cpp" />
@@ -149,8 +151,10 @@
     <ClInclude Include="..\src\platform\animation.hpp" />
     <ClInclude Include="..\src\platform\audio_component.hpp" />
     <ClInclude Include="..\src\platform\audio_engine.hpp" />
+    <ClInclude Include="..\src\platform\audio_manager.hpp" />
     <ClInclude Include="..\src\platform\camera.hpp" />
     <ClInclude Include="..\src\platform\collision_component.hpp" />
+    <ClInclude Include="..\src\platform\collision_manager.hpp" />
     <ClInclude Include="..\src\platform\collision_system.hpp" />
     <ClInclude Include="..\src\platform\config.hpp" />
     <ClInclude Include="..\src\platform\game_action.hpp" />

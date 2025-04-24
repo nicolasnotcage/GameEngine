@@ -16,6 +16,7 @@ from the MainScene class. It manages dialogue states, text nodes, and textures.
 #include "graph/text_node.hpp"
 #include "graph/texture_node.hpp"
 #include "graph/scene_state.hpp"
+#include "system/serializable.hpp"
 #include <functional>
 #include <vector>
 #include <string>
@@ -24,7 +25,7 @@ from the MainScene class. It manages dialogue states, text nodes, and textures.
 namespace cge
 {
 
-class DialogueManager
+class DialogueManager : public Serializable
 {
 public:
     enum class DialogueState 
@@ -44,7 +45,9 @@ public:
     void update();
     
     void register_text_node(const std::string& id, TextNode* node);
-    void register_texture(const std::string& id, TextureNode* texture);
+    void register_texture(const std::string& id, const std::string& filepath);
+    void init_textures(SceneState& scene_state);
+    void destroy_textures();
     
     void show_dialogue(DialogueState state);
     void hide_all_dialogue();
@@ -53,6 +56,10 @@ public:
     DialogueState get_current_state() const;
     
     void register_on_dialogue_completed_callback(std::function<void(DialogueState)> callback);
+    
+    // Serializable interface implementation
+    void serialize(Serializer& serializer) const override;
+    void deserialize(Serializer& serializer) override;
     
 private:
     struct DialogueEntry 
@@ -63,7 +70,14 @@ private:
     };
     
     std::vector<DialogueEntry> dialogue_entries_;
-    std::unordered_map<std::string, TextureNode*> textures_;
+    // Texture storage
+    struct TextureEntry {
+        std::string id;
+        std::string filepath;
+        TextureNode texture;
+    };
+    
+    std::vector<TextureEntry> textures_;
     
     DialogueState current_state_ = DialogueState::INACTIVE;
     bool dialogue_active_ = false;

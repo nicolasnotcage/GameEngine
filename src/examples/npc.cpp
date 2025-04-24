@@ -11,6 +11,7 @@ For more information, please refer to <https://unlicense.org>
 #include "graph/sprite_node.hpp"
 #include "platform/path.hpp"
 #include "platform/audio_component.hpp"
+#include "system/serializer.hpp"
 
 namespace cge
 {
@@ -40,20 +41,33 @@ void NPC::init_animations()
 	for (int i = 0; i < 8; i++) { hidden_animation.add_frame(i, 10); }
 
 	// Add animations with their respective textures
-	if (hidden_texture_) {
-		sprite_node_->add_animation_with_texture(hidden_animation, hidden_texture_);
-	}
+	sprite_node_->add_animation_with_texture(run_animation, &run_texture_);
+	sprite_node_->add_animation_with_texture(idle_animation, &idle_texture_);
+	sprite_node_->add_animation_with_texture(hidden_animation, &hidden_texture_);
 	
-	if (idle_texture_) {
-		sprite_node_->add_animation_with_texture(idle_animation, idle_texture_);
-		sprite_node_->set_texture(idle_texture_);
-		sprite_node_->play("idle");
-	}
+	// Set initial texture and animation
+	sprite_node_->set_texture(&idle_texture_);
+	sprite_node_->play("idle");
 
 	// Associate the transform with its sprite
 	if (transform_node_) {
 		transform_node_->set_associated_sprite(sprite_node_);
 	}
+}
+
+void NPC::init_textures(SceneState& scene_state)
+{
+	// Blue witch (NPC) textures
+	configure_texture(run_texture_, "images/blue_witch/B_witch_run.png", scene_state, true, 200, 1, 8, 32, 48);
+	configure_texture(idle_texture_, "images/blue_witch/B_witch_idle.png", scene_state, true, 200, 1, 6, 32, 48);
+	configure_texture(hidden_texture_, "images/blue_witch/B_witch_transparent.png", scene_state, true, 0, 1, 8, 32, 48);
+}
+
+void NPC::destroy_textures()
+{
+	run_texture_.destroy();
+	idle_texture_.destroy();
+	hidden_texture_.destroy();
 }
 
 void NPC::init_audio()
@@ -71,10 +85,10 @@ void NPC::init_audio()
 
 void NPC::hide()
 {
-	if (sprite_node_ && hidden_texture_)
+	if (sprite_node_)
 	{
 		sprite_node_->set_auto_animation_enabled(false);
-		sprite_node_->set_texture(hidden_texture_);
+		sprite_node_->set_texture(&hidden_texture_);
 		sprite_node_->play("hidden");
 	}
 
@@ -83,10 +97,10 @@ void NPC::hide()
 
 void NPC::show()
 {
-	if (sprite_node_ && idle_texture_)
+	if (sprite_node_)
 	{
 		sprite_node_->set_auto_animation_enabled(true);
-		sprite_node_->set_texture(idle_texture_);
+		sprite_node_->set_texture(&idle_texture_);
 		sprite_node_->play("idle");
 	}
 
@@ -149,6 +163,46 @@ void NPC::clap_if_hidden()
 		{
 			audio->play(1.0f);
 		}
+	}
+}
+
+// Serializable interface implementation
+void NPC::serialize(Serializer& serializer) const
+{
+	// Serialize NPC position
+	float x = transform_node_->get_position_x();
+	float y = transform_node_->get_position_y();
+	
+	serializer.write("npc_x", x);
+	serializer.write("npc_y", y);
+	
+	// Serialize NPC state
+	serializer.write("npc_hidden", hidden_);
+	serializer.write("npc_waiting_for_dialogue", waiting_for_dialogue_);
+	serializer.write("npc_waiting_to_clap", waiting_to_clap_);
+	serializer.write("npc_audio_timer", audio_timer_);
+}
+
+void NPC::deserialize(Serializer& serializer)
+{
+	// Deserialize NPC position
+	float x = 0.0f, y = 0.0f;
+	
+	if (serializer.read("npc_x", x) && serializer.read("npc_y", y)) {
+		transform_node_->set_position(x, y);
+	}
+	
+	// Deserialize NPC state
+	serializer.read("npc_hidden", hidden_);
+	serializer.read("npc_waiting_for_dialogue", waiting_for_dialogue_);
+	serializer.read("npc_waiting_to_clap", waiting_to_clap_);
+	serializer.read("npc_audio_timer", audio_timer_);
+	
+	// Update visibility based on hidden state
+	if (hidden_) {
+		hide();
+	} else {
+		show();
 	}
 }
 

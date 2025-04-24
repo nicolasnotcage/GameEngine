@@ -129,6 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\examples\character.cpp" />
+    <ClCompile Include="..\src\examples\dialogue_manager.cpp" />
     <ClCompile Include="..\src\examples\game_over_menu.cpp" />
     <ClCompile Include="..\src\examples\main_menu.cpp" />
     <ClCompile Include="..\src\examples\main_scene.cpp" />
@@ -136,6 +137,7 @@
     <ClCompile Include="..\src\examples\pause_menu.cpp" />
     <ClCompile Include="..\src\examples\player.cpp" />
     <ClInclude Include="..\src\examples\character.hpp" />
+    <ClInclude Include="..\src\examples\dialogue_manager.hpp" />
     <ClInclude Include="..\src\examples\game_over_menu.hpp" />
     <ClInclude Include="..\src\examples\main_menu.hpp" />
     <ClInclude Include="..\src\examples\main_scene.hpp" />
