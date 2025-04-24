@@ -23,6 +23,52 @@ void NPC::update(double delta)
 	process_audio_timing(delta);
 }
 
+void NPC::init_animations()
+{
+	if (!sprite_node_) return;
+
+	// Create walk animation
+	Animation run_animation("run", true);
+	for(int i = 0; i < 8; i++) { run_animation.add_frame(i, 10); }
+
+	// Create idle animation
+	Animation idle_animation("idle", true);
+	for(int i = 0; i < 6; i++) { idle_animation.add_frame(i, 10); }
+
+	// Create hidden animation
+	Animation hidden_animation("hidden", true);
+	for (int i = 0; i < 8; i++) { hidden_animation.add_frame(i, 10); }
+
+	// Add animations with their respective textures
+	if (hidden_texture_) {
+		sprite_node_->add_animation_with_texture(hidden_animation, hidden_texture_);
+	}
+	
+	if (idle_texture_) {
+		sprite_node_->add_animation_with_texture(idle_animation, idle_texture_);
+		sprite_node_->set_texture(idle_texture_);
+		sprite_node_->play("idle");
+	}
+
+	// Associate the transform with its sprite
+	if (transform_node_) {
+		transform_node_->set_associated_sprite(sprite_node_);
+	}
+}
+
+void NPC::init_audio()
+{
+	if (!transform_node_) return;
+	
+	// Add audio component to NPC with clap sound and 3D settings
+	auto* audio_component = transform_node_->add_audio_component();
+	if (audio_component) {
+		audio_component->set_sound("npc_clap");
+		audio_component->set_min_distance(1.0f);
+		audio_component->set_max_distance(10.0f);
+	}
+}
+
 void NPC::hide()
 {
 	if (sprite_node_ && hidden_texture_)

@@ -37,6 +37,8 @@ public:
 		{}
 
 	void update(double delta) override;
+	void init_animations() override;
+	void init_audio() override;
 	
 	// NPC hiding functions
 	void hide();

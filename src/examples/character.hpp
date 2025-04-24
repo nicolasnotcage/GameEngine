@@ -37,6 +37,9 @@ public:
 	~Character() = default;
 
 	virtual void update(double delta);
+	virtual void init_animations() = 0; // Pure virtual function
+	virtual void init_audio() = 0; // Pure virtual function for audio setup
+	
 	void set_position(float x, float y);
 	float get_position_x() const;
 	float get_position_y() const;

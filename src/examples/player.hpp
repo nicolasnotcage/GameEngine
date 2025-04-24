@@ -37,10 +37,12 @@ public:
 		{}
 
 	void update(double delta) override;
+	void init_animations() override;
+	void init_audio() override;
 	
 	// Audio actions
 	void whistle();
-	void process_audio_actions(IoHandler* io_handler, NPC* npc);
+	void process_audio_actions(IoHandler* io_handler, std::shared_ptr<NPC>);
 	
 	// Input handling
 	void handle_input_actions(IoHandler* io_handler);

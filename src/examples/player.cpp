@@ -7,7 +7,9 @@ For more information, please refer to <https://unlicense.org>
 
 #include "examples/player.hpp"
 #include "examples/npc.hpp"
+#include "graph/sprite_node.hpp"
 #include "graph/transform_node.hpp"
+#include "platform/animation.hpp"
 #include "platform/audio_engine.hpp"
 #include "platform/audio_component.hpp"
 #include "platform/io_handler.hpp"
@@ -16,6 +18,7 @@ For more information, please refer to <https://unlicense.org>
 #include "system/save_manager.hpp"
 
 #include <iostream>
+#include <memory>
 
 namespace cge
 {
@@ -27,6 +30,47 @@ void Player::update(double delta)
 	// Player-specific update functionality
 }
 
+void Player::init_animations()
+{
+	if (!sprite_node_) return;
+
+	// Create run animation
+	Animation run_animation("run", true);
+	for(int i = 0; i < 6; i++) { run_animation.add_frame(i, 10); }
+
+	// Create idle animation
+	Animation idle_animation("idle", true);
+	for(int i = 0; i < 6; i++) { idle_animation.add_frame(i, 10); }
+
+	// Add animations with their respective textures
+	if (run_texture_) {
+		sprite_node_->add_animation_with_texture(run_animation, run_texture_);
+	}
+	
+	if (idle_texture_) {
+		sprite_node_->add_animation_with_texture(idle_animation, idle_texture_);
+		sprite_node_->set_texture(idle_texture_);
+		sprite_node_->play("idle");
+	}
+
+	// Set player as player controlled and associate its transform with its sprite
+	if (transform_node_) {
+		transform_node_->set_player_controlled();
+		transform_node_->set_associated_sprite(sprite_node_);
+	}
+}
+
+void Player::init_audio()
+{
+	if (!transform_node_) return;
+	
+	// Add audio component to player with whistle sound
+	auto* audio_component = transform_node_->add_audio_component();
+	if (audio_component) {
+		audio_component->set_sound("whistle");
+	}
+}
+
 void Player::whistle()
 {
 	if (auto* audio = transform_node_->get_audio_component()) 
@@ -35,7 +79,7 @@ void Player::whistle()
 	}
 }
 
-void Player::process_audio_actions(IoHandler* io_handler, NPC* npc)
+void Player::process_audio_actions(IoHandler* io_handler, std::shared_ptr<NPC> npc)
 {
 	const GameActionList &actions = io_handler->get_game_actions();
 	for(uint8_t i = 0; i < actions.num_actions; i++)

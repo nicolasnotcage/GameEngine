@@ -10,6 +10,9 @@ For more information, please refer to <https://unlicense.org>
 
 #include "examples/player.hpp"
 #include "examples/npc.hpp"
+#include "examples/dialogue_manager.hpp"
+#include "platform/collision_manager.hpp"
+#include "platform/audio_manager.hpp"
 
 #include "graph/camera_node.hpp"
 #include "graph/geometry_node.hpp"
@@ -65,9 +68,12 @@ class MainScene : public Scene
     SceneState               scene_state_;
     IoHandler               *io_handler_;
 
-    // Player and NPC pointers
-    std::unique_ptr<Player> player_;
-    std::unique_ptr<NPC> blue_witch_;
+    // Manager and character pointers
+    std::shared_ptr<Player> player_;
+    std::shared_ptr<NPC> blue_witch_;
+    std::unique_ptr<DialogueManager> dialogue_manager_;
+    std::unique_ptr<CollisionManager> collision_manager_;
+    std::unique_ptr<AudioManager> audio_manager_;
 
     // Texture nodes for specific sprite sheets
     TextureNode blue_witch_run_texture_;
@@ -94,14 +100,11 @@ class MainScene : public Scene
     TextureNode second_find_;
     TextureNode third_find_;
 
-    // Collision system
-    CollisionSystem collision_system_;
+    // No longer needed as we're using CollisionManager
+    // CollisionSystem collision_system_;
 
     // Helper methods for scene setup
-    void setup_npc_animations();
-    void setup_witch_animations();
     void setup_collisions();
-    void setup_trigger_zones();
     void setup_audio();
 
     // Texture initialization helpers
@@ -119,6 +122,7 @@ class MainScene : public Scene
     // Game logic helpers
     void handle_dialogue_state();
     void handle_npc_state();
+    void handle_dialogue_completed(DialogueManager::DialogueState state);
     void teleport_npc_to_location(float x, float y);
     void hide_npc();
     void show_npc();
@@ -129,9 +133,6 @@ class MainScene : public Scene
     void handle_boundary_collision(TransformNode *entity, TransformNode *boundary);
     void handle_audio();
     void handle_input_actions();
-    void update_audio_positions(TransformNode& player_transform, TransformNode& npc_transform);
-    void update_npc_audio_timing(TransformNode& npc_transform);
-    void process_audio_actions(TransformNode& player_transform);
 
     // Gameplay specific data
     float time_to_clap_{1.0f};  // Delay in seconds before clapping
