@@ -149,22 +149,37 @@ void MainScene::setup_game_map()
 // Setup characters
 void MainScene::setup_characters()
 {
+    // Get nodes
     auto &camera = root_.get_child<0>();
     auto &blue_witch_transform = camera.get_child<1>();
+    auto &blue_witch_sprite = blue_witch_transform.get_child<0>();
     auto &witch_transform = camera.get_child<2>();
+    auto &witch_sprite = witch_transform.get_child<0>();
+
+    // Create character objects
+    blue_witch_ = std::make_unique<NPC>(&blue_witch_transform, &blue_witch_sprite);
+    player_ = std::make_unique<Player>(&witch_transform, &witch_sprite);
+
+    // Configure NPC with textures
+    blue_witch_->set_hidden_texture(&blue_witch_transparent_texture_);
+    blue_witch_->set_idle_texture(&blue_witch_idle_texture_);
+
+    // Configure Player with textures
+    player_->set_run_texture(&white_witch_run_texture_);
+    player_->set_idle_texture(&white_witch_idle_texture_);
 
     // Position blue witch and configure path
-    blue_witch_transform.right_translate(4.0f, 1.0f); 
+    blue_witch_->set_position(4.0f, 1.0f);
     blue_witch_path_.add_point(4.0f, 1.0f, 0.5f);  // Start position
     blue_witch_path_.add_point(4.0f, 2.5f, 0.5f);  // Move down
     blue_witch_path_.set_looping(false);
+
+    // Scale characters
     blue_witch_transform.right_scale(2.0f, 2.0f);
-
-    // Set witch transform if no save file exists
-    if (!SaveManager::get_instance().save_exists()) witch_transform.right_translate(1.0f, 0.0f);
-
-    // Scale witch
     witch_transform.right_scale(3.0f, 3.0f);
+
+    // Set player position if no save file exists
+    if (!SaveManager::get_instance().save_exists()) player_->set_position(1.0f, 0.0f);
 
     // Set camera to follow player (witch)
     camera.set_target(&witch_transform, true);
@@ -460,6 +475,10 @@ void MainScene::update(double delta)
     scene_state_.io_handler = io_handler_;
     scene_state_.delta = delta;
 
+    // Update player and NPC objects
+    player_->update(delta);
+    blue_witch_->update(delta);
+
     // Handle dialogue and NPC state
     handle_dialogue_state();
     handle_npc_state();
@@ -578,52 +597,27 @@ void MainScene::handle_npc_state()
 // Teleport NPC to a specific location
 void MainScene::teleport_npc_to_location(float x, float y)
 {
-    auto& camera = root_.get_child<0>();
-    auto& blue_witch_transform = camera.get_child<1>();
-    
-    // Create a new path with the teleport location
-    Path new_path{};
-    new_path.add_point(x, y, 0.0f);
-    new_path.set_looping(false);
-    
-    // Set the path and teleport to location
-    blue_witch_transform.set_path_controlled(new_path);
-    blue_witch_transform.set_position(x, y);
+    // Delegate to NPC's teleport method
+    blue_witch_->teleport_to(x, y);
 }
 
 // Hide NPC
 void MainScene::hide_npc()
 {
-    auto& camera = root_.get_child<0>();
-    auto& blue_witch_transform = camera.get_child<1>();
-    auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+    // Delegate to NPC's hide method
+    blue_witch_->hide();
     
-    // Disable automatic animation switching to prevent overriding the hidden animation
-    blue_witch_sprite.set_auto_animation_enabled(false);
-    
-    // Set the hidden animation and texture
-    blue_witch_sprite.set_texture(&blue_witch_transparent_texture_);
-    blue_witch_sprite.play("hidden");
-    
-    // Mark witch as hidden
+    // Update the scene's state flag
     blue_witch_hidden_ = true;
 }
 
 // Show NPC
 void MainScene::show_npc()
 {
-    auto& camera = root_.get_child<0>();
-    auto& blue_witch_transform = camera.get_child<1>();
-    auto& blue_witch_sprite = blue_witch_transform.get_child<0>();
+    // Delegate to NPC's show method
+    blue_witch_->show();
     
-    // Re-enable automatic animation switching
-    blue_witch_sprite.set_auto_animation_enabled(true);
-    
-    // Set the idle animation and texture
-    blue_witch_sprite.set_texture(&blue_witch_idle_texture_);
-    blue_witch_sprite.play("idle");
-    
-    // Mark witch as visible
+    // Update the scene's state flag
     blue_witch_hidden_ = false;
 }
 
@@ -653,25 +647,8 @@ void MainScene::show_dialogue_for_find(int find_number)
 // Handle input actions
 void MainScene::handle_input_actions()
 {
-    // Check for pause action to open pause menu
-    const GameActionList &actions = io_handler_->get_game_actions();
-    for (uint8_t i = 0; i < actions.num_actions; i++)
-    {
-        if (actions.actions[i] == GameAction::TOGGLE_PAUSE)
-        {
-            // Push the pause menu
-            SceneManager::get_instance()->push_scene_by_key("pause_menu");
-            return; // Exit early to prevent further updates this frame
-        }
-        else if (actions.actions[i] == GameAction::SAVE_GAME)
-        {
-            // Save the game
-            SaveManager::get_instance().save_game(this);
-            
-            // Provide feedback to the player (optional)
-            std::cout << "Game saved successfully!" << std::endl;
-        }
-    }
+    // Delegate to player's input handling
+    player_->handle_input_actions(io_handler_);
 }
 
 void MainScene::handle_collisions()
@@ -730,55 +707,15 @@ void MainScene::update_audio_positions(TransformNode& player_transform, Transfor
 // Update NPC audio timing for delayed sounds
 void MainScene::update_npc_audio_timing(TransformNode& npc_transform)
 {
-    // Update clap timer if waiting to clap
-    if (waiting_to_clap_) 
-    {
-        npc_audio_timer_ += scene_state_.delta;
-        
-        // Check if it's time to clap
-        if (npc_audio_timer_ >= time_to_clap_) 
-        {
-            // Play the clap sound
-            if (auto* npc_audio = npc_transform.get_audio_component()) 
-            {
-                if (blue_witch_hidden_) npc_audio->play(1.0f);
-            }
-            
-            // Reset the timer and flag
-            waiting_to_clap_ = false;
-            npc_audio_timer_ = 0.0f;
-        }
-    }
+    // This method is now a no-op as the NPC class handles its own audio timing
+    // The NPC's update method calls process_audio_timing internally
 }
 
 // Process audio-related input actions
 void MainScene::process_audio_actions(TransformNode& player_transform)
 {
-    const GameActionList &actions = io_handler_->get_game_actions();
-    for(uint8_t i = 0; i < actions.num_actions; i++)
-    {
-        if (actions.actions[i] == GameAction::PLAYER_WHISTLE) {
-            // Play player whistle sound
-            if (auto* player_audio = player_transform.get_audio_component()) {
-                player_audio->play(1.0f);
-            }
-
-            // Set flag to clap after delay if NPC is hidden
-            if (blue_witch_hidden_ && !waiting_to_clap_) 
-            {
-                waiting_to_clap_ = true;
-                npc_audio_timer_ = 0.0f;
-            }
-            break;
-        }
-        
-        else if (actions.actions[i] == GameAction::TOGGLE_MUSIC) 
-        {
-            // Toggle music
-            AudioEngine::get_instance()->toggle_music();
-            break;
-        }
-    }
+    // Delegate to player's audio action handling
+    player_->process_audio_actions(io_handler_, blue_witch_.get());
 }
 
 // Serialization overrides

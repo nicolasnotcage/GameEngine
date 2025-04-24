@@ -8,6 +8,9 @@ For more information, please refer to <https://unlicense.org>
 #ifndef EXAMPLES_MAIN_SCENE_HPP
 #define EXAMPLES_MAIN_SCENE_HPP
 
+#include "examples/player.hpp"
+#include "examples/npc.hpp"
+
 #include "graph/camera_node.hpp"
 #include "graph/geometry_node.hpp"
 #include "graph/node.hpp"
@@ -61,6 +64,10 @@ class MainScene : public Scene
     RootNodeT<AnimatedScene> root_;
     SceneState               scene_state_;
     IoHandler               *io_handler_;
+
+    // Player and NPC pointers
+    std::unique_ptr<Player> player_;
+    std::unique_ptr<NPC> blue_witch_;
 
     // Texture nodes for specific sprite sheets
     TextureNode blue_witch_run_texture_;
