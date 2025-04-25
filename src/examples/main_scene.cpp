@@ -45,6 +45,10 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     setup_collisions();
     setup_audio();
 
+    // Initialize characters
+    player_->init(scene_state_);
+    blue_witch_->init(scene_state_);
+
     // Initialize root node
     root_.init(scene_state_);
 }
@@ -82,10 +86,6 @@ void MainScene::setup_characters()
     // Create character objects
     blue_witch_ = std::make_shared<NPC>(&blue_witch_transform, &blue_witch_sprite);
     player_ = std::make_shared<Player>(&witch_transform, &witch_sprite);
-
-    // Initialize characters
-    player_->init(scene_state_);
-    blue_witch_->init(scene_state_);
 
     // Position blue witch and configure path
     blue_witch_->set_position(4.0f, 1.0f);
