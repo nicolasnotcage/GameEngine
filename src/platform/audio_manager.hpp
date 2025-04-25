@@ -14,7 +14,6 @@ It manages sound loading, 3D audio positioning, and cross-entity coordination.
 #define PLATFORM_AUDIO_MANAGER_HPP
 
 #include "platform/audio_engine.hpp"
-#include "graph/transform_node.hpp"
 #include "graph/scene_state.hpp"
 #include "system/file_locator.hpp"
 
@@ -24,6 +23,9 @@ It manages sound loading, 3D audio positioning, and cross-entity coordination.
 
 namespace cge
 {
+
+class Player;
+class NPC;
 
 class AudioManager
 {
@@ -37,7 +39,7 @@ public:
     void load_sounds();
     
     // Update 3D audio positioning
-    void update_audio_positions(TransformNode* player_transform, TransformNode* npc_transform);
+    void update_audio_positions(std::shared_ptr<Player> player, std::shared_ptr<NPC> npc);
     
     // Play specific sounds
     void play_sound(const std::string& sound_name, float volume = 1.0f);

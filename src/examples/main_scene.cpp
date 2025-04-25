@@ -422,7 +422,7 @@ void MainScene::handle_audio()
     auto &witch_transform = camera.get_child<2>();
     
     // Update 3D audio positioning using audio manager
-    if (audio_manager_) audio_manager_->update_audio_positions(&witch_transform, &blue_witch_transform);
+    if (audio_manager_) audio_manager_->update_audio_positions(player_, blue_witch_);
     
     // Process audio-related input actions
     player_->process_audio_actions(io_handler_, blue_witch_);

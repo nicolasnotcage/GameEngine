@@ -161,6 +161,8 @@ void NPC::process_audio_timing(double delta)
 	}
 }
 
+AudioComponent* NPC::get_audio_component() { return transform_node_->get_audio_component(); }
+
 void NPC::clap_if_hidden()
 {
 	// Play the clap sound if NPC is hidden

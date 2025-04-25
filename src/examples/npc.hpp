@@ -60,6 +60,7 @@ public:
 	void set_waiting_to_clap(bool waiting) { waiting_to_clap_ = waiting; }
 	bool is_waiting_to_clap() const { return waiting_to_clap_; }
 	void reset_audio_timer() { audio_timer_ = 0.0f; }
+	AudioComponent* get_audio_component();
 
 	// Dialogue state
 	void start_waiting_for_dialogue() { waiting_for_dialogue_ = true; }

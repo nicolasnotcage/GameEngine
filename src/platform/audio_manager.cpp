@@ -5,6 +5,8 @@ This is free and unencumbered software released into the public domain.
 For more information, please refer to <https://unlicense.org>
 */
 
+#include "examples/player.hpp"
+#include "examples/npc.hpp"
 #include "platform/audio_manager.hpp"
 #include "platform/audio_component.hpp"
 #include "system/file_locator.hpp"
@@ -55,18 +57,17 @@ void AudioManager::load_sounds()
     if (!music_enabled) audio_engine->get_channel(3)->setMute(true);
 }
 
-void AudioManager::update_audio_positions(TransformNode* player_transform, TransformNode* npc_transform)
+void AudioManager::update_audio_positions(std::shared_ptr<Player> player, std::shared_ptr<NPC> npc)
 {
-    if (!player_transform || !npc_transform) return;
-    
+    if (!player || !npc) return;
+
     // Update listener position (player position) first
-    Vector2 player_position(player_transform->get_position_x(), player_transform->get_position_y());
+    Vector2 player_position(player->get_position_x(), player->get_position_y());
     AudioEngine::get_instance()->set_3d_listener_position(player_position);
-    
+
     // Update NPC's audio component position for 3D audio
-    if (auto* npc_audio = npc_transform->get_audio_component())
+    if (auto* npc_audio = npc->get_audio_component())
     {
-        // Make sure 3D position is updated
         npc_audio->update_position();
     }
 }
