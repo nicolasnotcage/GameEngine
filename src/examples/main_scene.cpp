@@ -80,28 +80,20 @@ void MainScene::setup_characters()
     auto &camera = root_.get_child<0>();
     auto &blue_witch_transform = camera.get_child<1>();
     auto &blue_witch_sprite = blue_witch_transform.get_child<0>();
-    auto &witch_transform = camera.get_child<2>();
-    auto &witch_sprite = witch_transform.get_child<0>();
+    auto &player_transform = camera.get_child<2>();
+    auto &player_sprite = player_transform.get_child<0>();
 
     // Create character objects
     blue_witch_ = std::make_shared<NPC>(&blue_witch_transform, &blue_witch_sprite);
-    player_ = std::make_shared<Player>(&witch_transform, &witch_sprite);
+    player_ = std::make_shared<Player>(&player_transform, &player_sprite);
 
-    // Position blue witch and configure path
-    blue_witch_->set_position(4.0f, 1.0f);
+    // Configure initial NPC path
     blue_witch_path_.add_point(4.0f, 1.0f, 0.5f);  // Start position
     blue_witch_path_.add_point(4.0f, 2.5f, 0.5f);  // Move down
     blue_witch_path_.set_looping(false);
 
-    // Scale characters
-    blue_witch_transform.right_scale(2.0f, 2.0f);
-    witch_transform.right_scale(3.0f, 3.0f);
-
-    // Set player position if no save file exists
-    if (!SaveManager::get_instance().save_exists()) player_->set_position(1.0f, 0.0f);
-
-    // Set camera to follow player (witch)
-    camera.set_target(&witch_transform, true);
+    // Set camera to follow player
+    camera.set_target(&player_transform, true);
     camera.set_follow_smoothness(1.0f);
 }
 
@@ -334,15 +326,12 @@ void MainScene::handle_dialogue_state()
 // Handle dialogue completion callback
 void MainScene::handle_dialogue_completed(DialogueManager::DialogueState state)
 {
-    auto& camera = root_.get_child<0>();
-    auto& blue_witch_transform = camera.get_child<1>();
-
     switch (state) 
     {
         case DialogueManager::DialogueState::INTRO:
             // Intro dialogue completed
             dialogue_completed_ = true;
-            blue_witch_transform.set_path_controlled(blue_witch_path_);
+            blue_witch_->set_path(blue_witch_path_);
             break;
             
         case DialogueManager::DialogueState::FIRST_FIND:
@@ -382,14 +371,11 @@ void MainScene::handle_npc_state()
     // Hide witch and move to new position
     if (dialogue_completed_         // Dialogue completed
         && has_traveled_enough      // Pathed far enough for effect
-        && find_count_ == 0)        // Haven't found witch yet
+        && find_count_ == 0)        // Round has just started
     {
         blue_witch_->hide();
         blue_witch_->teleport_to(-15.55f, -7.625f);
     }
-    
-    // Special case for third find - NPC should remain visible
-    if (find_count_ == 3 && waiting_for_dialogue_ == false) blue_witch_->show();
 }
 
 // Show dialogue for a specific find
@@ -416,11 +402,7 @@ void MainScene::register_collision_component(std::shared_ptr<CollisionComponent>
 }
 
 void MainScene::handle_audio()
-{    
-    auto &camera = root_.get_child<0>();
-    auto &blue_witch_transform = camera.get_child<1>();
-    auto &witch_transform = camera.get_child<2>();
-    
+{        
     // Update 3D audio positioning using audio manager
     if (audio_manager_) audio_manager_->update_audio_positions(player_, blue_witch_);
     
@@ -450,8 +432,8 @@ void MainScene::deserialize(Serializer& serializer)
     serializer.read("game_completed", game_completed);
     
     // If the game was completed, don't load the saved state
-    // This forces a new game instance if a player tries to load a completed game
-    if (game_completed) {
+    if (game_completed) 
+    {
         std::cout << "Loading a completed game - starting a new game instead." << std::endl;
         return;
     }

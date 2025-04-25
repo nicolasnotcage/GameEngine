@@ -26,6 +26,10 @@ void NPC::update(double delta)
 
 void NPC::init(SceneState& scene_state)
 {
+	// Set initial position and scale
+	set_position(4.0f, 1.0f);
+	transform_node_->right_scale(2.0f, 2.0f);
+
 	init_textures(scene_state);
 	init_animations();
 	init_audio();

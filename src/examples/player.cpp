@@ -33,6 +33,12 @@ void Player::update(double delta)
 
 void Player::init(SceneState& scene_state)
 {
+	// Scale player
+	transform_node_->right_scale(3.0f, 3.0f);
+
+	// Set player position if no save file exists
+	if (!SaveManager::get_instance().save_exists()) set_position(1.0f, 0.0f);
+
 	init_textures(scene_state);
 	init_animations();
 	init_audio();
