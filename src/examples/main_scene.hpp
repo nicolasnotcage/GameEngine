@@ -103,16 +103,13 @@ class MainScene : public Scene
     void handle_dialogue_state();
     void handle_npc_state();
     void handle_dialogue_completed(DialogueManager::DialogueState state);
-    void teleport_npc_to_location(float x, float y);
     void hide_npc();
     void show_npc();
     void show_dialogue_for_find(int find_number);
 
     // Collision and audio handling methods
-    void handle_collisions();
     void handle_boundary_collision(TransformNode *entity, TransformNode *boundary);
     void handle_audio();
-    void handle_input_actions();
 
     // Gameplay specific data
     float time_to_clap_{1.0f};  // Delay in seconds before clapping

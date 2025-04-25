@@ -57,17 +57,12 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     root_.init(scene_state_);
 }
 
-// Texture initialization methods have been moved to the Character and DialogueManager classes
-
 // Setup camera
 void MainScene::setup_camera()
 {
     auto &camera = root_.get_child<0>();
     camera.get_camera().set_dimensions(20.0f, 15.0f);
     camera.get_camera().set_position(0.0f, 0.0f);
-
-    // Set camera to print world coordinates on click; used for testing and defining collision boundaries
-    //camera.set_print_on_click(true);
 }
 
 // Setup game map
@@ -92,7 +87,7 @@ void MainScene::setup_characters()
     auto &witch_transform = camera.get_child<2>();
     auto &witch_sprite = witch_transform.get_child<0>();
 
-    // Create character objects with shared pointers
+    // Create character objects
     blue_witch_ = std::make_shared<NPC>(&blue_witch_transform, &blue_witch_sprite);
     player_ = std::make_shared<Player>(&witch_transform, &witch_sprite);
 
@@ -177,8 +172,6 @@ void MainScene::setup_dialogue_nodes()
     if (!dialogue_completed_) dialogue_manager_->show_dialogue(DialogueManager::DialogueState::INTRO);
 }
 
-// Animation setup methods have been moved to the Character classes
-
 void MainScene::setup_collisions()
 {
     // Create and initialize collision manager
@@ -252,17 +245,11 @@ void MainScene::setup_collisions()
                     auto& camera = root_.get_child<0>();
 
                     // Show appropriate dialogue based on find count
-                    if (dialogue_manager_) {
-                        if (find_count_ == 0) {
-                            // First find
-                            dialogue_manager_->show_dialogue(DialogueManager::DialogueState::FIRST_FIND);
-                        } else if (find_count_ == 1) {
-                            // Second find
-                            dialogue_manager_->show_dialogue(DialogueManager::DialogueState::SECOND_FIND);
-                        } else if (find_count_ == 2) {
-                            // Third find - NPC should remain visible after this
-                            dialogue_manager_->show_dialogue(DialogueManager::DialogueState::THIRD_FIND);
-                        }
+                    if (dialogue_manager_) 
+                    {
+                        if (find_count_ == 0) dialogue_manager_->show_dialogue(DialogueManager::DialogueState::FIRST_FIND);
+                        else if (find_count_ == 1) dialogue_manager_->show_dialogue(DialogueManager::DialogueState::SECOND_FIND);
+                        else if (find_count_ == 2) dialogue_manager_->show_dialogue(DialogueManager::DialogueState::THIRD_FIND);
                     }
 
                     // Set waiting for dialogue flag
@@ -272,7 +259,8 @@ void MainScene::setup_collisions()
                     find_count_++;
                     
                     // Check if the game is completed (found NPC three times)
-                    if (find_count_ == 3) {
+                    if (find_count_ == 3) 
+                    {
                         // Set a flag to show game over menu after dialogue completes
                         game_completed_ = true;
                     }
@@ -335,10 +323,10 @@ void MainScene::update(double delta)
     handle_npc_state();
     
     // Handle input actions (pause, etc.)
-    handle_input_actions();
+    player_->handle_input_actions(io_handler_);
 
     // Handle general collisions using the collision system
-    handle_collisions();
+    collision_manager_->process_collisions();
     handle_audio();
 
     // Update the scene graph
@@ -358,7 +346,8 @@ void MainScene::handle_dialogue_completed(DialogueManager::DialogueState state)
     auto& camera = root_.get_child<0>();
     auto& blue_witch_transform = camera.get_child<1>();
 
-    switch (state) {
+    switch (state) 
+    {
         case DialogueManager::DialogueState::INTRO:
             // Intro dialogue completed
             dialogue_completed_ = true;
@@ -369,14 +358,16 @@ void MainScene::handle_dialogue_completed(DialogueManager::DialogueState state)
             // First find dialogue completed
             waiting_for_dialogue_ = false;
             hide_npc();
-            teleport_npc_to_location(14.6641f, 6.5282f);
+            // Teleport NPC to a specific location
+            blue_witch_->teleport_to(14.6641f, 6.5282f);
             break;
             
         case DialogueManager::DialogueState::SECOND_FIND:
             // Second find dialogue completed
             waiting_for_dialogue_ = false;
             hide_npc();
-            teleport_npc_to_location(3.3f, -2.525f);
+            // Teleport NPC to a specific location
+            blue_witch_->teleport_to(3.3f, -2.525f);
             break;
             
         case DialogueManager::DialogueState::THIRD_FIND:
@@ -408,9 +399,9 @@ void MainScene::handle_npc_state()
         hide_npc();
         
         // Set position based on find count
-        if (find_count_ == 1) teleport_npc_to_location(14.6641f, 6.5282f);
-        else if (find_count_ == 2) teleport_npc_to_location(3.3f, -2.525f);
-        else teleport_npc_to_location(-15.55f, -7.625f);
+        if (find_count_ == 1) blue_witch_->teleport_to(14.6641f, 6.5282f);
+        else if (find_count_ == 2) blue_witch_->teleport_to(3.3f, -2.525f);
+        else blue_witch_->teleport_to(-15.55f, -7.625f);
     }
     
     // Special case for third find - NPC should remain visible
@@ -418,13 +409,6 @@ void MainScene::handle_npc_state()
     {
         show_npc();
     }
-}
-
-// Teleport NPC to a specific location
-void MainScene::teleport_npc_to_location(float x, float y)
-{
-    // Delegate to NPC's teleport method
-    blue_witch_->teleport_to(x, y);
 }
 
 // Hide NPC
@@ -458,22 +442,9 @@ void MainScene::show_dialogue_for_find(int find_number)
     }
 }
 
-// Handle input actions
-void MainScene::handle_input_actions()
-{
-    // Delegate to player's input handling
-    player_->handle_input_actions(io_handler_);
-}
-
-void MainScene::handle_collisions()
-{  
-    // Process all collisions using the collision manager
-    if (collision_manager_) collision_manager_->process_collisions();
-}
-
+// Basic boundary collision. Just moves the player back to their previous position.
 void MainScene::handle_boundary_collision(TransformNode *entity, TransformNode *boundary)
 {
-    // Basic boundary collision. Just moves the player back to their previous position.
     entity->set_position(entity->get_prev_position_x(), entity->get_prev_position_y());
 }
 
@@ -490,15 +461,11 @@ void MainScene::handle_audio()
     auto &witch_transform = camera.get_child<2>();
     
     // Update 3D audio positioning using audio manager
-    if (audio_manager_) {
-        audio_manager_->update_audio_positions(&witch_transform, &blue_witch_transform);
-    }
+    if (audio_manager_) audio_manager_->update_audio_positions(&witch_transform, &blue_witch_transform);
     
     // Process audio-related input actions
     player_->process_audio_actions(io_handler_, blue_witch_);
 }
-
-// Audio positioning is now handled by the AudioManager
 
 // Serialization overrides
 void MainScene::serialize(Serializer& serializer) const
