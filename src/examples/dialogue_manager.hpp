@@ -38,6 +38,12 @@ public:
         COMPLETED
     };
     
+    // Helper function to convert DialogueState to string
+    static const char* dialogue_state_to_string(DialogueState state);
+    
+    // Friend function to allow std::cout << DialogueState
+    friend std::ostream& operator<<(std::ostream& os, const DialogueState& state);
+    
     DialogueManager();
     ~DialogueManager() = default;
     
@@ -71,7 +77,8 @@ private:
     
     std::vector<DialogueEntry> dialogue_entries_;
     // Texture storage
-    struct TextureEntry {
+    struct TextureEntry 
+    {
         std::string id;
         std::string filepath;
         TextureNode texture;

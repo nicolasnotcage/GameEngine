@@ -1,6 +1,6 @@
 # Configuration File
-# Generated on: Apr 20 2025 22:12:09
+# Generated on: Apr 24 2025 22:04:02
 
-screen_width = 1920
-screen_height = 1080
+screen_width = 800
+screen_height = 600
 music_enabled = true

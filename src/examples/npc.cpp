@@ -24,6 +24,13 @@ void NPC::update(double delta)
 	process_audio_timing(delta);
 }
 
+void NPC::init(SceneState& scene_state)
+{
+	init_textures(scene_state);
+	init_animations();
+	init_audio();
+}
+
 void NPC::init_animations()
 {
 	if (!sprite_node_) return;

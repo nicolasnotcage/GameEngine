@@ -41,14 +41,6 @@ void MainScene::init(SDLInfo *sdl_info, IoHandler *io_handler)
     setup_characters();
     setup_dialogue_nodes();
 
-    // Initialize character textures, animations, and audio
-    player_->init_textures(scene_state_);
-    blue_witch_->init_textures(scene_state_);
-    dialogue_manager_->init_textures(scene_state_);
-    
-    player_->init_animations();
-    blue_witch_->init_animations();
-
     // Setup systems
     setup_collisions();
     setup_audio();
@@ -91,6 +83,10 @@ void MainScene::setup_characters()
     blue_witch_ = std::make_shared<NPC>(&blue_witch_transform, &blue_witch_sprite);
     player_ = std::make_shared<Player>(&witch_transform, &witch_sprite);
 
+    // Initialize characters
+    player_->init(scene_state_);
+    blue_witch_->init(scene_state_);
+
     // Position blue witch and configure path
     blue_witch_->set_position(4.0f, 1.0f);
     blue_witch_path_.add_point(4.0f, 1.0f, 0.5f);  // Start position
@@ -123,9 +119,8 @@ void MainScene::setup_dialogue_nodes()
 {
     auto &camera = root_.get_child<0>();
     
-    // Create dialogue manager
+    // Create dialogue manager; don't initialize until textures are configured
     dialogue_manager_ = std::make_unique<DialogueManager>();
-    dialogue_manager_->init(scene_state_);
     
     // Register dialogue textures by filepath
     dialogue_manager_->register_texture("intro_1", "images/game_text/intro_1.png");
@@ -170,6 +165,9 @@ void MainScene::setup_dialogue_nodes()
     
     // Show intro dialogue if not completed
     if (!dialogue_completed_) dialogue_manager_->show_dialogue(DialogueManager::DialogueState::INTRO);
+
+    // Initialize textures now that nodes are configured
+    dialogue_manager_->init(scene_state_);
 }
 
 void MainScene::setup_collisions()
@@ -218,7 +216,7 @@ void MainScene::setup_collisions()
             (entity_b == &witch_transform && entity_a == &blue_witch_transform);
 
         // Handle witch found logic
-        if (witches_colliding && blue_witch_hidden_)
+        if (witches_colliding && blue_witch_->is_hidden())
         {
             // Reveal witch if player investigates
             const GameActionList& actions = io_handler_->get_game_actions();
@@ -237,9 +235,6 @@ void MainScene::setup_collisions()
 
                     // Play found sound
                     AudioEngine::get_instance()->play_sound("success", 1.0f);
-
-                    // Mark witch as found
-                    blue_witch_hidden_ = false;
 
                     // Get camera reference for text nodes
                     auto& camera = root_.get_child<0>();
@@ -275,10 +270,6 @@ void MainScene::setup_audio()
     // Create and initialize audio manager
     audio_manager_ = std::make_unique<AudioManager>();
     audio_manager_->init(scene_state_);
-    
-    // Initialize character audio
-    player_->init_audio();
-    blue_witch_->init_audio();
 }
 
 void MainScene::destroy()
@@ -357,23 +348,21 @@ void MainScene::handle_dialogue_completed(DialogueManager::DialogueState state)
         case DialogueManager::DialogueState::FIRST_FIND:
             // First find dialogue completed
             waiting_for_dialogue_ = false;
-            hide_npc();
-            // Teleport NPC to a specific location
+            blue_witch_->hide();
             blue_witch_->teleport_to(14.6641f, 6.5282f);
             break;
             
         case DialogueManager::DialogueState::SECOND_FIND:
             // Second find dialogue completed
             waiting_for_dialogue_ = false;
-            hide_npc();
-            // Teleport NPC to a specific location
+            blue_witch_->hide();
             blue_witch_->teleport_to(3.3f, -2.525f);
             break;
             
         case DialogueManager::DialogueState::THIRD_FIND:
             // Third find dialogue completed
             waiting_for_dialogue_ = false;
-            show_npc();
+            blue_witch_->show();
             
             // If the game is completed, show the game over menu
             if (game_completed_) SceneManager::get_instance()->push_scene_by_key("game_over_menu");
@@ -387,48 +376,20 @@ void MainScene::handle_dialogue_completed(DialogueManager::DialogueState state)
 // Handle NPC state changes
 void MainScene::handle_npc_state()
 {
-    auto& camera = root_.get_child<0>();
-    auto& blue_witch_transform = camera.get_child<1>();
+    // Has the NPC traveled far enough to satisfy the visual effect?
+    bool has_traveled_enough = blue_witch_->get_position_y() >= blue_witch_path_.get_point(1).y / 1.1f;
 
-    // Check if intro path is completed and witch should be hidden
-    if (!blue_witch_hidden_ && !blue_witch_transform.is_moving() && 
-        dialogue_completed_ && blue_witch_transform.get_position_y() >= 1.5f && 
-        !waiting_for_dialogue_ && find_count_ == 0) 
+    // Hide witch and move to new position
+    if (dialogue_completed_         // Dialogue completed
+        && has_traveled_enough      // Pathed far enough for effect
+        && find_count_ == 0)        // Haven't found witch yet
     {
-        // Hide witch and move to new position
-        hide_npc();
-        
-        // Set position based on find count
-        if (find_count_ == 1) blue_witch_->teleport_to(14.6641f, 6.5282f);
-        else if (find_count_ == 2) blue_witch_->teleport_to(3.3f, -2.525f);
-        else blue_witch_->teleport_to(-15.55f, -7.625f);
+        blue_witch_->hide();
+        blue_witch_->teleport_to(-15.55f, -7.625f);
     }
     
     // Special case for third find - NPC should remain visible
-    if (find_count_ == 3 && waiting_for_dialogue_ == false && !blue_witch_transform.is_moving()) 
-    {
-        show_npc();
-    }
-}
-
-// Hide NPC
-void MainScene::hide_npc()
-{
-    // Delegate to NPC's hide method
-    blue_witch_->hide();
-    
-    // Update the scene's state flag
-    blue_witch_hidden_ = true;
-}
-
-// Show NPC
-void MainScene::show_npc()
-{
-    // Delegate to NPC's show method
-    blue_witch_->show();
-    
-    // Update the scene's state flag
-    blue_witch_hidden_ = false;
+    if (find_count_ == 3 && waiting_for_dialogue_ == false) blue_witch_->show();
 }
 
 // Show dialogue for a specific find
@@ -505,9 +466,6 @@ void MainScene::deserialize(Serializer& serializer)
     serializer.read("waiting_for_dialogue", waiting_for_dialogue_);
     serializer.read("game_completed", game_completed_);
     serializer.read("dialogue_completed", dialogue_completed_);
-    
-    // Update NPC visibility based on blue_witch_->is_hidden()
-    blue_witch_hidden_ = blue_witch_->is_hidden();
 }
 
 } // namespace cge

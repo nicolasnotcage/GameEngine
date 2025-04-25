@@ -144,6 +144,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	settings_button.set_pressed_sprite("images/ui/buttons/settings/settings_button_clicked.png");
 	settings_button.set_callback([this]() {
 		// TODO: Add logic to open settings menu
+		// Not going to hit this stretch goal by due date
 	});
 	
 	// Exit button

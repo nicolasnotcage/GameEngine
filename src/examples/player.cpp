@@ -31,6 +31,13 @@ void Player::update(double delta)
 	// Player-specific update functionality
 }
 
+void Player::init(SceneState& scene_state)
+{
+	init_textures(scene_state);
+	init_animations();
+	init_audio();
+}
+
 void Player::init_animations()
 {
 	if (!sprite_node_) return;

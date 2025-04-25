@@ -8,8 +8,32 @@ For more information, please refer to <https://unlicense.org>
 #include "examples/dialogue_manager.hpp"
 #include "system/serializer.hpp"
 
+#include <iostream>
+
 namespace cge
 {
+
+// Helper function to convert DialogueState to string
+const char* DialogueManager::dialogue_state_to_string(DialogueState state)
+{
+    switch (state)
+    {
+        case DialogueState::INACTIVE: return "INACTIVE";
+        case DialogueState::INTRO: return "INTRO";
+        case DialogueState::FIRST_FIND: return "FIRST_FIND";
+        case DialogueState::SECOND_FIND: return "SECOND_FIND";
+        case DialogueState::THIRD_FIND: return "THIRD_FIND";
+        case DialogueState::COMPLETED: return "COMPLETED";
+        default: return "UNKNOWN";
+    }
+}
+
+// Friend function to allow std::cout << DialogueState
+std::ostream& operator<<(std::ostream& os, const DialogueManager::DialogueState& state)
+{
+    os << DialogueManager::dialogue_state_to_string(state);
+    return os;
+}
 
 DialogueManager::DialogueManager()
 {
@@ -17,7 +41,7 @@ DialogueManager::DialogueManager()
 
 void DialogueManager::init(SceneState& scene_state)
 {
-    // Initialize dialogue system
+    init_textures(scene_state);
 }
 
 void DialogueManager::update()
@@ -65,7 +89,8 @@ void DialogueManager::register_texture(const std::string& id, const std::string&
 
 void DialogueManager::init_textures(SceneState& scene_state)
 {
-    for (auto& entry : textures_) {
+    for (auto& entry : textures_) 
+    {
         entry.texture.set_filepath(entry.filepath);
         entry.texture.set_blend(true);
         entry.texture.set_blend_alpha(200);
@@ -92,11 +117,14 @@ void DialogueManager::show_dialogue(DialogueState state)
     TextNode* node_to_show = nullptr;
     std::string texture_id;
     
-    switch (state) {
+    switch (state) 
+    {
         case DialogueState::INTRO:
             // Find intro dialogue node
-            for (auto& entry : dialogue_entries_) {
-                if (entry.id == "intro") {
+            for (auto& entry : dialogue_entries_) 
+            {
+                if (entry.id == "intro") 
+                {
                     entry.active = true;
                     node_to_show = entry.node;
                     break;
@@ -104,14 +132,18 @@ void DialogueManager::show_dialogue(DialogueState state)
             }
             
             // Set intro textures
-            if (node_to_show) {
+            if (node_to_show) 
+            {
                 node_to_show->clear_textures();
                 
                 // Add all intro textures
-                for (int i = 1; i <= 5; i++) {
+                for (int i = 1; i <= 5; i++) 
+                {
                     std::string id = "intro_" + std::to_string(i);
-                    for (auto& tex_entry : textures_) {
-                        if (tex_entry.id == id) {
+                    for (auto& tex_entry : textures_) 
+                    {
+                        if (tex_entry.id == id) 
+                        {
                             node_to_show->push_texture(&tex_entry.texture);
                         }
                     }
@@ -123,8 +155,10 @@ void DialogueManager::show_dialogue(DialogueState state)
             
         case DialogueState::FIRST_FIND:
             texture_id = "first_find";
-            for (auto& entry : dialogue_entries_) {
-                if (entry.id == "first_find") {
+            for (auto& entry : dialogue_entries_) 
+            {
+                if (entry.id == "first_find") 
+                {
                     entry.active = true;
                     node_to_show = entry.node;
                     break;
@@ -134,8 +168,10 @@ void DialogueManager::show_dialogue(DialogueState state)
             
         case DialogueState::SECOND_FIND:
             texture_id = "second_find";
-            for (auto& entry : dialogue_entries_) {
-                if (entry.id == "second_find") {
+            for (auto& entry : dialogue_entries_) 
+            {
+                if (entry.id == "second_find") 
+                {
                     entry.active = true;
                     node_to_show = entry.node;
                     break;
@@ -145,8 +181,10 @@ void DialogueManager::show_dialogue(DialogueState state)
             
         case DialogueState::THIRD_FIND:
             texture_id = "third_find";
-            for (auto& entry : dialogue_entries_) {
-                if (entry.id == "third_find") {
+            for (auto& entry : dialogue_entries_) 
+            {
+                if (entry.id == "third_find") 
+                {
                     entry.active = true;
                     node_to_show = entry.node;
                     break;
@@ -163,11 +201,14 @@ void DialogueManager::show_dialogue(DialogueState state)
     }
     
     // Set texture for find dialogues
-    if (node_to_show && !texture_id.empty()) {
+    if (node_to_show && !texture_id.empty()) 
+    {
         node_to_show->clear_textures();
         
-        for (auto& tex_entry : textures_) {
-            if (tex_entry.id == texture_id) {
+        for (auto& tex_entry : textures_) 
+        {
+            if (tex_entry.id == texture_id) 
+            {
                 node_to_show->push_texture(&tex_entry.texture);
                 node_to_show->set_should_render(true);
                 break;
@@ -178,11 +219,10 @@ void DialogueManager::show_dialogue(DialogueState state)
 
 void DialogueManager::hide_all_dialogue()
 {
-    for (auto& entry : dialogue_entries_) {
+    for (auto& entry : dialogue_entries_) 
+    {
         entry.active = false;
-        if (entry.node) {
-            entry.node->set_should_render(false);
-        }
+        if (entry.node) entry.node->set_should_render(false);
     }
 }
 
@@ -208,31 +248,18 @@ void DialogueManager::serialize(Serializer& serializer) const
     int state = static_cast<int>(current_state_);
     serializer.write("dialogue_state", state);
     serializer.write("dialogue_active", dialogue_active_);
-    serializer.write("dialogue_completed", current_state_ == DialogueState::COMPLETED);
 }
 
 void DialogueManager::deserialize(Serializer& serializer)
 {
     // Deserialize dialogue state
     int state = 0;
-    if (serializer.read("dialogue_state", state)) {
-        current_state_ = static_cast<DialogueState>(state);
-    }
-    
+    if (serializer.read("dialogue_state", state)) current_state_ = static_cast<DialogueState>(state);
     serializer.read("dialogue_active", dialogue_active_);
-    
-    // Check if dialogue was completed
-    bool dialogue_completed = false;
-    if (serializer.read("dialogue_completed", dialogue_completed) && dialogue_completed) {
-        current_state_ = DialogueState::COMPLETED;
-    }
-    
+
     // Update dialogue visibility based on state
-    if (dialogue_active_ && current_state_ != DialogueState::INACTIVE) {
-        show_dialogue(current_state_);
-    } else {
-        hide_all_dialogue();
-    }
+    if (dialogue_active_ && current_state_ != DialogueState::INACTIVE) show_dialogue(current_state_);
+    else hide_all_dialogue();
 }
 
 } // namespace cge

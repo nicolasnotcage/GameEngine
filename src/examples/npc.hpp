@@ -37,9 +37,10 @@ public:
 		{}
 
 	void update(double delta) override;
-	void init_animations() override;
-	void init_audio() override;
-	void init_textures(SceneState& scene_state) override;
+	void init(SceneState& scene_state) override;
+	void init_animations();
+	void init_audio();
+	void init_textures(SceneState& scene_state);
 	void destroy_textures() override;
 	
 	// NPC hiding functions

@@ -40,9 +40,7 @@ public:
 	~Character() = default;
 
 	virtual void update(double delta);
-	virtual void init_animations() = 0; // Pure virtual function
-	virtual void init_audio() = 0; // Pure virtual function for audio setup
-	virtual void init_textures(SceneState& scene_state) = 0; // Pure virtual function for texture loading
+	virtual void init(SceneState& scene_state) = 0;
 	
 	// Destroy textures owned by this character
 	virtual void destroy_textures() = 0;

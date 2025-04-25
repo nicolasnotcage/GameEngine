@@ -103,8 +103,6 @@ class MainScene : public Scene
     void handle_dialogue_state();
     void handle_npc_state();
     void handle_dialogue_completed(DialogueManager::DialogueState state);
-    void hide_npc();
-    void show_npc();
     void show_dialogue_for_find(int find_number);
 
     // Collision and audio handling methods
@@ -118,7 +116,6 @@ class MainScene : public Scene
     int   laugh_channel_id{-1};
     Path blue_witch_path_;
     bool dialogue_completed_{ false };
-    bool blue_witch_hidden_{ false };
     int find_count_{0}; // 0 = not found yet, 1 = found once, 2 = found twice, 3 = found three times
     bool waiting_for_dialogue_{false}; // Flag to track if we're waiting for dialogue to complete
     bool game_completed_{false}; // Flag to track if the game is completed (found NPC three times)
