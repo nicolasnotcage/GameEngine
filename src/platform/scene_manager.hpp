@@ -21,17 +21,17 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-
-// Singleton class to manage a stack of Scene objects
+/**
+* Singleton class to manage a stack of Scene objects. The SceneManager 
+* maintains a stack of scenes and handles transitions between them. Only 
+* the top scene is active at any given time.
+*/
 class SceneManager
 {
 public:
-    // Get instance of SceneManager
-    static SceneManager* get_instance()
-    {
-        static SceneManager instance;
-        return &instance;
-    }
+    // Get the singleton instance of SceneManager. Returns a pointer
+    // to the singleton instance.
+    static SceneManager* get_instance();
 
     // Delete copy and move constructor/assignment operators
     SceneManager(const SceneManager&) = delete;
@@ -39,157 +39,64 @@ public:
     SceneManager(SceneManager&&) = delete;
     SceneManager& operator=(SceneManager&&) = delete;
 
-    // Register a scene factory function with a key
+    // Register a scene factory function with a key.
     template<typename T>
-    void register_scene(const std::string& key) 
+    void register_scene(const std::string& key)
     {
         scene_factories_[key] = []() { return new T(); };
     }
 
-    // Create a scene by key
-    Scene* create_scene_by_key(const std::string& key) 
-    {
-        auto it = scene_factories_.find(key);
-        if (it != scene_factories_.end()) 
-        {
-            return it->second();
-        }
-        return nullptr;
-    }
+    // Create a scene by key. Takes a key identifier for 
+    // the scene and returns a pointer to the created scene
+    // or nullptr if key not found.
+    Scene* create_scene_by_key(const std::string& key);
 
-    // Create and push a scene by key
-    bool push_scene_by_key(const std::string& key) 
-    {
-        Scene* scene = create_scene_by_key(key);
-        if (scene) 
-        {
-            push_scene(scene);
-            return true;
-        }
+    // Create and push a scene by key. Takes a key 
+    // identifier for the scene. Returns true if the 
+    // scene is pushed successfully, false otherwise.
+    bool push_scene_by_key(const std::string& key);
 
-        return false;
-    }
+    // Get all scenes in the stack. 
+    void get_all_scenes(std::vector<Scene*>& scenes);
 
-    // Get all scenes in the stack
-    void get_all_scenes(std::vector<Scene*>& scenes) 
-    {
-        scenes = scene_stack_;
-    }
+    // Initialize scene manager with SDL info and IO handler.
+    void init(SDLInfo* sdl_info, IoHandler* io_handler);
 
-    // Initialize scene manager with SDL Info and IO handler
-    void init(SDLInfo* sdl_info, IoHandler* io_handler)
-    {
-        sdl_info_ = sdl_info;
-        io_handler_ = io_handler;
-    }
+    // Push scene to the stack and make it active. 
+    void push_scene(Scene* scene);
 
-    // Push scene to stack and make it active
-    void push_scene(Scene* scene)
-    {
-        // Pause the current scene if there is one
-        if (!scene_stack_.empty())
-        {
-            scene_stack_.back()->on_pause();
-        }
+    // Pop top scene from the stack. Returns true 
+    // if a scene was popped, false if stack was 
+    // empty.
+    bool pop_scene();
 
-        // Initialize and push the new scene
-        scene->init(sdl_info_, io_handler_);
-        scene->on_enter();
-        scene_stack_.push_back(scene);
-    }
+    // Replace top scene with a new scene. Returns 
+    // true if a scene was replaced, false if the 
+    // stack was empty and scene was pushed instead.
+    bool replace_scene(Scene* scene);
 
-    // Pop top scene from the stack; returns true if popped, false if stack empty
-    bool pop_scene()
-    {
-        if (scene_stack_.empty())
-        {
-            return false;
-        }
+    // Get a pointer to the current active scene, or 
+    // nullptr if stack is empty.
+    Scene* get_current_scene();
 
-        // Clean up the current scene
-        scene_stack_.back()->on_exit();
-        scene_stack_.pop_back();
+    // Update the current scene.
+    void update(double delta);
 
-        // Resume the new top scene if there is one
-        if (!scene_stack_.empty())
-        {
-            scene_stack_.back()->on_resume();
-        }
+    // Render the current scene.
+    void render();
 
-        return true;
-    }
-
-    // Replace top scene with new scene; returns true if replaced, false if stack empty
-    bool replace_scene(Scene* scene)
-    {
-        if (scene_stack_.empty())
-        {
-            push_scene(scene);
-            return false;
-        }
-
-        // Clean up the current scene
-        scene_stack_.back()->on_exit();
-        scene_stack_.pop_back();
-
-        // Initialize and push the new scene
-        scene->init(sdl_info_, io_handler_);
-        scene->on_enter();
-        scene_stack_.push_back(scene);
-
-        return true;
-    }
-
-    // Get current active scene; returns nullptr if empty
-    Scene* get_current_scene()
-    {
-        if (scene_stack_.empty())
-        {
-            return nullptr;
-        }
-        return scene_stack_.back();
-    }
-
-    // Update current scene
-    void update(double delta)
-    {
-        if (!scene_stack_.empty())
-        {
-            scene_stack_.back()->update(delta);
-        }
-    }
-
-    // Render current scene
-    void render()
-    {
-        if (!scene_stack_.empty())
-        {
-            scene_stack_.back()->render();
-        }
-    }
-
-    // Clean up all scenes and clear the stack
-    void clear_all_scenes()
-    {
-        while (!scene_stack_.empty())
-        {
-            scene_stack_.back()->on_exit();
-            scene_stack_.back()->destroy();
-            scene_stack_.pop_back();
-        }
-    }
+    // Clean up all scenes and clear the stack.
+    void clear_all_scenes();
 
 private:
     SceneManager() = default;
-    ~SceneManager()
-    {
-        clear_all_scenes();
-    }
+    ~SceneManager();
 
-    std::vector<Scene*> scene_stack_;
-    SDLInfo* sdl_info_ = nullptr;
-    IoHandler* io_handler_ = nullptr;
-    std::unordered_map<std::string, std::function<Scene*()>> scene_factories_;
+    std::vector<Scene*> scene_stack_;              // Stack of scene pointers with the active scene at the top
+    SDLInfo* sdl_info_ = nullptr;                  // Pointer to SDL info
+    IoHandler* io_handler_ = nullptr;              // Pointer to IO handler for input events
+    std::unordered_map<std::string, std::function<Scene* ()>> scene_factories_;  // Map of scene keys to factory functions
+};
 };
 
 } // namespace cge
