@@ -26,9 +26,7 @@ namespace cge
 
 void Player::update(double delta)
 {
-	Character::update(delta);
-
-	// Player-specific update functionality
+	// Player-specific update functionality; currently nothing to do here
 }
 
 void Player::init(SceneState& scene_state)
@@ -63,7 +61,8 @@ void Player::init_animations()
 	sprite_node_->play("idle");
 
 	// Set player as player controlled and associate its transform with its sprite
-	if (transform_node_) {
+	if (transform_node_) 
+	{
 		transform_node_->set_player_controlled();
 		transform_node_->set_associated_sprite(sprite_node_);
 	}
@@ -88,17 +87,12 @@ void Player::init_audio()
 	
 	// Add audio component to player with whistle sound
 	auto* audio_component = transform_node_->add_audio_component();
-	if (audio_component) {
-		audio_component->set_sound("whistle");
-	}
+	if (audio_component) audio_component->set_sound("whistle");
 }
 
 void Player::whistle()
 {
-	if (auto* audio = transform_node_->get_audio_component()) 
-	{
-		audio->play(1.0f);
-	}
+	if (auto* audio = transform_node_->get_audio_component()) audio->play(1.0f);
 }
 
 void Player::process_audio_actions(IoHandler* io_handler, std::shared_ptr<NPC> npc)
@@ -164,7 +158,7 @@ bool Player::is_investigating(IoHandler* io_handler) const
 	return false;
 }
 
-// Serializable interface implementation
+// Serialize player-specific data
 void Player::serialize(Serializer& serializer) const
 {
 	// Serialize player position
@@ -175,12 +169,14 @@ void Player::serialize(Serializer& serializer) const
 	serializer.write("player_y", y);
 }
 
+// Deserialize player-specific data
 void Player::deserialize(Serializer& serializer)
 {
 	// Deserialize player position
 	float x = 0.0f, y = 0.0f;
 	
-	if (serializer.read("player_x", x) && serializer.read("player_y", y)) {
+	if (serializer.read("player_x", x) && serializer.read("player_y", y)) 
+	{
 		transform_node_->set_position(x, y);
 	}
 }

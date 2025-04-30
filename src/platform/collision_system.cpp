@@ -12,9 +12,9 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
+// Default constructor with no-op handlers
 CollisionSystem::CollisionSystem()
 {
-    // Set default handlers that do nothing
     boundary_handler_ = [](TransformNode*, TransformNode*) {};
     entity_handler_ = [](TransformNode*, TransformNode*) {};
     trigger_handler_ = [](TransformNode*, TransformNode*) {};

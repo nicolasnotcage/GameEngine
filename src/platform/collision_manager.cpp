@@ -16,12 +16,13 @@ CollisionManager::CollisionManager()
 
 void CollisionManager::init(SceneState& scene_state)
 {
-    // Initialize collision system
+    // Initialize collision manager
+    // Currently no-op
 }
 
+// Process all collisions using the collision system
 void CollisionManager::process_collisions()
 {
-    // Process all collisions using the collision system
     collision_system_.process_collisions();
 }
 

@@ -35,6 +35,8 @@ bool AudioEngine::init(int max_channels, bool use_3d)
     // Get version
     unsigned int version;
     fmod_system_->getVersion(&version);
+
+    // Debug print
     /*std::cout << "FMOD Version: " 
               << ((version >> 16) & 0xFF) << "." 
               << ((version >> 8) & 0xFF)  << "." 
@@ -90,7 +92,7 @@ bool AudioEngine::load_sound(const std::string &path,
     // Skip if already loaded
     if(sound_map_.find(key) != sound_map_.end()) return true;
 
-    // Set mode
+    // Configure mode
     FMOD_MODE mode = is_3d ? FMOD_3D : FMOD_2D;
     if(looping) { mode |= FMOD_LOOP_NORMAL; }
     else { mode |= FMOD_LOOP_OFF; }
@@ -111,7 +113,6 @@ bool AudioEngine::load_sound(const std::string &path,
 }
 
 // Unload a sound from the sound map by key. 
-// TODO: Should notify user if bad key passed?
 void AudioEngine::unload_sound(const std::string &key)
 {
     auto it = sound_map_.find(key);
@@ -119,6 +120,10 @@ void AudioEngine::unload_sound(const std::string &key)
     {
         if(it->second) it->second->release();
         sound_map_.erase(it);
+    }
+    else
+    {
+        std::cerr << "Key not found when unloading sound: " << key << "\n";
     }
 }
 
@@ -130,17 +135,18 @@ FMOD::Sound* AudioEngine::get_sound(const std::string &key)
     return nullptr;
 }
 
-// Play sound by key and return the channel id. Takes a boolean argument representing whether the sound 
-// should be played immediately or paused, which allows the caller to determine when the audio is played.
-// This is useful when callers intend to add DSP effects to the audio. 
-// 
-// TODO: Break this into separate play() and prepare() functions?
+/*
+* Play sound by key and return the channel ID. Takes a Boolean argument representing whether the sound 
+* should be played immediately or paused. This allows the caller to determine when the audio is played
+* using the returned channel ID. This is useful when callers intend to configure DSP effects before playing.
+*/
 int AudioEngine::play_sound(const std::string &key, float volume, bool pause)
 {
     FMOD::Sound *sound = this->get_sound(key);
     if(!sound) return -1;
 
-    // Check if sound has a reserved channel
+    // Check if sound has a reserved channel; if so, use that channel. Otherwise,
+    // assign to the next available channel.
     int  channel_id = -1;
     auto it = reserved_channels_.find(key);
     if(it != reserved_channels_.end()) 
@@ -169,12 +175,13 @@ int AudioEngine::play_sound(const std::string &key, float volume, bool pause)
     // Set volume
     channels_[channel_id]->setVolume(volume);
 
-    // For 3D sounds, make sure 3D attributes are enabled
-    if (is_3d) {
+    // For 3D sounds, we ensure that 3D attributes are configured.
+    if (is_3d) 
+    {
         // Enable 3D spatialization for this channel
         channels_[channel_id]->setMode(mode);
         
-        // Set default 3D attributes if needed
+        // Set default 3D attributes
         FMOD_VECTOR pos = {0.0f, 0.0f, 0.0f};
         FMOD_VECTOR vel = {0.0f, 0.0f, 0.0f};
         channels_[channel_id]->set3DAttributes(&pos, &vel);
@@ -201,7 +208,6 @@ void AudioEngine::add_echo(int channel_id, float delay_ms, float feedback)
 }
 
 // Update the FMOD system and clean up unused channels.
-// TODO: Is channel cleanup already handled by FMOD system?
 void AudioEngine::update()
 {
     if(fmod_system_) 
@@ -227,7 +233,7 @@ int AudioEngine::get_next_available_channel()
 // Returns the channel object associated with a channel id.
 FMOD::Channel* AudioEngine::get_channel(int channel_id)
 {
-    if(channel_id >= 0 && channel_id < channels_.size()) { return channels_[channel_id]; }
+    if(channel_id >= 0 && channel_id < channels_.size()) return channels_[channel_id];
     return nullptr;
 }
 
@@ -242,12 +248,12 @@ void AudioEngine::update_channel_statuses()
             FMOD_RESULT result = channels_[i]->isPlaying(&is_playing);
 
             // If channel is not playing or we couldn't determine state, clear it
-            if(result != FMOD_OK || !is_playing) { channels_[i] = nullptr; }
+            if(result != FMOD_OK || !is_playing) channels_[i] = nullptr;
         }
     }
 }
 
-// Reserves a channel id for the given sound key. 
+// Reserves a channel id for a given sound key. 
 void AudioEngine::reserve_channel_for_sound(const std::string &sound_key, int channel_id)
 {
     if(channel_id >= 0 && channel_id < num_channels_)
@@ -256,6 +262,10 @@ void AudioEngine::reserve_channel_for_sound(const std::string &sound_key, int ch
     }
 }
 
+/*
+* Set the position of the 3D listener. Takes a Vector2 position and 
+* converts it to an FMOD_VECTOR for configuration.
+*/
 void AudioEngine::set_3d_listener_position(const Vector2& position)
 {
     if(!fmod_system_) return;
@@ -263,16 +273,17 @@ void AudioEngine::set_3d_listener_position(const Vector2& position)
     // Convert to FMOD vector
     FMOD_VECTOR pos = {position.x, position.y, 0.0f};
     
-    // Set up direction vector - for a top-down 2D game, forward is typically along the y-axis
+    // Set up direction vector
     FMOD_VECTOR forward = {0.0f, 1.0f, 0.0f};
     FMOD_VECTOR up = {0.0f, 0.0f, 1.0f};
 
-    // Velocity can be zero
+    // Velocity = zero (not necessary for our engine)
     FMOD_VECTOR velocity = {0.0f, 0.0f, 0.0f};
 
     // Update listener position
     FMOD_RESULT result = fmod_system_->set3DListenerAttributes(0, &pos, &velocity, &forward, &up);
-    if (result != FMOD_OK) {
+    if (result != FMOD_OK) 
+    {
         std::cerr << "Failed to set 3D listener attributes. Error: " << result << std::endl;
     }
     
@@ -280,7 +291,8 @@ void AudioEngine::set_3d_listener_position(const Vector2& position)
     fmod_system_->update();
 }
 
-// For user configuration
+// For user configuration. This probably shouldn't be in the engine itself because it's 
+// specific to theme music, but it works fine.
 void AudioEngine::toggle_music()
 {
     bool music_enabled = ConfigManager::get_instance().get_music_enabled();

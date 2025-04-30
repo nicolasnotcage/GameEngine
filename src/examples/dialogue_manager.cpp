@@ -35,31 +35,40 @@ std::ostream& operator<<(std::ostream& os, const DialogueManager::DialogueState&
     return os;
 }
 
-DialogueManager::DialogueManager()
-{
-}
+DialogueManager::DialogueManager() {}
 
+// Initialize the textures owned by the DialogueManager.
 void DialogueManager::init(SceneState& scene_state)
 {
     init_textures(scene_state);
 }
 
+// Check if any active dialogue has been dismissed
 void DialogueManager::update()
 {
-    // Check if any active dialogue has been dismissed
     bool any_active = false;
     
-    for (auto& entry : dialogue_entries_) {
-        if (entry.active && entry.node) {
-            if (!entry.node->is_rendered()) {
+    for (auto& entry : dialogue_entries_) 
+    {
+        if (entry.active && entry.node) 
+        {
+            // If the TextNode is not being rendered, update its active
+            // flag to false and trigger callback.
+            if (!entry.node->is_rendered()) 
+            {
                 entry.active = false;
                 
                 // Dialogue was dismissed, trigger callback
-                if (on_dialogue_completed_ && !any_active) {
+                if (on_dialogue_completed_ && !any_active) 
+                {
                     on_dialogue_completed_(current_state_);
                     dialogue_active_ = false;
                 }
-            } else {
+            } 
+            // Entry is being rendered, so we do have an active instance
+            // of dialogue.
+            else 
+            {
                 any_active = true;
             }
         }
@@ -68,17 +77,28 @@ void DialogueManager::update()
     dialogue_active_ = any_active;
 }
 
+// TextNode objects are registered in DialogueEntry structs with pointers to the TextNode
+// and an associated ID. Entries are defaulted to inactive. 
 void DialogueManager::register_text_node(const std::string& id, TextNode* node)
 {
-    if (node) {
+    if (node) 
+    {
         DialogueEntry entry;
         entry.id = id;
         entry.node = node;
         entry.active = false;
         dialogue_entries_.push_back(entry);
     }
+    else
+    {
+        std::cerr << "Error registering TextNode in DialogueManager with ID = " << id << "\n";
+    }
 }
 
+// Textures are registered by passing an associated ID and filepath. They are stored in 
+// a TextureEntry struct and pushed to a vector of TextureEntries. Texture objects are 
+// also stored within the TextureEntry struct but aren't initialized until the dedicated
+//  init function is called. 
 void DialogueManager::register_texture(const std::string& id, const std::string& filepath)
 {
     TextureEntry entry;
@@ -87,6 +107,7 @@ void DialogueManager::register_texture(const std::string& id, const std::string&
     textures_.push_back(entry);
 }
 
+// Initialize the textures stored within the vector of TextureEntries.
 void DialogueManager::init_textures(SceneState& scene_state)
 {
     for (auto& entry : textures_) 
@@ -98,13 +119,16 @@ void DialogueManager::init_textures(SceneState& scene_state)
     }
 }
 
+// Destory the texture objects stored within the vector of TextureEntries.
 void DialogueManager::destroy_textures()
 {
-    for (auto& entry : textures_) {
+    for (auto& entry : textures_) 
+    {
         entry.texture.destroy();
     }
 }
 
+// Render the dialogue associated with the given state. 
 void DialogueManager::show_dialogue(DialogueState state)
 {
     current_state_ = state;
@@ -131,17 +155,23 @@ void DialogueManager::show_dialogue(DialogueState state)
                 }
             }
             
-            // Set intro textures
+            // Set intro textures. Note that Intro dialogue handles its own TextNode configuration, whereas
+            // the remaining cases are handled in the general case after the switch statement. 
             if (node_to_show) 
             {
+                // Clear any existing textures stored within the node
                 node_to_show->clear_textures();
                 
-                // Add all intro textures
+                // Iteratively add all intro textures to the TextNode. Intro textures
+                // are defined in main_scene as intro_1, intro_2, etc. so we just match
+                // that pattern. This is admittedly heavily dependent on data specified 
+                // in the main scene and could be simplified. 
                 for (int i = 1; i <= 5; i++) 
                 {
                     std::string id = "intro_" + std::to_string(i);
                     for (auto& tex_entry : textures_) 
                     {
+                        // Push intro textures with matching ID to the TextNode
                         if (tex_entry.id == id) 
                         {
                             node_to_show->push_texture(&tex_entry.texture);
@@ -154,6 +184,7 @@ void DialogueManager::show_dialogue(DialogueState state)
             break;
             
         case DialogueState::FIRST_FIND:
+            // Find "first find" dialogue node
             texture_id = "first_find";
             for (auto& entry : dialogue_entries_) 
             {
@@ -167,6 +198,7 @@ void DialogueManager::show_dialogue(DialogueState state)
             break;
             
         case DialogueState::SECOND_FIND:
+            // Find "second find" dialogue node
             texture_id = "second_find";
             for (auto& entry : dialogue_entries_) 
             {
@@ -180,6 +212,7 @@ void DialogueManager::show_dialogue(DialogueState state)
             break;
             
         case DialogueState::THIRD_FIND:
+            // Find "third find" dialogue node
             texture_id = "third_find";
             for (auto& entry : dialogue_entries_) 
             {
@@ -197,6 +230,7 @@ void DialogueManager::show_dialogue(DialogueState state)
             break;
             
         default:
+            std::cerr << "DialogueManager::show_dialogue() called with unexpected dialogue state.\n";
             break;
     }
     
@@ -217,6 +251,7 @@ void DialogueManager::show_dialogue(DialogueState state)
     }
 }
 
+// Hide all dialogue in the scene. 
 void DialogueManager::hide_all_dialogue()
 {
     for (auto& entry : dialogue_entries_) 
@@ -226,33 +261,35 @@ void DialogueManager::hide_all_dialogue()
     }
 }
 
+// Return if dialogue is currently active.
 bool DialogueManager::is_dialogue_active() const
 {
     return dialogue_active_;
 }
 
+// Return current dialogue state.
 DialogueManager::DialogueState DialogueManager::get_current_state() const
 {
     return current_state_;
 }
 
+// Register a callback to be executed when dialogue is completed. 
 void DialogueManager::register_on_dialogue_completed_callback(std::function<void(DialogueState)> callback)
 {
     on_dialogue_completed_ = callback;
 }
 
-// Serializable interface implementation
+// Serialize dialogue state.
 void DialogueManager::serialize(Serializer& serializer) const
 {
-    // Serialize dialogue state
     int state = static_cast<int>(current_state_);
     serializer.write("dialogue_state", state);
     serializer.write("dialogue_active", dialogue_active_);
 }
 
+// Deserialize dialogue state.
 void DialogueManager::deserialize(Serializer& serializer)
 {
-    // Deserialize dialogue state
     int state = 0;
     if (serializer.read("dialogue_state", state)) current_state_ = static_cast<DialogueState>(state);
     serializer.read("dialogue_active", dialogue_active_);

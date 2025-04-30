@@ -21,7 +21,6 @@ SaveManager& SaveManager::get_instance()
     return instance;
 }
 
-// TODO: Add a destroy() method to handle this behavior.
 SaveManager::~SaveManager()
 {
     if (is_loaded_)

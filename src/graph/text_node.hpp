@@ -13,9 +13,12 @@
 namespace cge
 {
 
-// A full-featured sprite node object. Intended to 
-// provide an interface for sprite animation and 
-// movement. 
+/* 
+* TextNodes are utility nodes designed to hold a collection of textures
+* that contain text to be displayed in a game. Functions are provided to 
+* control when these nodes are rendered in a scene so that rendering can 
+* be driven by game state.
+*/
 class TextNode : public Node
 {
   public:
@@ -28,15 +31,22 @@ class TextNode : public Node
     void draw(SceneState &scene_state) override;
     void update(SceneState &scene_state) override;
 
+    // Set whether or not the node should be rendered
     void set_should_render(bool should_render) { is_rendered_ = should_render; }
+
+    // Return whether or not the node is rendered
     bool is_rendered() const { return is_rendered_; }
+
+    // Push a texture to the collection of textures
     void push_texture(TextureNode* texture) { text_textures_.push_back(texture); }
+
+    // Empty the collection of textures so that the node can be re-used
     void clear_textures() { text_textures_.clear(); }
 
   private:
-    std::vector<TextureNode*> text_textures_{};
-    uint16_t curr_text{0};
-    bool is_rendered_{false};
+    std::vector<TextureNode*> text_textures_{}; // A collection of text textures to be rendered
+    uint16_t curr_text{0};                      // The current texture to be rendered
+    bool is_rendered_{false};                   // Whether or not the node is being rendered
 };
 
 template <typename... ChildrenTs>

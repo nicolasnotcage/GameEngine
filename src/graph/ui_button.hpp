@@ -23,7 +23,11 @@ namespace cge
 // Forward declarations
 class CameraNode;
 
-// A UI button component that can be clicked
+/*
+* A utility node designed to represent buttons for user interface components. 
+* Buttons have three variations: Normal, Hover, and Pressed. Callback functions
+* can be configured to execute when a button is pressed.
+*/
 class UIButton : public Node
 {
 public:
@@ -36,17 +40,31 @@ public:
     virtual void draw(SceneState &scene_state) override;
     virtual void update(SceneState &scene_state) override;
 
-    // Button specific methods
+    // Set the button's position in world space.
     void set_position(float x, float y);
+
+    // Set the size of the button.
     void set_size(float width, float height);
+
+    // Set the filepath associated with the image representing the Normal button state.
     void set_normal_sprite(const std::string& filepath);
+
+    // Set the filepath associated with the image representing the Hover button state.
     void set_hover_sprite(const std::string& filepath);
+
+    // Set the filepath associated with the image representing the Pressed button state.
     void set_pressed_sprite(const std::string& filepath);
+
+    // Set the callback function associated with the button.
     void set_callback(std::function<void()> callback);
     
-    // Set associated nodes
+    // Set the TransformNode associated with the Button.
     void set_transform_node(TransformNode* transform);
+
+    // Set the SpriteNode associated with the Button.
     void set_sprite_node(SpriteNode* sprite);
+
+    // Set the CameraNode associated with the Button.
     void set_camera_node(CameraNode* camera);
     
     // Check if a point is inside the button
@@ -60,28 +78,26 @@ private:
         PRESSED
     };
 
-    ButtonState state_;
-    std::function<void()> callback_;
+    ButtonState state_{ButtonState::NORMAL};    // The current state of the button (Normal, Hover, or Pressed)
+    std::function<void()> callback_;            // Callback function to be executed on button press
     
-    // Button position and size
-    float x_;
-    float y_;
-    float width_;
-    float height_;
+    float x_{0.0f};                             // Button's x position
+    float y_{0.0f};                             // Button's y position
+    float width_{1.0f};                         // Button's width
+    float height_{1.0f};                        // Button's height
     
-    // Sprite nodes for different button states
-    TextureNode normal_texture_;
-    TextureNode hover_texture_;
-    TextureNode pressed_texture_;
+    TextureNode normal_texture_;                // Button's normal texture
+    TextureNode hover_texture_;                 // Button's hover texture
+    TextureNode pressed_texture_;               // Button's pressed texture
     
-    // Current active texture
-    TextureNode* current_texture_;
+    TextureNode* current_texture_{nullptr};     // A pointer to the current active texture
     
     // References to nodes in the graph
-    TransformNode* transform_node_;
-    SpriteNode* sprite_node_;
-    CameraNode* camera_node_;
+    TransformNode* transform_node_{nullptr};
+    SpriteNode* sprite_node_{nullptr};
+    CameraNode* camera_node_{nullptr};
 
+    // Displays an initialization error
     void display_init_error();
 };
 

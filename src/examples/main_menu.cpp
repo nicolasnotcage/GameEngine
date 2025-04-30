@@ -86,11 +86,12 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	new_game_button.set_normal_sprite("images/ui/buttons/new_game/new_game_base_button.png");
 	new_game_button.set_hover_sprite("images/ui/buttons/new_game/new_game_button_on_hover.png");
 	new_game_button.set_pressed_sprite("images/ui/buttons/new_game/new_game_button_clicked.png");
-	new_game_button.set_callback([this]() {
+	new_game_button.set_callback([this]() 
+		{
 		// Create and push the main scene without loading saved state
 		Scene* main_scene = SceneManager::get_instance()->create_scene_by_key("main_scene");
 		SceneManager::get_instance()->push_scene(main_scene);
-	});
+		});
 	
 	// Load Game button
 	auto &load_game_transform = load_game_button.get_child<0>();
@@ -122,8 +123,7 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 		} 
 		else 
 		{
-			// TODO: Show a message that no save file exists
-			std::cout << "No save file found. Cannot load game.\n";
+			std::cerr << "No save file found. Cannot load game.\n";
 		}
 	});
 	
@@ -142,10 +142,11 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	settings_button.set_normal_sprite("images/ui/buttons/settings/settings_base_button.png");
 	settings_button.set_hover_sprite("images/ui/buttons/settings/settings_button_on_hover.png");
 	settings_button.set_pressed_sprite("images/ui/buttons/settings/settings_button_clicked.png");
-	settings_button.set_callback([this]() {
+	settings_button.set_callback([this]() 
+		{
 		// TODO: Add logic to open settings menu
 		// Not going to hit this stretch goal by due date
-	});
+		});
 	
 	// Exit button
 	auto &exit_transform = exit_button.get_child<0>();
@@ -162,12 +163,13 @@ void MainMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
 	exit_button.set_normal_sprite("images/ui/buttons/exit/exit_base_button.png");
 	exit_button.set_hover_sprite("images/ui/buttons/exit/exit_button_on_hover.png");
 	exit_button.set_pressed_sprite("images/ui/buttons/exit/exit_button_clicked.png");
-	exit_button.set_callback([this]() {
+	exit_button.set_callback([this]() 
+		{
 		// Request quit
 		SDL_Event quit_event;
 		quit_event.type = SDL_EVENT_QUIT;
 		SDL_PushEvent(&quit_event);
-	});
+		});
 	
 	// Setup audio
 	setup_audio();
@@ -191,7 +193,8 @@ void MainMenuScene::setup_audio()
 	auto theme_sound_info = locate_path_for_filename("audio/theme_music.mp3");
 	
 	// Load sounds if not already loaded
-	if (!audio_engine->get_sound("theme_music")) {
+	if (!audio_engine->get_sound("theme_music")) 
+	{
 		audio_engine->load_sound(theme_sound_info.path, "theme_music", false, true);
 		audio_engine->reserve_channel_for_sound("theme_music", 3);
 	}
@@ -219,9 +222,6 @@ void MainMenuScene::update(double delta)
 
 	// Update scene graph - UIButton nodes will handle their own state
 	root_.update(scene_state_);
-	
-	// Update FMOD system once per tick
-	cge::AudioEngine::get_instance()->update();
 }
 
 void MainMenuScene::destroy()
@@ -246,13 +246,12 @@ void MainMenuScene::render()
 
 void MainMenuScene::serialize(Serializer& serializer) const
 {
-	// TODO: Add serialization as needed
+	// Nothing to serialize
 }
 
 void MainMenuScene::deserialize(Serializer& serializer)
 {
-	// TODO: Add deserialization as needed
+	// Nothing to serialize
 }
-
 
 }

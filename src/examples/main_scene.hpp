@@ -50,16 +50,26 @@ using AnimatedScene = CameraNodeT<GameMap,
 class MainScene : public Scene
 {
   public:
+
+    // Initialize the scene with sdl_info and io_handler
     void init(SDLInfo *sdl_info, IoHandler *io_handler);
+
+    // Destroy the scene
     void destroy();
+
+    // Render the scene
     void render();
+
+    // Update the scene with delta time.
     void update(double delta);
 
     // Register collision components with the stored collision system. 
     void register_collision_component(std::shared_ptr<CollisionComponent> component);
 
-    // Serializable overrides
+    // Serialize the scene.
     void serialize(Serializer& serializer) const override;
+
+    // Deserialize the scene.
     void deserialize(Serializer& serializer) override;
 
   private:
@@ -83,42 +93,59 @@ class MainScene : public Scene
     TransformNode left_pillar_;
     TransformNode right_pillar_;
 
-    // No longer needed as we're using CollisionManager
-    // CollisionSystem collision_system_;
-
-    // Helper methods for scene setup
+    // --------------------
+    //    Helper Methods
+    // --------------------
+    // Setup the scene's collision manager.
     void setup_collisions();
+
+    // Setup the scene's audio configuration
     void setup_audio();
 
-    // Helper method for configuring dialogue text nodes
-
-    // Scene graph configuration helpers
+    // Configure the scene's camera
     void setup_camera();
+
+    // Configure the scene's game map
     void setup_game_map();
+
+    // Configure the scene's characters
     void setup_characters();
+
+    // Configure the text nodes for scene dialogue
     void configure_dialogue_text_node(TransformNode& transform_node, TextNode& text_node, TextureNode* texture);
+
+    // Configure the scene's dialogue nodes
     void setup_dialogue_nodes();
 
-    // Game logic helpers
+    // Handle dialogue state and state transitions
     void handle_dialogue_state();
+
+    // Handle NPC state and state transitions
     void handle_npc_state();
+
+    // Update scene based on dialogue state
     void handle_dialogue_completed(DialogueManager::DialogueState state);
+
+    // Show dialogue based on player's in-game progress.
+    // find_number is the number of times that the NPC has been 
+    // found by the player in the current gameplay session.
     void show_dialogue_for_find(int find_number);
 
-    // Collision and audio handling methods
+    // Handle boundary collisions for entity and boundary nodes.
     void handle_boundary_collision(TransformNode *entity, TransformNode *boundary);
+
+    // Handle audio-related game behavior.
     void handle_audio();
 
-    // Gameplay specific data
-    float time_to_clap_{1.0f};  // Delay in seconds before clapping
-    float npc_audio_timer_{0.0f};
-    bool  waiting_to_clap_{false};  // Flag to track if we're waiting to clap
-    int   laugh_channel_id{-1};
-    Path blue_witch_path_;
-    bool dialogue_completed_{ false };
-    int find_count_{0}; // 0 = not found yet, 1 = found once, 2 = found twice, 3 = found three times
-    bool waiting_for_dialogue_{false}; // Flag to track if we're waiting for dialogue to complete
-    bool game_completed_{false}; // Flag to track if the game is completed (found NPC three times)
+    // --------------------------
+    //     Game State Data
+    // --------------------------
+    float time_to_clap_{1.0f};                  // Delay in seconds before clapping
+    Path blue_witch_path_;                      // The path that the NPC will follow after the tutorial
+    bool intro_dialogue_completed_{ false };    // Whether the intro dialogue has been completed
+    int find_count_{0};                         // 0 = not found yet, 1 = found once, 2 = found twice, 3 = found three times
+    bool waiting_for_dialogue_{false};          // Flag to track if we're waiting for dialogue to complete
+    bool game_completed_{false};                // Flag to track if the game is completed (found NPC three times)
 };
 
 } // namespace cge

@@ -34,7 +34,6 @@ class SpriteNode : public Node
     TextureNode *get_texture() const;
 
     // Animation delegation methods
-    // TODO: This tighly couples sprites with animation sub-system
     void add_animation(const Animation &animation);
     void add_animation_with_texture(const Animation &animation, TextureNode *texture);
     void play(const std::string &animation_name);

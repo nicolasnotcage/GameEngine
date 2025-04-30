@@ -59,8 +59,10 @@ private:
     SceneState scene_state_;
     IoHandler* io_handler_;
 
-    // Setup functions
+    // Initialize textures owned by the main menu.
     void initialize_textures();
+    
+    // Configure audio used by the main menu.
     void setup_audio();
 
     // Textures

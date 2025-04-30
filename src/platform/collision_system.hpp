@@ -29,14 +29,20 @@ class CollisionSystem
     CollisionSystem();
     ~CollisionSystem();
 
-    // Add/remove collision components with type
+    // Add a collision component to the system, specifying the component's type.
     void add_component(std::shared_ptr<CollisionComponent> component, 
                        CollisionType type = CollisionType::ENTITY);
+
+    // Remove a collision component from the system.
     void remove_component(std::shared_ptr<CollisionComponent> component);
 
-    // Register response handlers for different collision types
+    // Register a callback function for boundary-based collisions.
     void register_boundary_response(std::function<void(TransformNode*, TransformNode*)> handler);
+
+    // Register a callback function for entity-based collisions.
     void register_entity_response(std::function<void(TransformNode*, TransformNode*)> handler);
+
+    // Register a callback for trigger-zone-based collisions
     void register_trigger_response(std::function<void(TransformNode*, TransformNode*)> handler);
 
     // Process all collisions (detection and response)
@@ -56,12 +62,12 @@ class CollisionSystem
         CollisionType type;
     };
     
-    std::vector<ComponentEntry> components_;
+    std::vector<ComponentEntry> components_;                                // A collection of collision components
     
     // Response handlers
-    std::function<void(TransformNode*, TransformNode*)> boundary_handler_;
-    std::function<void(TransformNode*, TransformNode*)> entity_handler_;
-    std::function<void(TransformNode*, TransformNode*)> trigger_handler_;
+    std::function<void(TransformNode*, TransformNode*)> boundary_handler_;  // Boundary handler callback
+    std::function<void(TransformNode*, TransformNode*)> entity_handler_;    // Entity handler callback
+    std::function<void(TransformNode*, TransformNode*)> trigger_handler_;   // Trigger zone handler callback
 };
 
 } // namespace cge

@@ -40,15 +40,6 @@ public:
     // Called when scene becomes active (top of stack)
     virtual void on_enter() override;
 
-    // Called when scene no longer active (not on top of stack)
-    virtual void on_exit() override;
-
-    // Called when scene is paused (covered by another scene)
-    virtual void on_pause() override;
-
-    // Called when scene is resumed (uncovered)
-    virtual void on_resume() override;
-
 private:
     // Configure graph
     using MenuBackground = TransformNodeT<SpriteNodeT<GeometryNodeT<>>>;
@@ -60,11 +51,10 @@ private:
     // Set root
     GameOverMenuRoot root_;
 
-    // Setup functions
+    // Initialize textures stored within the game over menu.
     void initialize_textures();
-    void setup_audio();
 
-    // Textures
+    // Textures owned by the game over menu
     TextureNode background_texture_;
     TextureNode title_texture_;
     

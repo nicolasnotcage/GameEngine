@@ -156,7 +156,7 @@ void MainScene::setup_dialogue_nodes()
         });
     
     // Show intro dialogue if not completed
-    if (!dialogue_completed_) dialogue_manager_->show_dialogue(DialogueManager::DialogueState::INTRO);
+    if (!intro_dialogue_completed_) dialogue_manager_->show_dialogue(DialogueManager::DialogueState::INTRO);
 
     // Initialize textures now that nodes are configured
     dialogue_manager_->init(scene_state_);
@@ -330,7 +330,7 @@ void MainScene::handle_dialogue_completed(DialogueManager::DialogueState state)
     {
         case DialogueManager::DialogueState::INTRO:
             // Intro dialogue completed
-            dialogue_completed_ = true;
+            intro_dialogue_completed_ = true;
             blue_witch_->set_path(blue_witch_path_);
             break;
             
@@ -369,7 +369,7 @@ void MainScene::handle_npc_state()
     bool has_traveled_enough = blue_witch_->get_position_y() >= blue_witch_path_.get_point(1).y / 1.1f;
 
     // Hide witch and move to new position
-    if (dialogue_completed_         // Dialogue completed
+    if (intro_dialogue_completed_         // Dialogue completed
         && has_traveled_enough      // Pathed far enough for effect
         && find_count_ == 0)        // Round has just started
     {
@@ -422,7 +422,7 @@ void MainScene::serialize(Serializer& serializer) const
     serializer.write("find_count", find_count_);
     serializer.write("waiting_for_dialogue", waiting_for_dialogue_);
     serializer.write("game_completed", game_completed_);
-    serializer.write("dialogue_completed", dialogue_completed_);
+    serializer.write("dialogue_completed", intro_dialogue_completed_);
 }
 
 void MainScene::deserialize(Serializer& serializer)
@@ -447,7 +447,7 @@ void MainScene::deserialize(Serializer& serializer)
     serializer.read("find_count", find_count_);
     serializer.read("waiting_for_dialogue", waiting_for_dialogue_);
     serializer.read("game_completed", game_completed_);
-    serializer.read("dialogue_completed", dialogue_completed_);
+    serializer.read("dialogue_completed", intro_dialogue_completed_);
 }
 
 } // namespace cge

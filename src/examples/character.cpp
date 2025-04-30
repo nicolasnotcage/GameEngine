@@ -14,10 +14,8 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-void Character::update(double delta)
-{
-		// Main update logic
-}
+// Default no-op Character updates
+void Character::update(double delta) {}
 
 // Getters
 float Character::get_position_x() const { return transform_node_->get_position_x(); }
@@ -36,13 +34,10 @@ void Character::configure_texture(TextureNode& texture, const std::string& filep
     texture.set_blend(blend);
     texture.set_blend_alpha(alpha);
     
-    if (cols > 1 || rows > 1) {
-        texture.define_grid(rows, cols, width, height);
-    }
-
+    // Configure sprite sheet. Known sprite sheet if more than one column/row specified
+    if (cols > 1 || rows > 1) texture.define_grid(rows, cols, width, height);
+  
     texture.init(scene_state);
 }
-
-// Serialization is now implemented in derived classes
 
 } // namespace cge

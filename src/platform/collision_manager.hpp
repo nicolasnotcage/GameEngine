@@ -31,14 +31,19 @@ public:
     CollisionManager();
     ~CollisionManager() = default;
     
+    // Initialize the collision manager
     void init(SceneState& scene_state);
+
+    // Process collisions with the collision system
     void process_collisions();
     
-    // Add collision components to the system
+    // Add a collision component to the collision system
     void add_component(std::shared_ptr<CollisionComponent> component, CollisionSystem::CollisionType type);
     
-    // Register collision responses
+    // Register a collision callback related to boundaries. 
     void register_boundary_response(std::function<void(TransformNode*, TransformNode*)> response);
+
+    // Register a collision callback related to entities. 
     void register_entity_response(std::function<void(TransformNode*, TransformNode*)> response);
     
     // Initialize boundary nodes
@@ -57,7 +62,7 @@ public:
         const Vector2& max);
     
 private:
-    CollisionSystem collision_system_;
+    CollisionSystem collision_system_;  // Stores and manages a collision system
 };
 
 } // namespace cge

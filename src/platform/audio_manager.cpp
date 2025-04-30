@@ -15,9 +15,7 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-AudioManager::AudioManager()
-{
-}
+AudioManager::AudioManager() {}
 
 void AudioManager::init(SceneState& scene_state)
 {
@@ -27,6 +25,8 @@ void AudioManager::init(SceneState& scene_state)
     load_sounds();
 }
 
+// Load sounds specific to the main scene. Theme music is initialized and played at the menu
+// so is not included here.
 void AudioManager::load_sounds()
 {
     AudioEngine* audio_engine = AudioEngine::get_instance();
@@ -35,22 +35,16 @@ void AudioManager::load_sounds()
     auto player_file_info = locate_audio_file("whistle.wav");
     auto npc_file_info = locate_audio_file("npc_clap.wav");
     auto collision_sound_info = locate_audio_file("success.wav");
-    auto theme_sound_info = locate_audio_file("theme_music.mp3");
 
     // Load sounds - note that npc_clap is a 3D sound
     audio_engine->load_sound(player_file_info, "whistle", false, false);
     audio_engine->load_sound(npc_file_info, "npc_clap", true, false); // Set as 3D sound
     audio_engine->load_sound(collision_sound_info, "success", false, false);
-    audio_engine->load_sound(theme_sound_info, "theme_music", false, true);
 
     // Reserve channels for each sound
     audio_engine->reserve_channel_for_sound("success", 0);
     audio_engine->reserve_channel_for_sound("npc_clap", 1);
     audio_engine->reserve_channel_for_sound("whistle", 2);
-    audio_engine->reserve_channel_for_sound("theme_music", 3);
-    
-    // Begin theme music at low volume
-    audio_engine->play_sound("theme_music", 0.2f);
 
     // Mute theme music if configuration set
     bool music_enabled = ConfigManager::get_instance().get_music_enabled();

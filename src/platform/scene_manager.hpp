@@ -26,7 +26,6 @@ namespace cge
 class SceneManager
 {
 public:
-    
     // Get instance of SceneManager
     static SceneManager* get_instance()
     {

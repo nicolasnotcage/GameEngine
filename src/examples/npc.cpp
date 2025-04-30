@@ -18,8 +18,6 @@ namespace cge
 
 void NPC::update(double delta)
 {
-	Character::update(delta);
-
 	// Process audio timing for clapping
 	process_audio_timing(delta);
 }
@@ -61,7 +59,8 @@ void NPC::init_animations()
 	sprite_node_->play("idle");
 
 	// Associate the transform with its sprite
-	if (transform_node_) {
+	if (transform_node_) 
+	{
 		transform_node_->set_associated_sprite(sprite_node_);
 	}
 }
@@ -87,7 +86,8 @@ void NPC::init_audio()
 	
 	// Add audio component to NPC with clap sound and 3D settings
 	auto* audio_component = transform_node_->add_audio_component();
-	if (audio_component) {
+	if (audio_component) 
+	{
 		audio_component->set_sound("npc_clap");
 		audio_component->set_min_distance(1.0f);
 		audio_component->set_max_distance(10.0f);
@@ -130,7 +130,9 @@ bool NPC::is_moving() const
 
 void NPC::teleport_to(float x, float y)
 {
-	// Create a new path with the teleport location
+	// Create a new path with the teleport location. This is done so that 
+	// the NPC doesn't path to the old position after teleporting. We add 
+	// a single path point by default so that the NPC remains stationary.
 	Path new_path{};
 	new_path.add_point(x, y, 0.0f);
 	new_path.set_looping(false);
@@ -201,7 +203,8 @@ void NPC::deserialize(Serializer& serializer)
 	// Deserialize NPC position
 	float x = 0.0f, y = 0.0f;
 	
-	if (serializer.read("npc_x", x) && serializer.read("npc_y", y)) {
+	if (serializer.read("npc_x", x) && serializer.read("npc_y", y)) 
+	{
 		transform_node_->set_position(x, y);
 	}
 	
@@ -212,11 +215,8 @@ void NPC::deserialize(Serializer& serializer)
 	serializer.read("npc_audio_timer", audio_timer_);
 	
 	// Update visibility based on hidden state
-	if (hidden_) {
-		hide();
-	} else {
-		show();
-	}
+	if (hidden_) hide();
+	else show();
 }
 
 } // namespace cge

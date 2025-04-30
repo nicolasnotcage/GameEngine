@@ -14,18 +14,7 @@ For more information, please refer to <https://unlicense.org>
 namespace cge
 {
 
-UIButton::UIButton()
-    : state_(ButtonState::NORMAL),
-      x_(0.0f),
-      y_(0.0f),
-      width_(1.0f),
-      height_(1.0f),
-      current_texture_(nullptr),
-      transform_node_(nullptr),
-      sprite_node_(nullptr),
-      camera_node_(nullptr)
-{
-}
+UIButton::UIButton() {}
 
 void UIButton::init(SceneState &scene_state)
 {
@@ -33,8 +22,7 @@ void UIButton::init(SceneState &scene_state)
     if (!normal_texture_.get_filepath().empty()) normal_texture_.init(scene_state);
     else display_init_error();
     
-
-    // Init On Hover Texture
+    // Init Hover Texture
     if (!hover_texture_.get_filepath().empty()) hover_texture_.init(scene_state);
     else display_init_error();
 
@@ -111,8 +99,10 @@ void UIButton::update(SceneState &scene_state)
     const GameActionList &actions = scene_state.io_handler->get_game_actions();
     bool is_mouse_pressed = false;
     
-    for (uint8_t i = 0; i < actions.num_actions; i++) {
-        if (actions.actions[i] == GameAction::MOUSE_BUTTON_LEFT) {
+    for (uint8_t i = 0; i < actions.num_actions; i++) 
+    {
+        if (actions.actions[i] == GameAction::MOUSE_BUTTON_LEFT) 
+        {
             is_mouse_pressed = true;
             break;
         }
@@ -140,7 +130,8 @@ void UIButton::update(SceneState &scene_state)
     // Update texture based on state
     TextureNode* texture_to_use = &normal_texture_;
     
-    switch (state_) {
+    switch (state_) 
+    {
         case ButtonState::NORMAL:
             texture_to_use = &normal_texture_;
             break;
@@ -153,13 +144,15 @@ void UIButton::update(SceneState &scene_state)
     }
     
     // Only update if the texture changed
-    if (current_texture_ != texture_to_use) {
+    if (current_texture_ != texture_to_use) 
+    {
         current_texture_ = texture_to_use;
         sprite_node_->set_texture(current_texture_);
     }
     
     // Call callback if button was just pressed
-    if (previous_state == ButtonState::HOVER && state_ == ButtonState::PRESSED && callback_) {
+    if (previous_state == ButtonState::HOVER && state_ == ButtonState::PRESSED && callback_) 
+    {
         callback_();
     }
 }
@@ -219,7 +212,7 @@ void UIButton::set_callback(std::function<void()> callback)
 
 bool UIButton::contains_point(float x, float y) const
 {
-    // Use the full button size for hit detection now that we have proper scaling
+    // Use the full button size for hit detection
     float half_width = width_ * 0.5f;
     float half_height = height_ * 0.5f;
     

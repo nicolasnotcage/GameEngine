@@ -49,19 +49,18 @@ void TextNode::update(SceneState& scene_state)
             // Process all game actions that affect the text node
             for (uint8_t i = 0; i < action_list.num_actions; ++i)
             {
-
                 switch (action_list.actions[i])
                 {
-                case GameAction::ADVANCE_TEXT:
-					// Stop rendering if we've seen all game text
-                    curr_text++;
-                    if (curr_text >= text_textures_.size()) 
-					{
-						is_rendered_ = false;
-                        curr_text = text_textures_.size() - 1;  // Stay at last valid index
-					}
-					break;
-                default: break;
+					case GameAction::ADVANCE_TEXT:
+						// Stop rendering if we've seen all game text
+						curr_text++;
+						if (curr_text >= text_textures_.size()) 
+						{
+							is_rendered_ = false;
+							curr_text = text_textures_.size() - 1;  // Stay at last valid index
+						}
+						break;
+					default: break;
                 }
             }
 		}

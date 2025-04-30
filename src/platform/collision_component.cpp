@@ -49,7 +49,6 @@ bool CircleCollisionComponent::collides_with(const CollisionComponent &other) co
         return get_world_circle().intersects(circle_other.get_world_circle());
     }
     
-    // TODO: Could extend to accommodate other collision component types
     return false;
 }
 
@@ -79,7 +78,6 @@ bool AABBCollisionComponent::collides_with(const CollisionComponent &other) cons
         return get_world_aabb().intersects(aabb_other.get_world_aabb());
     }
 
-    // TODO: Could extend to accommodate other collision component types
     return false;
 }
 

@@ -75,10 +75,11 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     resume_button.set_normal_sprite("images/ui/buttons/resume/resume_base_button.png");
     resume_button.set_hover_sprite("images/ui/buttons/resume/resume_button_on_hover.png");
     resume_button.set_pressed_sprite("images/ui/buttons/resume/resume_button_clicked.png");
-    resume_button.set_callback([this]() {
+    resume_button.set_callback([this]() 
+        {
         // Pop the pause menu to return to the main scene
         SceneManager::get_instance()->pop_scene();
-    });
+        });
     
     // Configure Main Menu button
     auto &main_menu_transform = main_menu_button.get_child<0>();
@@ -95,12 +96,14 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     main_menu_button.set_normal_sprite("images/ui/buttons/main_menu/main_menu_base_button.png");
     main_menu_button.set_hover_sprite("images/ui/buttons/main_menu/main_menu_button_on_hover.png");
     main_menu_button.set_pressed_sprite("images/ui/buttons/main_menu/main_menu_button_clicked.png");
-    main_menu_button.set_callback([this]() {
+    main_menu_button.set_callback([this]() 
+        {
         // Get the main scene (one below the pause menu in the stack)
         std::vector<Scene*> scenes;
         SceneManager::get_instance()->get_all_scenes(scenes);
         
-        if (scenes.size() >= 2) {
+        if (scenes.size() >= 2) 
+        {
             // The main scene should be the second-to-last scene in the stack
             Scene* main_scene = scenes[scenes.size() - 2];
             
@@ -113,7 +116,7 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
             // Pop the main scene to return to the main menu
             SceneManager::get_instance()->pop_scene();
         }
-    });
+        });
     
     // Configure Exit button
     auto &exit_transform = exit_button.get_child<0>();
@@ -130,7 +133,8 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     exit_button.set_normal_sprite("images/ui/buttons/quit_game/quit_game_base_button.png");
     exit_button.set_hover_sprite("images/ui/buttons/quit_game/quit_game_button_on_hover.png");
     exit_button.set_pressed_sprite("images/ui/buttons/quit_game/quit_game_button_clicked.png");
-    exit_button.set_callback([this]() {
+    exit_button.set_callback([this]() 
+        {
         // Get the main scene (one below the pause menu in the stack)
         std::vector<Scene*> scenes;
         SceneManager::get_instance()->get_all_scenes(scenes);
@@ -147,27 +151,10 @@ void PauseMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
             quit_event.type = SDL_EVENT_QUIT;
             SDL_PushEvent(&quit_event);
         }
-    });
-    
-    // Setup audio
-    setup_audio();
+        });
     
     // Initialize root node
     root_.init(scene_state_);
-}
-
-void PauseMenuScene::setup_audio()
-{
-    cge::AudioEngine *audio_engine = cge::AudioEngine::get_instance();
-    
-    // Locate files
-    auto theme_sound_info = locate_path_for_filename("audio/theme_music.mp3");
-    
-    // Load sounds if not already loaded
-    if (!audio_engine->get_sound("theme_music")) {
-        audio_engine->load_sound(theme_sound_info.path, "theme_music", false, true);
-        audio_engine->reserve_channel_for_sound("theme_music", 3);
-    }
 }
 
 void PauseMenuScene::initialize_textures()
@@ -187,13 +174,12 @@ void PauseMenuScene::update(double delta)
     // Update scene graph - UIButton nodes will handle their own state
     root_.update(scene_state_);
     
-    // Update FMOD system once per tick
-    cge::AudioEngine::get_instance()->update();
-    
     // Check for Escape key to close the pause menu
     const GameActionList &actions = io_handler_->get_game_actions();
-    for (uint8_t i = 0; i < actions.num_actions; i++) {
-        if (actions.actions[i] == GameAction::TOGGLE_PAUSE) {
+    for (uint8_t i = 0; i < actions.num_actions; i++) 
+    {
+        if (actions.actions[i] == GameAction::TOGGLE_PAUSE) 
+        {
             // Pop the pause menu to return to the main scene
             SceneManager::get_instance()->pop_scene();
             break;
@@ -228,32 +214,19 @@ void PauseMenuScene::deserialize(Serializer& serializer)
     // No need to deserialize the pause menu state
 }
 
+// Called when the pause menu becomes active
 void PauseMenuScene::on_enter()
 {
-    // Called when the pause menu becomes active
-    
     // Make sure theme music continues playing
     bool music_enabled = ConfigManager::get_instance().get_music_enabled();
-    if (!music_enabled) {
+    if (!music_enabled) 
+    {
         AudioEngine::get_instance()->get_channel(3)->setMute(true);
-    } else {
+    } 
+    else 
+    {
         AudioEngine::get_instance()->get_channel(3)->setMute(false);
     }
-}
-
-void PauseMenuScene::on_exit()
-{
-    // Called when the pause menu is no longer active
-}
-
-void PauseMenuScene::on_pause()
-{
-    // Called when the pause menu is covered by another scene
-}
-
-void PauseMenuScene::on_resume()
-{
-    // Called when the pause menu is uncovered
 }
 
 } // namespace cge

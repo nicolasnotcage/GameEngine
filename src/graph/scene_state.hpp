@@ -19,7 +19,6 @@ class TextureNode;
 class IoHandler;
 
 // Utility struct containing objects relevant to managing scene state. 
-// TODO: Is this becoming too important/bloated?
 struct SceneState
 {
     SDLInfo     *sdl_info;
@@ -32,8 +31,7 @@ struct SceneState
     bool         using_sprite_sheet{false};
     SDL_Rect     current_frame_rect = {0, 0, 0, 0};
 
-    // For flipping sprites
-    // TODO: This is not ideal. Need to rework this.
+    // For sprite handling
     bool sprite_flipped{false};
     bool in_sprite_context{false};
 

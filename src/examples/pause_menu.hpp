@@ -33,21 +33,14 @@ public:
     virtual void render() override;
     virtual void update(double delta) override;
 
-    // Serializable overrides
+    // Nothing to serialize for a menu.
     virtual void serialize(Serializer& serializer) const override;
+
+    // Nothing to deserialize for a menu.
     virtual void deserialize(Serializer& serializer) override;
 
     // Called when scene becomes active (top of stack)
     virtual void on_enter() override;
-
-    // Called when scene no longer active (not on top of stack)
-    virtual void on_exit() override;
-
-    // Called when scene is paused (covered by another scene)
-    virtual void on_pause() override;
-
-    // Called when scene is resumed (uncovered)
-    virtual void on_resume() override;
 
 private:
     // Configure graph
@@ -59,9 +52,8 @@ private:
     // Set root
     PauseMenuRoot root_;
 
-    // Setup functions
+    // Initialize menu textures.
     void initialize_textures();
-    void setup_audio();
 
     // Textures
     TextureNode background_texture_;

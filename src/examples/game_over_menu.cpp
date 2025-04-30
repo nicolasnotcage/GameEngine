@@ -84,7 +84,8 @@ void GameOverMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     play_again_button.set_normal_sprite("images/ui/buttons/play_again/play_again_base_button.png");
     play_again_button.set_hover_sprite("images/ui/buttons/play_again/play_again_button_on_hover.png");
     play_again_button.set_pressed_sprite("images/ui/buttons/play_again/play_again_button_clicked.png");
-    play_again_button.set_callback([this]() {
+    play_again_button.set_callback([this]() 
+        {
         // Get all scenes
         std::vector<Scene*> scenes;
         SceneManager::get_instance()->get_all_scenes(scenes);
@@ -93,7 +94,8 @@ void GameOverMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
         SceneManager::get_instance()->pop_scene();
         
         // Pop the main scene (if it exists)
-        if (scenes.size() >= 2) {
+        if (scenes.size() >= 2) 
+        {
             SceneManager::get_instance()->pop_scene();
         }
         
@@ -117,13 +119,15 @@ void GameOverMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     main_menu_button.set_normal_sprite("images/ui/buttons/main_menu/main_menu_base_button.png");
     main_menu_button.set_hover_sprite("images/ui/buttons/main_menu/main_menu_button_on_hover.png");
     main_menu_button.set_pressed_sprite("images/ui/buttons/main_menu/main_menu_button_clicked.png");
-    main_menu_button.set_callback([this]() {
+    main_menu_button.set_callback([this]() 
+        {
         // Get all scenes
         std::vector<Scene*> scenes;
         SceneManager::get_instance()->get_all_scenes(scenes);
         
         // Save the main scene state if it exists
-        if (scenes.size() >= 2) {
+        if (scenes.size() >= 2) 
+        {
             // The main scene should be the second-to-last scene in the stack
             Scene* main_scene = scenes[scenes.size() - 2];
             
@@ -135,7 +139,8 @@ void GameOverMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
         SceneManager::get_instance()->pop_scene();
         
         // Pop the main scene (if it exists)
-        if (scenes.size() >= 2) {
+        if (scenes.size() >= 2) 
+        {
             SceneManager::get_instance()->pop_scene();
         }
         
@@ -158,13 +163,15 @@ void GameOverMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
     exit_button.set_normal_sprite("images/ui/buttons/exit/exit_base_button.png");
     exit_button.set_hover_sprite("images/ui/buttons/exit/exit_button_on_hover.png");
     exit_button.set_pressed_sprite("images/ui/buttons/exit/exit_button_clicked.png");
-    exit_button.set_callback([this]() {
+    exit_button.set_callback([this]() 
+        {
         // Get all scenes
         std::vector<Scene*> scenes;
         SceneManager::get_instance()->get_all_scenes(scenes);
         
         // Save the main scene state if it exists
-        if (scenes.size() >= 2) {
+        if (scenes.size() >= 2) 
+        {
             // The main scene should be the second-to-last scene in the stack
             Scene* main_scene = scenes[scenes.size() - 2];
             
@@ -177,17 +184,9 @@ void GameOverMenuScene::init(SDLInfo* sdl_info, IoHandler* io_handler)
         quit_event.type = SDL_EVENT_QUIT;
         SDL_PushEvent(&quit_event);
     });
-    
-    // Setup audio
-    setup_audio();
-    
+   
     // Initialize root node
     root_.init(scene_state_);
-}
-
-void GameOverMenuScene::setup_audio()
-{
-    // TODO
 }
 
 void GameOverMenuScene::initialize_textures()
@@ -212,9 +211,6 @@ void GameOverMenuScene::update(double delta)
 
     // Update scene graph - UIButton nodes will handle their own state
     root_.update(scene_state_);
-    
-    // Update FMOD system once per tick
-    cge::AudioEngine::get_instance()->update();
 }
 
 void GameOverMenuScene::destroy()
@@ -245,24 +241,19 @@ void GameOverMenuScene::deserialize(Serializer& serializer)
     // No need to deserialize the game over menu state
 }
 
+// Called when the game over menu becomes active
 void GameOverMenuScene::on_enter()
 {
-    // Called when the game over menu becomes active
-}
-
-void GameOverMenuScene::on_exit()
-{
-    // Called when the game over menu is no longer active
-}
-
-void GameOverMenuScene::on_pause()
-{
-    // Called when the game over menu is covered by another scene
-}
-
-void GameOverMenuScene::on_resume()
-{
-    // Called when the game over menu is uncovered
+    // Make sure theme music continues playing
+    bool music_enabled = ConfigManager::get_instance().get_music_enabled();
+    if (!music_enabled) 
+    {
+        AudioEngine::get_instance()->get_channel(3)->setMute(true);
+    }
+    else 
+    {
+        AudioEngine::get_instance()->get_channel(3)->setMute(false);
+    }
 }
 
 } // namespace cge

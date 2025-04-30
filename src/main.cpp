@@ -43,7 +43,8 @@ int main(int argc, char *argv[])
     cge::ConfigManager& config_manager = cge::ConfigManager::get_instance();
     if (config_manager.init("config.txt")) 
     {
-        std::cout << "Config loaded successfully\n";    }
+        std::cout << "Config loaded successfully\n";    
+    }
 
     // Generate default SDLInfo struct (contains pointers to an SDL renderer and SDL window) 
     cge::SDLInfo sdl_info;

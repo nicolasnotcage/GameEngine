@@ -84,15 +84,12 @@ public:
     bool save() override;
 
 private:
-    // Binary data buffer
-    std::vector<char> data_buffer_;
-
-    // Key: {offset, size}
-    std::unordered_map<std::string, std::pair<size_t, size_t>> data_map_;
+    std::vector<char> data_buffer_;                                         // Binary data buffer
+    std::unordered_map<std::string, std::pair<size_t, size_t>> data_map_;   // Key: {offset, size}
 
     std::string filepath_;
-    bool is_open_ = false;
-    bool is_write_mode_ = false;
+    bool is_open_{false};
+    bool is_write_mode_{false};
     bool is_little_endian_;
 
     // Helper methods for binary operations

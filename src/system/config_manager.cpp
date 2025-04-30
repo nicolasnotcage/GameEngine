@@ -19,7 +19,6 @@ ConfigManager& ConfigManager::get_instance()
     return instance;
 }
 
-// TODO: Add a destroy() method to handle this behavior
 ConfigManager::~ConfigManager()
 {
     // Save config when destroyed
@@ -42,7 +41,6 @@ bool ConfigManager::init(const std::string& config_filepath)
     else
     {
         // Use the resources directory for the config file
-        // TODO: Write to a more appropriate directory
         config_filepath_ = "../resources/" + config_filepath;
     }
 
